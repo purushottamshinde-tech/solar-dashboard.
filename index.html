@@ -243,12 +243,12 @@ td:first-child{text-align:left;font-weight:500;color:var(--navy)}
   <span style="margin-left:auto;font-size:9px;color:var(--muted);font-family:'DM Mono',monospace" id="rowInfo">—</span>
 </div>
 
-<!-- KPI STRIP — all values respond to every filter combination -->
+<!-- KPI STRIP -->
 <div class="kpi-strip" id="kpiStrip">
   <div class="kpi-item">
-    <div class="kpi-lbl">Projects</div>
+    <div class="kpi-lbl">Total Installs</div>
     <div class="kpi-val" id="kProj">—</div>
-    <div class="kpi-delta" id="kProjD">installations</div>
+    <div class="kpi-delta" id="kProjD">count of SSE IDs</div>
   </div>
   <div class="kpi-item">
     <div class="kpi-lbl">Revenue (ex-GST)</div>
@@ -299,7 +299,6 @@ td:first-child{text-align:left;font-weight:500;color:var(--navy)}
 
 <!-- MAIN CONTENT -->
 <div class="content" id="mainContent">
-  <!-- Filled by JS -->
 </div>
 
 <!-- STATUS BAR -->
@@ -317,35 +316,24 @@ td:first-child{text-align:left;font-weight:500;color:var(--navy)}
 // GOOGLE SHEETS LIVE CONFIG
 // ════════════════════════════════════════════════════
 const SHEET_ID  = '1cJJRb6REo1lHV6FXrW84cg8Poy_dRAgqlys7CCm2iok';
-
-// ✅ PRIMARY: "Publish to Web" CSV URL — no CORS issues, works from any browser
 const PUBLISHED_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTTH7R1ZquJnsZErQj1rUfX31zFn7HUVWq5QAoDMhJYVzXhW-WVvwuv1yC9DD-DKu_7TqJdfdgNudY4/pub?gid=1783359057&single=true&output=csv';
-
-// 🔄 FALLBACK 1: GitHub raw CSV (push data.csv to repo to enable)
 const GITHUB_RAW = 'https://raw.githubusercontent.com/purushottamshinde-tech/solar-dashboard/main/data.csv';
-
-// 🔄 FALLBACK 2: Direct GSheet export (often blocked by CORS — last resort)
 const SHEET_TABS = [
   { name:'Mastersheet', gid:'1783359057' },
   { name:'OMS',         gid:'0'          },
 ];
 
-// ════════════════════════════════════════════════════
-// EXACT COLUMN NAMES (after CSV normalisation)
-// Source: actual GSheet headers from Mastersheet tab
-// Normalisation: lowercase, spaces→_, brackets/dots removed, consecutive _→single
-// ════════════════════════════════════════════════════
 const COL = {
   id:      'sse_id',
   date:    'installation_completion_date',
   cell:    'cell_name',
   city:    'city',
   state:   'state',
-  kw:      'project_size_kw_',       // "Project Size (kW)" → project_size_kw_
+  kw:      'project_size_kw',
   offer:   'offer_type',
   phase:   'phase_connection',
-  revenue: 'final_revenue_excl_gst', // col S — Revenue ex-GST
-  cogs:    'ic_total',               // col U — IC_Total (installation cost)
+  revenue: 'final_revenue_excl_gst',
+  cogs:    'ic_total',
   module:  'module',
   inverter:'inverter',
   prefab:  'prefab_mms',
@@ -357,12 +345,7 @@ const COL = {
   ickit:   'ic_kit',
 };
 
-// ════════════════════════════════════════════════════
-// STATE — single source of truth
-// ALL values are derived from LIVE_ROWS when available
-// EMBEDDED is only shown during initial load / offline
-// ════════════════════════════════════════════════════
-let LIVE_ROWS    = [];   // raw normalised rows from GSheet
+let LIVE_ROWS    = [];   // ALL rows — no revenue filter applied here
 let DATA         = buildEmptyData();
 let FILTERED     = buildEmptyData();
 let CHARTS       = {};
@@ -370,10 +353,9 @@ let CURRENT_VIEW = 'overview';
 let ACTIVE_QTR   = '';
 let IS_REFRESHING= false;
 
-// Skeleton shown while loading
 function buildEmptyData() {
   return {
-    kpis:    { total_projects:0, total_revenue:0, total_cogs:0, total_gm:0,
+    kpis:    { total_installs:0, revenue_projects:0, total_revenue:0, total_cogs:0, total_gm:0,
                avg_gm_pct:0, avg_aov:0, avg_aos:0, total_kw:0, ic_cogs:0, onm_qhse:0 },
     monthly: [], quarterly: [], fy: [],
     cities:  [], states:    [], offers: [], phases: [],
@@ -391,7 +373,7 @@ const num  = v => v>=1000 ? `${(v/1000).toFixed(1)}K` : String(Math.round(v));
 const gClass = (v,hi=50,lo=42) => v>=hi?'g':v>=lo?'a':'r';
 
 // ════════════════════════════════════════════════════
-// QUARTER HELPERS  (India FY: Q1=Apr-Jun, Q2=Jul-Sep, Q3=Oct-Dec, Q4=Jan-Mar)
+// QUARTER HELPERS
 // ════════════════════════════════════════════════════
 function getQtrMonths(qtr) {
   if (qtr==='Q1') return [3,4,5];
@@ -427,27 +409,52 @@ function setQtrFilter(qtr, el) {
 }
 
 // ════════════════════════════════════════════════════
-// DATE PARSER — handles "12-Feb-2026", "2026-02-12", "12/02/2026" etc.
+// DATE PARSER
 // ════════════════════════════════════════════════════
 const MON_MAP = {jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11};
 function parseDate(v) {
   if (!v || typeof v !== 'string') return null;
   v = v.trim();
+  if (!v) return null;
+
   // "12-Feb-2026" or "12-Feb-26"
-  const m1 = v.match(/^(\d{1,2})[/-]([A-Za-z]{3})[/-](\d{2,4})$/);
+  const m1 = v.match(/^(\d{1,2})[\-\/]([A-Za-z]{3})[\-\/](\d{2,4})$/);
   if (m1) {
     const day = +m1[1], mon = MON_MAP[m1[2].toLowerCase()], yr = m1[3].length===2?2000+parseInt(m1[3]):+m1[3];
     if (mon !== undefined) return new Date(yr, mon, day);
   }
-  // "2026-02-12"
+
+  // "2026-01-31" (YYYY-MM-DD)
   const m2 = v.match(/^(\d{4})-(\d{2})-(\d{2})$/);
   if (m2) return new Date(+m2[1], +m2[2]-1, +m2[3]);
-  // "12/02/2026" (dd/mm/yyyy)
+
+  // "31/01/2026" (DD/MM/YYYY) — Indian standard
   const m3 = v.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-  if (m3) return new Date(+m3[3], +m3[2]-1, +m3[1]);
-  // Fallback
+  if (m3) {
+    const d = +m3[1], mo = +m3[2]-1, yr = +m3[3];
+    if (d >= 1 && d <= 31 && mo >= 0 && mo <= 11) return new Date(yr, mo, d);
+  }
+
+  // "01-31-2026" or "31-01-2026" (with dashes, no month name)
+  const m4 = v.match(/^(\d{1,2})-(\d{1,2})-(\d{4})$/);
+  if (m4) {
+    const a = +m4[1], b = +m4[2], yr = +m4[3];
+    // if first part > 12, must be DD-MM-YYYY
+    if (a > 12) return new Date(yr, b-1, a);
+    // else assume DD-MM-YYYY (Indian)
+    return new Date(yr, b-1, a);
+  }
+
+  // "2026/01/31" (YYYY/MM/DD)
+  const m5 = v.match(/^(\d{4})\/(\d{2})\/(\d{2})$/);
+  if (m5) return new Date(+m5[1], +m5[2]-1, +m5[3]);
+
+  // Fallback: let JS try — log failures
   const d = new Date(v);
-  return isNaN(d.getTime()) ? null : d;
+  if (!isNaN(d.getTime())) return d;
+
+  console.warn(`parseDate failed for: "${v}"`);
+  return null;
 }
 
 // ════════════════════════════════════════════════════
@@ -488,7 +495,7 @@ function parseCSVRow(line) {
 }
 
 // ════════════════════════════════════════════════════
-// COLUMN RESOLVER — exact match then fuzzy fallback
+// COLUMN RESOLVER
 // ════════════════════════════════════════════════════
 function makeResolver(allKeys) {
   return (row, exactKey, fallbacks=[]) => {
@@ -496,14 +503,15 @@ function makeResolver(allKeys) {
     for (const fb of fallbacks) {
       if (row[fb] !== undefined) return row[fb];
     }
-    // partial
     const found = allKeys.find(k => k.includes(exactKey) || exactKey.includes(k));
     return (found && row[found] !== undefined) ? row[found] : '';
   };
 }
 
 // ════════════════════════════════════════════════════
-// PROCESS LIVE CSV ROWS  →  normalised row objects
+// PROCESS LIVE CSV ROWS
+// ⚠ KEY FIX: NO revenue filter here — ALL rows kept so
+//   total_installs = true count of SSE IDs
 // ════════════════════════════════════════════════════
 function processLiveRows(rawRows) {
   if (!rawRows.length) return [];
@@ -513,8 +521,7 @@ function processLiveRows(rawRows) {
 
   console.log('GSheet columns detected:', allKeys.slice(0,25).join(' | '));
 
-  // Auto-detect revenue column
-  const revCol  = allKeys.find(k => k.includes('final_revenue_excl')) 
+  const revCol  = allKeys.find(k => k.includes('final_revenue_excl'))
                || allKeys.find(k => k.includes('revenue_excl'))
                || allKeys.find(k => k.includes('final_revenue'))
                || 'final_revenue_excl_gst';
@@ -522,13 +529,14 @@ function processLiveRows(rawRows) {
                || allKeys.find(k => k.includes('ic_total'))
                || 'ic_total';
   const kwCol   = allKeys.find(k => k.includes('project_size'))
-               || 'project_size_kw_';
+               || 'project_size_kw';
   const dateCol = allKeys.find(k => k.includes('installation_completion'))
                || allKeys.find(k => k.includes('completion_date'))
                || 'installation_completion_date';
 
   console.log(`Using: rev=${revCol}, cogs=${cogsCol}, kw=${kwCol}, date=${dateCol}`);
 
+  // ✅ FIX: Map ALL rows — no filter on revenue
   const rows = rawRows.map(r => {
     const rev  = N(r[revCol]  || R(r, COL.revenue,  ['final_revenue_excl_gst','final_revenue_excl__gst']));
     const cogs = N(r[cogsCol] || R(r, COL.cogs,     ['ic_total','total_amount']));
@@ -536,17 +544,18 @@ function processLiveRows(rawRows) {
     const date = parseDate(R(r, dateCol, ['installation_date','date']));
     const offer= (r[COL.offer] || R(r,'offer_type',['offer'])||'').trim();
     return {
-      id:      r[COL.id]    || R(r,'sse_id') || '',
-      city:    (r[COL.city] || R(r,'city')||'').trim(),
-      state:   (r[COL.state]|| R(r,'state')||'').trim(),
-      offer:   offer === 'GoodZero+' ? 'GoodZero' : offer,  // merge GoodZero+ into GoodZero
-      phase:   (r[COL.phase]|| R(r,'phase_connection',['phase'])||'').trim(),
-      revenue: rev,
-      cogs:    cogs,
-      kw:      kw,
-      gm:      rev - cogs,
-      date:    date,
-      // cost components
+      id:       r[COL.id]    || R(r,'sse_id') || '',
+      city:     (r[COL.city] || R(r,'city')||'').trim(),
+      state:    (r[COL.state]|| R(r,'state')||'').trim(),
+      offer:    offer === 'GoodZero+' ? 'GoodZero' : offer,
+      phase:    (r[COL.phase]|| R(r,'phase_connection',['phase'])||'').trim(),
+      revenue:  rev,
+      cogs:     cogs,
+      kw:       kw,
+      gm:       rev - cogs,
+      date:     date,
+      _rawDate: R(r, dateCol, ['installation_date','date']),
+      hasRevenue: rev > 0,   // flag — used for financial KPIs only
       module:   N(r['module']   || ''),
       inverter: N(r['inverter'] || ''),
       prefab:   N(r['prefab_mms']||''),
@@ -557,29 +566,43 @@ function processLiveRows(rawRows) {
       jbox:     N(r['junction_box']||''),
       ickit:    N(r['ic_kit']   || ''),
     };
-  }).filter(r => r.revenue > 0);  // only valid rows
+  });
 
-  console.log(`✅ Valid rows: ${rows.length} / ${rawRows.length}`);
-  if (!rows.length) console.warn('Sample raw:', JSON.stringify(rawRows[0]));
-  return rows;
+  // Total Installs = count of SSE IDs, no conditions
+  // Only skip blank CSV lines (no ID at all)
+  const validRows = rows.filter(r => r.id !== '');
+
+  const nullDateRows = validRows.filter(r => !r.date);
+  console.log(`Total installs (SSE ID count): ${validRows.length} / ${rawRows.length}`);
+  console.log(`With revenue > 0: ${validRows.filter(r=>r.hasRevenue).length}`);
+  if (nullDateRows.length) {
+    console.warn(`⚠ ${nullDateRows.length} rows have unparseable dates — sample:`,
+      nullDateRows.slice(0,5).map(r=>r._rawDate||r.id));
+  }
+  return validRows;
 }
 
 // ════════════════════════════════════════════════════
 // AGGREGATE ROWS  →  DATA object
-// All KPIs, city/state/offer/monthly/quarterly breakdowns
+// ✅ FIX: total_installs = COUNT of ALL rows (no revenue filter)
+//         Revenue/COGS/GM = only rows where revenue > 0
 // ════════════════════════════════════════════════════
 function aggregateRows(rows) {
   if (!rows.length) return buildEmptyData();
 
-  // Helper: group rows into a map by key, compute totals
+  // ✅ Split: all rows for install count, revenue rows for financials
+  const allRows = rows;                                 // for install count
+  const revRows = rows.filter(r => r.hasRevenue);       // for revenue/COGS/GM
+
   function agg(arr, keyFn) {
     const m = {};
     arr.forEach(r => {
       const k = keyFn(r); if (!k) return;
-      if (!m[k]) m[k] = {revenue:0, cogs:0, projects:0, kw:0, key:k};
+      if (!m[k]) m[k] = {revenue:0, cogs:0, projects:0, installs:0, kw:0, key:k};
       m[k].revenue  += r.revenue;
       m[k].cogs     += r.cogs;
-      m[k].projects += 1;
+      m[k].installs += 1;                               // all rows
+      if (r.hasRevenue) m[k].projects += 1;             // revenue rows only
       m[k].kw       += r.kw;
     });
     return m;
@@ -591,31 +614,35 @@ function aggregateRows(rows) {
       revenue:   d.revenue,
       cogs:      d.cogs,
       gm:        d.revenue - d.cogs,
-      projects:  d.projects,
+      projects:  d.installs,                            // show total installs in tables
       aov:       d.projects ? d.revenue / d.projects : 0,
-      aos:       d.projects ? d.kw      / d.projects : 0,
+      aos:       d.installs ? d.kw      / d.installs : 0,
       gm_pct:    d.revenue  ? (d.revenue - d.cogs) / d.revenue * 100 : 0,
     })).sort((a, b) => b.revenue - a.revenue);
   }
 
   // ── Totals ──
-  const totRev  = rows.reduce((s,r) => s + r.revenue, 0);
-  const totCOGS = rows.reduce((s,r) => s + r.cogs,    0);
-  const totKW   = rows.reduce((s,r) => s + r.kw,      0);
-  const totProj = rows.length;
+  const totInstalls = allRows.length;                   // ✅ ALL rows
+  const totRevProj  = revRows.length;                   // rows with revenue
+  const totRev  = revRows.reduce((s,r) => s + r.revenue, 0);
+  const totCOGS = revRows.reduce((s,r) => s + r.cogs,    0);
+  const totKW   = allRows.reduce((s,r) => s + r.kw,      0);
   const totGM   = totRev - totCOGS;
 
-  // ── Monthly ──
+  // ── Monthly ── installs by date; rows with no date are counted in totals but not charted
   const byMonth = {};
-  rows.forEach(r => {
-    if (!r.date) return;
+  allRows.forEach(r => {
+    if (!r.date) return;  // no date → counted in totals above, skipped from monthly trend only
     const y = r.date.getFullYear(), mo = r.date.getMonth();
     const lbl = r.date.toLocaleString('en',{month:'short'}) + ' ' + String(y).slice(2);
-    if (!byMonth[lbl]) byMonth[lbl] = {revenue:0,cogs:0,projects:0,kw:0,year:y,month:mo,label:lbl};
-    byMonth[lbl].revenue  += r.revenue;
-    byMonth[lbl].cogs     += r.cogs;
-    byMonth[lbl].projects += 1;
+    if (!byMonth[lbl]) byMonth[lbl] = {revenue:0,cogs:0,installs:0,projects:0,kw:0,year:y,month:mo,label:lbl};
+    byMonth[lbl].installs += 1;
     byMonth[lbl].kw       += r.kw;
+    if (r.hasRevenue) {
+      byMonth[lbl].revenue  += r.revenue;
+      byMonth[lbl].cogs     += r.cogs;
+      byMonth[lbl].projects += 1;
+    }
   });
   const monthly = Object.values(byMonth)
     .sort((a,b) => a.year!==b.year ? a.year-b.year : a.month-b.month)
@@ -623,18 +650,21 @@ function aggregateRows(rows) {
 
   // ── Quarterly ──
   const byQtr = {};
-  rows.forEach(r => {
+  allRows.forEach(r => {
     if (!r.date) return;
     const lbl = qtrLabel(r.date);
     const q   = monthToQtr(r.date.getMonth());
     const fy  = fyOfDate(r.date);
     const fyStart = r.date.getMonth()>=3 ? r.date.getFullYear() : r.date.getFullYear()-1;
     const qNum = {Q1:1,Q2:2,Q3:3,Q4:4}[q];
-    if (!byQtr[lbl]) byQtr[lbl] = {revenue:0,cogs:0,projects:0,kw:0,label:lbl,q,fy,fyStart,qNum};
-    byQtr[lbl].revenue  += r.revenue;
-    byQtr[lbl].cogs     += r.cogs;
-    byQtr[lbl].projects += 1;
+    if (!byQtr[lbl]) byQtr[lbl] = {revenue:0,cogs:0,installs:0,projects:0,kw:0,label:lbl,q,fy,fyStart,qNum};
+    byQtr[lbl].installs += 1;
     byQtr[lbl].kw       += r.kw;
+    if (r.hasRevenue) {
+      byQtr[lbl].revenue  += r.revenue;
+      byQtr[lbl].cogs     += r.cogs;
+      byQtr[lbl].projects += 1;
+    }
   });
   const quarterly = Object.values(byQtr)
     .sort((a,b) => a.fyStart!==b.fyStart ? a.fyStart-b.fyStart : a.qNum-b.qNum)
@@ -642,25 +672,28 @@ function aggregateRows(rows) {
 
   // ── FY ──
   const byFY = {};
-  rows.forEach(r => {
+  allRows.forEach(r => {
     const fy = fyOfDate(r.date); if (!fy) return;
-    if (!byFY[fy]) byFY[fy] = {fy, revenue:0, cogs:0, projects:0, kw:0};
-    byFY[fy].revenue  += r.revenue;
-    byFY[fy].cogs     += r.cogs;
-    byFY[fy].projects += 1;
+    if (!byFY[fy]) byFY[fy] = {fy, revenue:0, cogs:0, installs:0, projects:0, kw:0};
+    byFY[fy].installs += 1;
     byFY[fy].kw       += r.kw;
+    if (r.hasRevenue) {
+      byFY[fy].revenue  += r.revenue;
+      byFY[fy].cogs     += r.cogs;
+      byFY[fy].projects += 1;
+    }
   });
   const fyArr = Object.values(byFY)
     .sort((a,b) => a.fy < b.fy ? -1 : 1)
     .map(f => ({...f, gm:f.revenue-f.cogs, gm_pct:f.revenue?(f.revenue-f.cogs)/f.revenue*100:0}));
 
-  // ── Cost components (across all rows) ──
+  // ── Cost components (from revenue rows only — COGS only meaningful where revenue exists) ──
   const costItems = ['module','inverter','prefab','cables','elecbos','earthing','conduit','jbox','ickit'];
   const costNames = {module:'Module',inverter:'Inverter',prefab:'Prefab MMS',cables:'Cables',
     elecbos:'Electrical BoS',earthing:'Earthing/LA',conduit:'Conduit Pipe',jbox:'Junction Box',ickit:'IC Kit'};
   const costTotals = {};
   costItems.forEach(k => {
-    costTotals[k] = rows.reduce((s,r) => s + (r[k]||0), 0);
+    costTotals[k] = revRows.reduce((s,r) => s + (r[k]||0), 0);
   });
   const totalCostTracked = Object.values(costTotals).reduce((a,b)=>a+b,0)||1;
   const costs = costItems
@@ -669,35 +702,36 @@ function aggregateRows(rows) {
       item:  costNames[k],
       key:   k,
       total: costTotals[k],
-      avg:   Math.round(costTotals[k] / totProj),
+      avg:   Math.round(costTotals[k] / (totRevProj||1)),
       share: costTotals[k] / totalCostTracked * 100,
     }))
     .sort((a,b) => b.total - a.total);
 
   return {
     kpis: {
-      total_projects: totProj,
-      total_revenue:  totRev,
-      total_cogs:     totCOGS,
-      total_gm:       totGM,
-      avg_gm_pct:     totRev ? totGM / totRev * 100 : 0,
-      avg_aov:        totProj ? totRev  / totProj : 0,
-      avg_aos:        totProj ? totKW   / totProj : 0,
-      total_kw:       totKW,
-      ic_cogs:        totCOGS,
-      onm_qhse:       totCOGS * 0.034,
+      total_installs:  totInstalls,    // ✅ ALL SSE ID count
+      revenue_projects: totRevProj,    // rows with revenue > 0
+      total_revenue:   totRev,
+      total_cogs:      totCOGS,
+      total_gm:        totGM,
+      avg_gm_pct:      totRev ? totGM / totRev * 100 : 0,
+      avg_aov:         totRevProj ? totRev  / totRevProj : 0,
+      avg_aos:         totInstalls ? totKW  / totInstalls : 0,
+      total_kw:        totKW,
+      ic_cogs:         totCOGS,
+      onm_qhse:        totCOGS * 0.034,
     },
     monthly, quarterly, fy: fyArr,
-    cities:  mapDim(agg(rows, r=>r.city),  'city').slice(0,30),
-    states:  mapDim(agg(rows, r=>r.state), 'state'),
-    offers:  mapDim(agg(rows, r=>r.offer), 'offer'),
-    phases:  mapDim(agg(rows, r=>r.phase), 'phase'),
+    cities:  mapDim(agg(allRows, r=>r.city),  'city').slice(0,30),
+    states:  mapDim(agg(allRows, r=>r.state), 'state'),
+    offers:  mapDim(agg(allRows, r=>r.offer), 'offer'),
+    phases:  mapDim(agg(allRows, r=>r.phase), 'phase'),
     costs,
   };
 }
 
 // ════════════════════════════════════════════════════
-// FILTER ENGINE  — filters LIVE_ROWS and re-aggregates
+// FILTER ENGINE
 // ════════════════════════════════════════════════════
 function applyFilters() {
   const fFY       = document.getElementById('fFY').value;
@@ -709,30 +743,93 @@ function applyFilters() {
   const fDateTo   = document.getElementById('fDateTo').value;
   const fQtr      = ACTIVE_QTR;
 
-  const dateFrom  = fDateFrom ? new Date(fDateFrom) : null;
-  const dateTo    = fDateTo   ? new Date(fDateTo + 'T23:59:59') : null;
+  // Parse date inputs as LOCAL dates (avoid UTC midnight timezone shift)
+  // e.g. "2026-01-31" → local Jan 31 start-of-day, not UTC midnight
+  function localDate(str) {
+    const [y,m,d] = str.split('-').map(Number);
+    return new Date(y, m-1, d);          // local midnight — no timezone shift
+  }
+  const dateFrom = fDateFrom ? localDate(fDateFrom) : null;
+  const dateTo   = fDateTo   ? (() => { const d = localDate(fDateTo); d.setHours(23,59,59,999); return d; })() : null;
   const qtrMonths = getQtrMonths(fQtr);
 
-  // Apply all filters to raw rows
+  // Filter all rows — no revenue condition anywhere
   const filtered = LIVE_ROWS.filter(r => {
     if (fCity  && r.city  !== fCity)   return false;
     if (fState && r.state !== fState)  return false;
     if (fPhase && r.phase !== fPhase)  return false;
     if (fOffer && r.offer !== fOffer)  return false;
-    if (fFY && fyOfDate(r.date) !== fFY) return false;
-    if (dateFrom && r.date && r.date < dateFrom) return false;
-    if (dateTo   && r.date && r.date > dateTo)   return false;
-    if (qtrMonths && r.date && !qtrMonths.includes(r.date.getMonth())) return false;
+    if (r.date) {
+      if (fFY      && fyOfDate(r.date) !== fFY)                        return false;
+      if (dateFrom && r.date < dateFrom)                               return false;
+      if (dateTo   && r.date > dateTo)                                 return false;
+      if (qtrMonths && !qtrMonths.includes(r.date.getMonth()))         return false;
+    } else {
+      // Row has no parsed date — try raw string match for date range
+      // Keep it if no date filter active; exclude only if date filter is set
+      if (fFY || qtrMonths) return false;
+      if (dateFrom || dateTo) {
+        // Try to match raw date string — keep row rather than lose it
+        // (already logged as parseDate warning in console)
+        return true;  // include in count — don't silently drop
+      }
+    }
     return true;
   });
 
-  // Status indicators
   const active = [fFY, fState, fCity, fOffer, fPhase, fQtr,
     fDateFrom?`From ${fDateFrom}`:'', fDateTo?`To ${fDateTo}`:''].filter(Boolean);
   document.getElementById('filterStatus').textContent =
     active.length ? `Filters: ${active.join(' · ')}` : 'No filters active';
   document.getElementById('rowInfo').textContent =
-    `${filtered.length.toLocaleString()} of ${LIVE_ROWS.length.toLocaleString()} projects`;
+    `${filtered.length.toLocaleString()} of ${LIVE_ROWS.length.toLocaleString()} installs`;
+
+  // ✅ Log filter result — confirms correct version is running
+  const activeDesc = [
+    fFY?`FY:${fFY}`:'FY:All',
+    fQtr?`Q:${fQtr}`:'Q:All',
+    fState?`State:${fState}`:'State:All',
+    fCity?`City:${fCity}`:'City:All',
+    fPhase?`Phase:${fPhase}`:'Phase:All',
+    fOffer?`Offer:${fOffer}`:'',
+    fDateFrom?`From:${fDateFrom}`:'',
+    fDateTo?`To:${fDateTo}`:'',
+  ].filter(Boolean).join(' | ');
+  console.log(`✅ Filter result: ${filtered.length} / ${LIVE_ROWS.length} installs | ${activeDesc}`);
+
+  // 🔍 DIAGNOSTIC: when date range is active, show exactly which rows are excluded
+  if (dateFrom && dateTo) {
+    const excluded = LIVE_ROWS.filter(r => {
+      // passes all non-date filters
+      if (fCity  && r.city  !== fCity)  return false;
+      if (fState && r.state !== fState) return false;
+      if (fPhase && r.phase !== fPhase) return false;
+      if (fOffer && r.offer !== fOffer) return false;
+      // has a date — but date falls OUTSIDE range
+      if (r.date && (r.date < dateFrom || r.date > dateTo)) return true;
+      return false;
+    });
+    // Among excluded, find ones whose RAW date string contains the target month
+    const targetYear  = fDateFrom.slice(0,4);   // "2026"
+    const targetMonth = fDateFrom.slice(5,7);   // "01"
+    const suspicious = excluded.filter(r =>
+      r._rawDate && (r._rawDate.includes(`-${targetMonth}-${targetYear}`) ||
+                     r._rawDate.includes(`/${targetMonth}/${targetYear}`) ||
+                     r._rawDate.includes(`${targetYear}-${targetMonth}`))
+    );
+    if (suspicious.length) {
+      console.warn(`⚠ ${suspicious.length} rows have Jan'26 in raw date but parsed to wrong date:`);
+      suspicious.slice(0,10).forEach(r =>
+        console.warn(`  ID:${r.id}  raw:"${r._rawDate}"  parsed:${r.date}`)
+      );
+    }
+    // Also log any rows with no parsed date at all
+    const nullDates = LIVE_ROWS.filter(r => !r.date);
+    if (nullDates.length) {
+      console.warn(`⚠ ${nullDates.length} rows with null date:`,
+        nullDates.slice(0,5).map(r => ({id:r.id, raw:r._rawDate})));
+    }
+  }
 
   if (!filtered.length) {
     document.getElementById('statusTxt').textContent = '⚠ No data matches this filter combination';
@@ -753,12 +850,12 @@ function clearAllFilters() {
   if (allPill) allPill.classList.add('active');
   FILTERED = aggregateRows(LIVE_ROWS);
   document.getElementById('filterStatus').textContent = 'No filters active';
-  document.getElementById('rowInfo').textContent = `${LIVE_ROWS.length.toLocaleString()} projects`;
+  document.getElementById('rowInfo').textContent = `${LIVE_ROWS.length.toLocaleString()} installs`;
   renderAll();
 }
 
 // ════════════════════════════════════════════════════
-// POPULATE FILTER DROPDOWNS  from live data
+// POPULATE FILTER DROPDOWNS
 // ════════════════════════════════════════════════════
 function populateFilters() {
   const states = [...new Set(LIVE_ROWS.map(r=>r.state).filter(Boolean))].sort();
@@ -780,14 +877,14 @@ function populateFilters() {
 function renderKPIs() {
   const k = FILTERED.kpis;
   const totKW = k.total_kw || 0;
-  // Per Watt = value ÷ (kW × 1000)  [since 1 kW = 1000 W]
   const gmPerWatt   = totKW > 0 ? k.total_gm   / (totKW * 1000) : 0;
   const cogsPerWatt = totKW > 0 ? k.total_cogs / (totKW * 1000) : 0;
 
   const s  = (id, v)    => { const el=document.getElementById(id); if(el) el.textContent=v; };
   const sc = (id, v, c) => { const el=document.getElementById(id); if(el){el.textContent=v; if(c!==undefined) el.className='kpi-delta '+c;} };
 
-  s('kProj',      k.total_projects.toLocaleString());
+  // ✅ Projects KPI = total installs (all SSE IDs)
+  s('kProj',      k.total_installs.toLocaleString());
   s('kRev',       cr2(k.total_revenue));
   s('kCOGS',      cr2(k.total_cogs));
   s('kGM',        cr2(k.total_gm));
@@ -801,9 +898,13 @@ function renderKPIs() {
   if (gmEl) { gmEl.textContent = pct(k.avg_gm_pct); gmEl.className = 'kpi-val ' + gClass(k.avg_gm_pct); }
 
   sc('kGMpctD', (k.avg_gm_pct>=48?'↑ above ':'↓ below ')+'48% target', k.avg_gm_pct>=48?'up':'down');
-  sc('kProjD',  k.total_projects ? 'total installations' : 'no data');
 
-  // Dynamic labels
+  // ✅ Show install count context
+  const revNote = k.revenue_projects < k.total_installs
+    ? `${k.revenue_projects.toLocaleString()} w/ revenue`
+    : 'total installs';
+  sc('kProjD', revNote);
+
   const fCity=document.getElementById('fCity').value, fState=document.getElementById('fState').value;
   const ctx = [fCity||fState, document.getElementById('fOffer').value,
                document.getElementById('fPhase').value, document.getElementById('fFY').value,
@@ -812,8 +913,8 @@ function renderKPIs() {
   sc('kRevD',       ctx==='All'?'ex-GST':ctx);
   sc('kCOGSD',      'IC_Total (installation cost)');
   sc('kGMD',        'Revenue − IC_Total');
-  sc('kAOVD',       ctx==='All'?'avg per project':ctx);
-  sc('kAOSD',       ctx==='All'?'avg system size':ctx);
+  sc('kAOVD',       ctx==='All'?'avg per project w/ revenue':ctx);
+  sc('kAOSD',       ctx==='All'?'avg system size (all installs)':ctx);
   sc('kGMperKWD',   '₹ per Watt installed');
   sc('kCOGSperKWD', 'IC cost per Watt');
 }
@@ -881,7 +982,7 @@ function renderOverview() {
         <table id="stateTable">
           <thead><tr>
             <th>#</th><th style="text-align:left">State</th>
-            <th>Projects</th><th>Revenue (ex-GST)</th><th>COGS (IC Total)</th>
+            <th>Installs</th><th>Revenue (ex-GST)</th><th>COGS (IC Total)</th>
             <th>Gross Margin ₹</th><th>GM %</th><th>Avg AOV</th><th>Avg AOS</th><th>Rev Share</th>
           </tr></thead>
           <tbody id="stateBody"></tbody>
@@ -1028,7 +1129,7 @@ function renderCityView() {
     <div class="table-section">
       <div class="tbl-header">
         <div class="tbl-title">City-wise Breakdown
-          <span style="font-size:9px;color:var(--muted);font-weight:400;font-family:'DM Mono',monospace">${d.cities.length} cities · Projects = count of SSE IDs</span>
+          <span style="font-size:9px;color:var(--muted);font-weight:400;font-family:'DM Mono',monospace">${d.cities.length} cities · Installs = count of all SSE IDs</span>
         </div>
         <div class="tbl-tabs">
           <div class="tbl-tab active" onclick="sortCityTable('revenue',this)">Revenue</div>
@@ -1040,7 +1141,7 @@ function renderCityView() {
       <div class="tbl-wrap">
         <table><thead><tr>
           <th>#</th><th style="text-align:left">City</th><th style="text-align:left">State</th>
-          <th>Projects (SSE IDs)</th><th>Revenue (ex-GST)</th><th>COGS (IC Total)</th>
+          <th>Installs (All SSE IDs)</th><th>Revenue (ex-GST)</th><th>COGS (IC Total)</th>
           <th>GM ₹</th><th>GM %</th><th>Avg AOV</th><th>Avg AOS</th>
         </tr></thead><tbody id="cityBody"></tbody></table>
       </div>
@@ -1089,10 +1190,8 @@ function sortCityTable(col,el) {
   buildCityTable(col);
 }
 
-// Build city table — also show state column
 function buildCityTable(sortCol) {
   const cities = [...FILTERED.cities].sort((a,b)=>b[sortCol]-a[sortCol]);
-  // Build a city→state map from live rows
   const c2s = {};
   LIVE_ROWS.forEach(r => { if(r.city && r.state) c2s[r.city] = r.state; });
   document.getElementById('cityBody').innerHTML = cities.map((c,i) => `<tr>
@@ -1129,7 +1228,7 @@ function renderProductView() {
       <div class="tbl-wrap">
         <table><thead><tr>
           <th>#</th><th style="text-align:left">Product</th>
-          <th>Projects</th><th>Revenue (ex-GST)</th><th>COGS (IC Total)</th>
+          <th>Installs</th><th>Revenue (ex-GST)</th><th>COGS (IC Total)</th>
           <th>GM ₹</th><th>GM %</th><th>Avg AOV</th><th>Avg AOS</th><th>Market Share</th>
         </tr></thead><tbody id="prodBody"></tbody></table>
       </div>
@@ -1138,15 +1237,16 @@ function renderProductView() {
 }
 
 function buildMatrix() {
-  // Build city×product AOV matrix from live rows
   const cityMap = {};
   LIVE_ROWS.forEach(r => {
     const filt = FILTERED.cities.find(c=>c.city===r.city);
-    if (!filt) return; // only cities in current filter
+    if (!filt) return;
     if (!cityMap[r.city]) cityMap[r.city] = {};
     if (!cityMap[r.city][r.offer]) cityMap[r.city][r.offer] = {rev:0,n:0};
-    cityMap[r.city][r.offer].rev += r.revenue;
-    cityMap[r.city][r.offer].n   += 1;
+    if (r.hasRevenue) {
+      cityMap[r.city][r.offer].rev += r.revenue;
+      cityMap[r.city][r.offer].n   += 1;
+    }
   });
   const cities   = FILTERED.cities.slice(0,15).map(c=>c.city);
   const products = [...new Set(LIVE_ROWS.map(r=>r.offer).filter(Boolean))].sort();
@@ -1210,13 +1310,12 @@ function buildProdTable() {
 }
 
 // ════════════════════════════════════════════════════
-// COST BREAKDOWN / ANALYSIS VIEW
+// COST BREAKDOWN VIEW
 // ════════════════════════════════════════════════════
 function renderCostsView() {
   const costs   = FILTERED.costs;
   const monthly = FILTERED.monthly;
 
-  // MoM last 6 months insight
   let insightHtml = '';
   if (monthly.length >= 2) {
     const lat  = monthly[monthly.length-1];
@@ -1328,7 +1427,6 @@ function buildCostTable(sortCol, costs) {
 
   document.getElementById('costBody').innerHTML = sorted.map((c,i) => {
     const cogsShare = c.total/totalCOGS*100;
-    // Sparkbar (static based on share — dynamic when cost cols available)
     const spark = `<div style="display:flex;gap:2px;align-items:flex-end">
       ${[0.7,0.8,0.9,1.0].map(f=>`<div style="width:8px;height:${Math.round(f*18)+2}px;background:${f===1.0?'var(--blue)':'var(--border2)'};border-radius:1px"></div>`).join('')}
     </div>`;
@@ -1345,7 +1443,7 @@ function buildCostTable(sortCol, costs) {
 }
 
 // ════════════════════════════════════════════════════
-// LIVE REFRESH — GSheet → Dashboard
+// LIVE REFRESH
 // ════════════════════════════════════════════════════
 function setRefreshUI(state, msg) {
   const btn = document.getElementById('btnRefresh');
@@ -1365,7 +1463,7 @@ async function refreshFromSheet() {
 
   let rawRows = [], sourceLabel = '', lastErr = '';
 
-  // ── SOURCE 1: Published CSV (primary — no CORS) ──────────────────────────
+  // SOURCE 1: Published CSV
   try {
     setRefreshUI('loading', '🔄 Fetching from Published Google Sheet…');
     const res = await fetch(PUBLISHED_CSV + '&t=' + Date.now(), {cache:'no-store'});
@@ -1387,7 +1485,7 @@ async function refreshFromSheet() {
     }
   } catch(e) { lastErr = 'Published CSV: ' + e.message; }
 
-  // ── SOURCE 2: GitHub raw CSV (fallback) ──────────────────────────────────
+  // SOURCE 2: GitHub raw CSV
   if (!rawRows.length) {
     try {
       setRefreshUI('loading', '🔄 Trying GitHub repository…');
@@ -1403,7 +1501,7 @@ async function refreshFromSheet() {
     } catch(e) { lastErr = 'GitHub: ' + e.message; }
   }
 
-  // ── SOURCE 3: Direct GSheet export (often CORS-blocked, last resort) ─────
+  // SOURCE 3: Direct GSheet export
   if (!rawRows.length) {
     for (const tab of SHEET_TABS) {
       if (rawRows.length) break;
@@ -1444,13 +1542,12 @@ async function refreshFromSheet() {
     FILTERED = aggregateRows(LIVE_ROWS);
 
     populateFilters();
-    // Reset filter UI
     ['fFY','fState','fCity','fOffer','fPhase','fDateFrom','fDateTo'].forEach(id=>{document.getElementById(id).value='';});
     ACTIVE_QTR='';
     document.querySelectorAll('.qtr-pill').forEach(p=>p.classList.remove('active'));
     const allPill=document.querySelector('.qtr-pill[data-qtr=""]'); if(allPill) allPill.classList.add('active');
     document.getElementById('filterStatus').textContent='No filters active';
-    document.getElementById('rowInfo').textContent=`${LIVE_ROWS.length.toLocaleString()} projects`;
+    document.getElementById('rowInfo').textContent=`${LIVE_ROWS.length.toLocaleString()} installs`;
 
     const k = DATA.kpis;
     const t = new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
@@ -1459,7 +1556,8 @@ async function refreshFromSheet() {
     if (srcEl) srcEl.textContent = `Solar Square · B2C GM · ${sourceLabel} · ${rawRows.length.toLocaleString()} rows`;
     setRefreshUI('live',
       `✅ Live "${sourceLabel}" · ${rawRows.length.toLocaleString()} rows · ` +
-      `${k.total_projects.toLocaleString()} projects · ₹${(k.total_revenue/1e7).toFixed(2)} Cr rev · ` +
+      `${k.total_installs.toLocaleString()} installs (${k.revenue_projects.toLocaleString()} w/ revenue) · ` +
+      `₹${(k.total_revenue/1e7).toFixed(2)} Cr rev · ` +
       `COGS ₹${(k.total_cogs/1e7).toFixed(2)} Cr · GM ${k.avg_gm_pct.toFixed(1)}%`);
     renderAll();
   } catch(e) {
@@ -1470,7 +1568,7 @@ async function refreshFromSheet() {
 }
 
 // ════════════════════════════════════════════════════
-// INIT — show empty state then auto-refresh
+// INIT
 // ════════════════════════════════════════════════════
 document.getElementById('lastUpdated').textContent = 'Loading live data…';
 document.getElementById('statusTxt').textContent   = '⏳ Fetching live data from GSheet / GitHub…';
