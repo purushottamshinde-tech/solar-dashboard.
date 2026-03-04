@@ -305,206 +305,400 @@ td:first-child{text-align:left;font-weight:500;color:var(--navy)}
 <!-- STATUS BAR -->
 <div class="statusbar">
   <span class="stxt"><span class="live-dot" style="display:inline-block;margin-right:4px"></span><span id="statusTxt">Initializing…</span></span>
-  <span class="stxt">Solar Square · B2C GM Analytics · Live + Snapshot Mode</span>
+  <span class="stxt" id="dataSourceLbl">Solar Square · B2C GM Analytics · Loading…</span>
   <span class="stxt" id="filterStatus">No filters active</span>
 </div>
 
 </div>
 
 <script>
-// ════════════════════════════════════════════════════
-// EMBEDDED REAL DATA (from your Excel file)
-// ════════════════════════════════════════════════════
-const EMBEDDED = {"kpis":{"total_projects":35236,"total_revenue":7913200000,"total_cogs":4203700000,"avg_aov":269000,"avg_aos":4.11,"total_kw":144920,"avg_gm_pct":46.88,"total_gm":3709500000,"ic_cogs":4203700000,"onm_qhse":142925800},"monthly":[{"label":"Jul 24","revenue":1721000000,"cogs":943000000,"projects":623,"gm_pct":45.2,"year":2024,"month":6},{"label":"Aug 24","revenue":1979000000,"cogs":1074000000,"projects":689,"gm_pct":45.7,"year":2024,"month":7},{"label":"Sep 24","revenue":1987000000,"cogs":1067000000,"projects":706,"gm_pct":46.3,"year":2024,"month":8},{"label":"Oct 24","revenue":2139000000,"cogs":1147000000,"projects":725,"gm_pct":46.4,"year":2024,"month":9},{"label":"Nov 24","revenue":2190000000,"cogs":1162000000,"projects":765,"gm_pct":46.9,"year":2024,"month":10},{"label":"Dec 24","revenue":2432000000,"cogs":1287000000,"projects":851,"gm_pct":47.1,"year":2024,"month":11},{"label":"Jan 25","revenue":2756000000,"cogs":1488000000,"projects":952,"gm_pct":46.0,"year":2025,"month":0},{"label":"Feb 25","revenue":2940000000,"cogs":1580000000,"projects":1032,"gm_pct":46.2,"year":2025,"month":1},{"label":"Mar 25","revenue":3292000000,"cogs":1807000000,"projects":1152,"gm_pct":45.1,"year":2025,"month":2},{"label":"Apr 25","revenue":3286000000,"cogs":1785000000,"projects":1189,"gm_pct":45.7,"year":2025,"month":3},{"label":"May 25","revenue":3407000000,"cogs":1806000000,"projects":1233,"gm_pct":47.0,"year":2025,"month":4},{"label":"Jun 25","revenue":3513000000,"cogs":1844000000,"projects":1285,"gm_pct":47.5,"year":2025,"month":5},{"label":"Jul 25","revenue":3942000000,"cogs":2074000000,"projects":1437,"gm_pct":47.4,"year":2025,"month":6},{"label":"Aug 25","revenue":4250000000,"cogs":2241000000,"projects":1509,"gm_pct":47.3,"year":2025,"month":7},{"label":"Sep 25","revenue":3984000000,"cogs":2210000000,"projects":1485,"gm_pct":44.5,"year":2025,"month":8},{"label":"Oct 25","revenue":3912000000,"cogs":2164000000,"projects":1488,"gm_pct":44.7,"year":2025,"month":9},{"label":"Nov 25","revenue":4806000000,"cogs":2648000000,"projects":1859,"gm_pct":44.9,"year":2025,"month":10},{"label":"Dec 25","revenue":4804000000,"cogs":2669000000,"projects":1875,"gm_pct":44.4,"year":2025,"month":11},{"label":"Jan 26","revenue":5359000000,"cogs":3019000000,"projects":2087,"gm_pct":43.7,"year":2026,"month":0},{"label":"Feb 26","revenue":1802000000,"cogs":1011000000,"projects":701,"gm_pct":43.9,"year":2026,"month":1}],"cities":[{"city":"Nagpur","revenue":15265000000,"cogs":8198000000,"projects":5913,"aov":258165,"aos":4.01,"gm_pct":46.3},{"city":"Pune","revenue":10646000000,"cogs":5685000000,"projects":4062,"aov":262000,"aos":3.95,"gm_pct":46.6},{"city":"Bhopal","revenue":6423000000,"cogs":3158000000,"projects":2425,"aov":264700,"aos":4.05,"gm_pct":50.8},{"city":"Lucknow","revenue":5828000000,"cogs":3311000000,"projects":2129,"aov":273800,"aos":4.27,"gm_pct":43.2},{"city":"Jabalpur","revenue":5777000000,"cogs":3019000000,"projects":2176,"aov":265400,"aos":3.88,"gm_pct":47.7},{"city":"Indore","revenue":4886000000,"cogs":2446000000,"projects":1757,"aov":278100,"aos":4.28,"gm_pct":49.9},{"city":"Bengaluru","revenue":4275000000,"cogs":2167000000,"projects":1396,"aov":306200,"aos":4.02,"gm_pct":49.3},{"city":"Nashik","revenue":3727000000,"cogs":1886000000,"projects":1585,"aov":235100,"aos":3.59,"gm_pct":49.4},{"city":"Hyderabad","revenue":3561000000,"cogs":1916000000,"projects":1429,"aov":249200,"aos":3.97,"gm_pct":46.2},{"city":"Gwalior","revenue":2992000000,"cogs":1517000000,"projects":1034,"aov":289300,"aos":4.45,"gm_pct":49.3},{"city":"Delhi NCR","revenue":2649000000,"cogs":1494000000,"projects":788,"aov":336000,"aos":5.14,"gm_pct":43.6},{"city":"Ahmedabad","revenue":2417000000,"cogs":1378000000,"projects":1005,"aov":240500,"aos":4.19,"gm_pct":43.0},{"city":"Aurangabad","revenue":2242000000,"cogs":1188000000,"projects":891,"aov":251600,"aos":3.77,"gm_pct":47.0},{"city":"Jaipur","revenue":1998000000,"cogs":1114000000,"projects":631,"aov":316600,"aos":4.88,"gm_pct":44.3},{"city":"Chennai","revenue":1501000000,"cogs":822000000,"projects":495,"aov":303200,"aos":4.53,"gm_pct":45.2},{"city":"Ghaziabad","revenue":1449000000,"cogs":791000000,"projects":463,"aov":312800,"aos":4.70,"gm_pct":45.5},{"city":"Gurgaon","revenue":1293000000,"cogs":711000000,"projects":333,"aov":388300,"aos":6.33,"gm_pct":45.0},{"city":"Surat","revenue":962000000,"cogs":559000000,"projects":409,"aov":235200,"aos":4.05,"gm_pct":41.9},{"city":"Kolhapur","revenue":833000000,"cogs":430000000,"projects":356,"aov":234000,"aos":3.46,"gm_pct":48.4},{"city":"Ajmer","revenue":194000000,"cogs":126000000,"projects":78,"aov":248700,"aos":4.79,"gm_pct":34.9}],"states":[{"state":"Madhya Pradesh","revenue":20078000000,"cogs":10139000000,"projects":7392,"aov":271600,"gm_pct":49.5},{"state":"MH East","revenue":17602000000,"cogs":9438000000,"projects":6841,"aov":257300,"gm_pct":46.4},{"state":"MH West","revenue":15206000000,"cogs":7994000000,"projects":6003,"aov":253300,"gm_pct":47.4},{"state":"Uttar Pradesh","revenue":5828000000,"cogs":3311000000,"projects":2129,"aov":273800,"gm_pct":43.2},{"state":"Delhi","revenue":5392000000,"cogs":2999000000,"projects":1584,"aov":340400,"gm_pct":44.4},{"state":"Karnataka","revenue":4275000000,"cogs":2167000000,"projects":1396,"aov":306200,"gm_pct":49.3},{"state":"Telangana","revenue":3570000000,"cogs":1922000000,"projects":1434,"aov":248900,"gm_pct":46.1},{"state":"Gujrat","revenue":3482000000,"cogs":1996000000,"projects":1471,"aov":236700,"gm_pct":42.7},{"state":"Rajasthan","revenue":2192000000,"cogs":1241000000,"projects":709,"aov":309200,"gm_pct":43.4},{"state":"Tamil Nadu","revenue":1501000000,"cogs":822000000,"projects":495,"aov":303200,"gm_pct":45.2}],"offers":[{"offer":"GoodZero","revenue":5350900000,"cogs":2888200000,"projects":19221,"aov":278400,"aos":4.21,"gm_pct":46.0},{"offer":"Unbranded","revenue":932400000,"cogs":392300000,"projects":3863,"aov":241300,"aos":3.99,"gm_pct":57.9},{"offer":"SSE Blue","revenue":820800000,"cogs":462800000,"projects":3433,"aov":239200,"aos":3.73,"gm_pct":43.6},{"offer":"Regular","revenue":574700000,"cogs":328500000,"projects":2025,"aov":283900,"aos":4.20,"gm_pct":42.8},{"offer":"GoodZero Pro","revenue":188200000,"cogs":101600000,"projects":694,"aov":271300,"aos":3.99,"gm_pct":46.1},{"offer":"GoodZero Uno","revenue":44900000,"cogs":25700000,"projects":216,"aov":207900,"aos":3.20,"gm_pct":42.8}],"fy":[{"fy":"FY 22-23","revenue":2087000000,"cogs":25000000,"projects":1021,"gm_pct":98.8},{"fy":"FY 23-24","revenue":8329000000,"cogs":4773000000,"projects":3197,"gm_pct":42.7},{"fy":"FY 24-25","revenue":25366000000,"cogs":13794000000,"projects":8932,"gm_pct":45.7},{"fy":"FY 25-26","revenue":43064000000,"cogs":23404000000,"projects":16148,"gm_pct":45.5}],"costs":[{"item":"Module","total":25003000000,"avg":70959,"share":60.3},{"item":"Inverter","total":6928000000,"avg":19661,"share":16.7},{"item":"Prefab MMS","total":5195000000,"avg":14744,"share":12.5},{"item":"Cables","total":2381000000,"avg":6756,"share":5.7},{"item":"IC Kit","total":487000000,"avg":1383,"share":1.2},{"item":"Conduit Pipe","total":482000000,"avg":1368,"share":1.2},{"item":"Earthing LA","total":471000000,"avg":1335,"share":1.1},{"item":"Junction Box","total":421000000,"avg":1194,"share":1.0}],"matrix":{"cities":["Nagpur","Pune","Bhopal","Jabalpur","Indore","Lucknow","Bengaluru","Nashik","Hyderabad","Gwalior","Delhi NCR","Ahmedabad","Aurangabad","Jaipur","Chennai"],"products":["GoodZero","GoodZero Pro","GoodZero Uno","Regular","SSE Blue"],"data":{"Nagpur":{"GoodZero":265239,"GoodZero Pro":257566,"GoodZero Uno":208151,"Regular":245638,"SSE Blue":234446},"Pune":{"GoodZero":270909,"GoodZero Pro":257298,"GoodZero Uno":208856,"Regular":271783,"SSE Blue":241806},"Bhopal":{"GoodZero":274734,"GoodZero Pro":293174,"GoodZero Uno":219406,"Regular":289033,"SSE Blue":239230},"Jabalpur":{"GoodZero":268283,"GoodZero Pro":256475,"GoodZero Uno":207677,"Regular":268177,"SSE Blue":246330},"Indore":{"GoodZero":291149,"GoodZero Pro":299786,"GoodZero Uno":213594,"Regular":277202,"SSE Blue":323297},"Lucknow":{"GoodZero":286136,"GoodZero Pro":326236,"GoodZero Uno":205102,"Regular":274695,"SSE Blue":240874},"Bengaluru":{"GoodZero":299609,"GoodZero Pro":298114,"Regular":304697,"SSE Blue":341615},"Nashik":{"GoodZero":248981,"GoodZero Pro":241381,"GoodZero Uno":206886,"SSE Blue":224218},"Hyderabad":{"GoodZero":265911,"GoodZero Pro":279661,"GoodZero Uno":208922,"Regular":274353,"SSE Blue":252028},"Gwalior":{"GoodZero":292710,"GoodZero Pro":337313,"Regular":307161,"SSE Blue":259919},"Delhi NCR":{"GoodZero":337261,"GoodZero Pro":325812,"Regular":352400,"SSE Blue":253529},"Ahmedabad":{"GoodZero":280378,"GoodZero Uno":197717,"Regular":252166,"SSE Blue":217411},"Aurangabad":{"GoodZero":255037,"GoodZero Pro":224977,"GoodZero Uno":208325,"SSE Blue":235848},"Jaipur":{"GoodZero":321652,"GoodZero Pro":351424,"GoodZero Uno":225464,"Regular":302294,"SSE Blue":251206},"Chennai":{"GoodZero":302087,"GoodZero Pro":315834,"SSE Blue":311048}}}};
 
 // ════════════════════════════════════════════════════
 // GOOGLE SHEETS LIVE CONFIG
 // ════════════════════════════════════════════════════
 const SHEET_ID  = '1cJJRb6REo1lHV6FXrW84cg8Poy_dRAgqlys7CCm2iok';
 
-// ── EXACT COLUMN NAMES from your Mastersheet (verified from xlsx) ──────────
-// After CSV normalisation: lowercase, spaces→underscore, brackets removed
-const COL_EXACT = {
-  date:    'installation_completion_date',   // col B
-  city:    'city',                           // col D
-  state:   'state',                          // col E
-  kw:      'project_size_kw_',              // col F  "Project Size (kW)"
-  offer:   'offer_type',                    // col G
-  phase:   'phase_connection',              // col H
-  revenue: 'final_revenue_excl_gst',        // col S  "Final Revenue Excl. GST"
-  cogs:    'ic_total',                      // col U
-  module:  'module',                        // col AA
-  inv:     'inverter',                      // col AG
-  prefab:  'prefab_mms',                    // col AC
-  cables:  'cables',                        // col AD
-};
+// ✅ PRIMARY: "Publish to Web" CSV URL — no CORS issues, works from any browser
+const PUBLISHED_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTTH7R1ZquJnsZErQj1rUfX31zFn7HUVWq5QAoDMhJYVzXhW-WVvwuv1yC9DD-DKu_7TqJdfdgNudY4/pub?gid=1783359057&single=true&output=csv';
 
-// GitHub repository for CORS-free CSV export
+// 🔄 FALLBACK 1: GitHub raw CSV (push data.csv to repo to enable)
 const GITHUB_RAW = 'https://raw.githubusercontent.com/purushottamshinde-tech/solar-dashboard/main/data.csv';
 
-// All sheet tabs to try
+// 🔄 FALLBACK 2: Direct GSheet export (often blocked by CORS — last resort)
 const SHEET_TABS = [
   { name:'Mastersheet', gid:'1783359057' },
   { name:'OMS',         gid:'0'          },
 ];
 
 // ════════════════════════════════════════════════════
-// STATE
+// EXACT COLUMN NAMES (after CSV normalisation)
+// Source: actual GSheet headers from Mastersheet tab
+// Normalisation: lowercase, spaces→_, brackets/dots removed, consecutive _→single
 // ════════════════════════════════════════════════════
-let DATA = JSON.parse(JSON.stringify(EMBEDDED));
-let FILTERED_DATA = JSON.parse(JSON.stringify(EMBEDDED));
-let LIVE_ROWS = [];   // raw parsed rows from GSheet — enables per-row filter recalc
-let CHARTS = {};
-let CURRENT_VIEW = 'overview';
-let ACTIVE_FILTERS = {};
-let ACTIVE_QTR = '';   // Q1/Q2/Q3/Q4 or ''
+const COL = {
+  id:      'sse_id',
+  date:    'installation_completion_date',
+  cell:    'cell_name',
+  city:    'city',
+  state:   'state',
+  kw:      'project_size_kw_',       // "Project Size (kW)" → project_size_kw_
+  offer:   'offer_type',
+  phase:   'phase_connection',
+  revenue: 'final_revenue_excl_gst', // col S — Revenue ex-GST
+  cogs:    'ic_total',               // col U — IC_Total (installation cost)
+  module:  'module',
+  inverter:'inverter',
+  prefab:  'prefab_mms',
+  cables:  'cables',
+  elecbos: 'electrical_bos',
+  earthing:'earthing_la',
+  conduit: 'conduit_pipe',
+  jbox:    'junction_box',
+  ickit:   'ic_kit',
+};
 
-function setQtrFilter(qtr, el) {
-  ACTIVE_QTR = qtr;
-  document.querySelectorAll('.qtr-pill').forEach(p=>p.classList.remove('active'));
-  el.classList.add('active');
-  applyFilters();
+// ════════════════════════════════════════════════════
+// STATE — single source of truth
+// ALL values are derived from LIVE_ROWS when available
+// EMBEDDED is only shown during initial load / offline
+// ════════════════════════════════════════════════════
+let LIVE_ROWS    = [];   // raw normalised rows from GSheet
+let DATA         = buildEmptyData();
+let FILTERED     = buildEmptyData();
+let CHARTS       = {};
+let CURRENT_VIEW = 'overview';
+let ACTIVE_QTR   = '';
+let IS_REFRESHING= false;
+
+// Skeleton shown while loading
+function buildEmptyData() {
+  return {
+    kpis:    { total_projects:0, total_revenue:0, total_cogs:0, total_gm:0,
+               avg_gm_pct:0, avg_aov:0, avg_aos:0, total_kw:0, ic_cogs:0, onm_qhse:0 },
+    monthly: [], quarterly: [], fy: [],
+    cities:  [], states:    [], offers: [], phases: [],
+    costs:   [],
+  };
 }
 
+// ════════════════════════════════════════════════════
+// FORMAT HELPERS
+// ════════════════════════════════════════════════════
+const cr2  = v => `₹${(v/1e7).toFixed(2)} Cr`;
+const lakh = v => `₹${(v/1e5).toFixed(2)} L`;
+const pct  = v => `${v.toFixed(1)}%`;
+const num  = v => v>=1000 ? `${(v/1000).toFixed(1)}K` : String(Math.round(v));
+const gClass = (v,hi=50,lo=42) => v>=hi?'g':v>=lo?'a':'r';
+
+// ════════════════════════════════════════════════════
+// QUARTER HELPERS  (India FY: Q1=Apr-Jun, Q2=Jul-Sep, Q3=Oct-Dec, Q4=Jan-Mar)
+// ════════════════════════════════════════════════════
 function getQtrMonths(qtr) {
-  // India FY: Q1=Apr-Jun(3-5), Q2=Jul-Sep(6-8), Q3=Oct-Dec(9-11), Q4=Jan-Mar(0-2)
   if (qtr==='Q1') return [3,4,5];
   if (qtr==='Q2') return [6,7,8];
   if (qtr==='Q3') return [9,10,11];
   if (qtr==='Q4') return [0,1,2];
   return null;
 }
-
-function getQtrLabel(month) {
-  if ([3,4,5].includes(month)) return 'Q1';
-  if ([6,7,8].includes(month)) return 'Q2';
-  if ([9,10,11].includes(month)) return 'Q3';
+function monthToQtr(m) {
+  if ([3,4,5].includes(m))  return 'Q1';
+  if ([6,7,8].includes(m))  return 'Q2';
+  if ([9,10,11].includes(m))return 'Q3';
   return 'Q4';
+}
+function fyOfDate(d) {
+  if (!d) return null;
+  const m = d.getMonth(), y = d.getFullYear();
+  const fyStart = m >= 3 ? y : y - 1;
+  return `FY ${String(fyStart).slice(2)}-${String(fyStart+1).slice(2)}`;
+}
+function qtrLabel(d) {
+  if (!d) return null;
+  const q = monthToQtr(d.getMonth());
+  const fy = fyOfDate(d);
+  return `${q} ${fy}`;
+}
+
+function setQtrFilter(qtr, el) {
+  ACTIVE_QTR = qtr;
+  document.querySelectorAll('.qtr-pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  applyFilters();
 }
 
 // ════════════════════════════════════════════════════
-// FORMAT HELPERS
+// DATE PARSER — handles "12-Feb-2026", "2026-02-12", "12/02/2026" etc.
 // ════════════════════════════════════════════════════
-const cr  = v => v>=1e7 ? `₹${(v/1e7).toFixed(2)} Cr` : v>=1e5 ? `₹${(v/1e5).toFixed(1)} L` : `₹${v.toLocaleString()}`;
-const cr2 = v => `₹${(v/1e7).toFixed(2)} Cr`;
-const lakh= v => `₹${(v/1e5).toFixed(2)} L`;
-const pct = v => `${v.toFixed(1)}%`;
-const num = v => v>=1000 ? `${(v/1000).toFixed(1)}K` : v.toString();
-const gClass = (v,hi=50,lo=42) => v>=hi?'g':v>=lo?'a':'r';
-
-// ════════════════════════════════════════════════════
-// POPULATE FILTERS
-// ════════════════════════════════════════════════════
-// ── Raw-row filter recalc (used when live GSheet data available) ───────
-function applyFiltersFromRows(fFY, fState, fCity, fOffer, fPhase, fDateFrom, fDateTo, fQtr) {
-  const fyOf = d => {
-    if (!d) return null;
-    return d.getMonth() >= 3
-      ? `FY ${String(d.getFullYear()).slice(2)}-${String(d.getFullYear()+1).slice(2)}`
-      : `FY ${String(d.getFullYear()-1).slice(2)}-${String(d.getFullYear()).slice(2)}`;
-  };
-
-  const dateFrom = fDateFrom ? new Date(fDateFrom) : null;
-  const dateTo   = fDateTo   ? new Date(fDateTo + 'T23:59:59') : null;
-  const qtrMonths = getQtrMonths(fQtr);
-
-  // Filter rows
-  let filtered = LIVE_ROWS.filter(r => {
-    if (fCity  && r.city  !== fCity)   return false;
-    if (fState && r.state !== fState)  return false;
-    if (fOffer && r.offer !== fOffer)  return false;
-    if (fPhase && r.phase !== fPhase)  return false;
-    if (fFY) {
-      const fy = fyOf(r.date);
-      if (fy !== fFY) return false;
-    }
-    if (dateFrom && r.date && r.date < dateFrom) return false;
-    if (dateTo   && r.date && r.date > dateTo)   return false;
-    if (qtrMonths && r.date && !qtrMonths.includes(r.date.getMonth())) return false;
-    return true;
-  });
-
-  const active = [fFY,fState,fCity,fOffer,fPhase].filter(Boolean);
-  document.getElementById('filterStatus').textContent =
-    active.length ? `Filters: ${active.join(' · ')}` : 'No filters active';
-  document.getElementById('rowInfo').textContent =
-    `${filtered.length.toLocaleString()} of ${LIVE_ROWS.length.toLocaleString()} projects`;
-
-  if (!filtered.length) {
-    document.getElementById('statusTxt').textContent = '⚠ No data for this filter combination';
-    return;
+const MON_MAP = {jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11};
+function parseDate(v) {
+  if (!v || typeof v !== 'string') return null;
+  v = v.trim();
+  // "12-Feb-2026" or "12-Feb-26"
+  const m1 = v.match(/^(\d{1,2})[/-]([A-Za-z]{3})[/-](\d{2,4})$/);
+  if (m1) {
+    const day = +m1[1], mon = MON_MAP[m1[2].toLowerCase()], yr = m1[3].length===2?2000+parseInt(m1[3]):+m1[3];
+    if (mon !== undefined) return new Date(yr, mon, day);
   }
+  // "2026-02-12"
+  const m2 = v.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (m2) return new Date(+m2[1], +m2[2]-1, +m2[3]);
+  // "12/02/2026" (dd/mm/yyyy)
+  const m3 = v.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (m3) return new Date(+m3[3], +m3[2]-1, +m3[1]);
+  // Fallback
+  const d = new Date(v);
+  return isNaN(d.getTime()) ? null : d;
+}
 
-  // Recalculate all KPIs from filtered rows
-  const totRev   = filtered.reduce((s,r) => s + r.revenue, 0);
-  const totCOGS  = filtered.reduce((s,r) => s + r.cogs, 0);
-  const totKW    = filtered.reduce((s,r) => s + r.kw, 0);
-  const totProj  = filtered.length;
-  const totGM    = totRev - totCOGS;
+// ════════════════════════════════════════════════════
+// CSV PARSER
+// ════════════════════════════════════════════════════
+function normHeader(h) {
+  return h.toLowerCase()
+    .replace(/\(|\)|\/|\./g, ' ')
+    .trim()
+    .replace(/\s+/g, '_')
+    .replace(/[^a-z0-9_]/g, '')
+    .replace(/_+/g, '_')
+    .replace(/^_|_$/g, '');
+}
+function parseCSV(text) {
+  const lines = text.replace(/\r\n/g,'\n').replace(/\r/g,'\n').trim().split('\n');
+  if (lines.length < 2) return [];
+  const hdrs = parseCSVRow(lines[0]).map(normHeader);
+  const rows = [];
+  for (let i = 1; i < lines.length; i++) {
+    if (!lines[i].trim()) continue;
+    const vals = parseCSVRow(lines[i]);
+    const obj = {};
+    hdrs.forEach((h,j) => obj[h] = (vals[j]||'').trim());
+    rows.push(obj);
+  }
+  return rows;
+}
+function parseCSVRow(line) {
+  const r=[]; let cur='', inQ=false;
+  for (let i=0;i<line.length;i++) {
+    const c=line[i];
+    if(c==='"'){inQ=!inQ;continue;}
+    if(c===','&&!inQ){r.push(cur);cur='';continue;}
+    cur+=c;
+  }
+  r.push(cur); return r;
+}
 
-  // Rebuild dimension breakdowns from filtered rows
-  const agg = (key) => {
+// ════════════════════════════════════════════════════
+// COLUMN RESOLVER — exact match then fuzzy fallback
+// ════════════════════════════════════════════════════
+function makeResolver(allKeys) {
+  return (row, exactKey, fallbacks=[]) => {
+    if (row[exactKey] !== undefined) return row[exactKey];
+    for (const fb of fallbacks) {
+      if (row[fb] !== undefined) return row[fb];
+    }
+    // partial
+    const found = allKeys.find(k => k.includes(exactKey) || exactKey.includes(k));
+    return (found && row[found] !== undefined) ? row[found] : '';
+  };
+}
+
+// ════════════════════════════════════════════════════
+// PROCESS LIVE CSV ROWS  →  normalised row objects
+// ════════════════════════════════════════════════════
+function processLiveRows(rawRows) {
+  if (!rawRows.length) return [];
+  const allKeys = Object.keys(rawRows[0]);
+  const R = makeResolver(allKeys);
+  const N = v => parseFloat(String(v).replace(/[^0-9.-]/g,'')) || 0;
+
+  console.log('GSheet columns detected:', allKeys.slice(0,25).join(' | '));
+
+  // Auto-detect revenue column
+  const revCol  = allKeys.find(k => k.includes('final_revenue_excl')) 
+               || allKeys.find(k => k.includes('revenue_excl'))
+               || allKeys.find(k => k.includes('final_revenue'))
+               || 'final_revenue_excl_gst';
+  const cogsCol = allKeys.find(k => k === 'ic_total')
+               || allKeys.find(k => k.includes('ic_total'))
+               || 'ic_total';
+  const kwCol   = allKeys.find(k => k.includes('project_size'))
+               || 'project_size_kw_';
+  const dateCol = allKeys.find(k => k.includes('installation_completion'))
+               || allKeys.find(k => k.includes('completion_date'))
+               || 'installation_completion_date';
+
+  console.log(`Using: rev=${revCol}, cogs=${cogsCol}, kw=${kwCol}, date=${dateCol}`);
+
+  const rows = rawRows.map(r => {
+    const rev  = N(r[revCol]  || R(r, COL.revenue,  ['final_revenue_excl_gst','final_revenue_excl__gst']));
+    const cogs = N(r[cogsCol] || R(r, COL.cogs,     ['ic_total','total_amount']));
+    const kw   = N(r[kwCol]   || R(r, COL.kw,       ['project_size_kw','project_size']));
+    const date = parseDate(R(r, dateCol, ['installation_date','date']));
+    const offer= (r[COL.offer] || R(r,'offer_type',['offer'])||'').trim();
+    return {
+      id:      r[COL.id]    || R(r,'sse_id') || '',
+      city:    (r[COL.city] || R(r,'city')||'').trim(),
+      state:   (r[COL.state]|| R(r,'state')||'').trim(),
+      offer:   offer === 'GoodZero+' ? 'GoodZero' : offer,  // merge GoodZero+ into GoodZero
+      phase:   (r[COL.phase]|| R(r,'phase_connection',['phase'])||'').trim(),
+      revenue: rev,
+      cogs:    cogs,
+      kw:      kw,
+      gm:      rev - cogs,
+      date:    date,
+      // cost components
+      module:   N(r['module']   || ''),
+      inverter: N(r['inverter'] || ''),
+      prefab:   N(r['prefab_mms']||''),
+      cables:   N(r['cables']   || ''),
+      elecbos:  N(r['electrical_bos']||r['electrical_b_o_s']||''),
+      earthing: N(r['earthing_la']||''),
+      conduit:  N(r['conduit_pipe']||''),
+      jbox:     N(r['junction_box']||''),
+      ickit:    N(r['ic_kit']   || ''),
+    };
+  }).filter(r => r.revenue > 0);  // only valid rows
+
+  console.log(`✅ Valid rows: ${rows.length} / ${rawRows.length}`);
+  if (!rows.length) console.warn('Sample raw:', JSON.stringify(rawRows[0]));
+  return rows;
+}
+
+// ════════════════════════════════════════════════════
+// AGGREGATE ROWS  →  DATA object
+// All KPIs, city/state/offer/monthly/quarterly breakdowns
+// ════════════════════════════════════════════════════
+function aggregateRows(rows) {
+  if (!rows.length) return buildEmptyData();
+
+  // Helper: group rows into a map by key, compute totals
+  function agg(arr, keyFn) {
     const m = {};
-    filtered.forEach(r => {
-      const k = r[key]; if (!k) return;
-      if (!m[k]) m[k] = {revenue:0,cogs:0,projects:0,kw:0};
-      m[k].revenue+=r.revenue; m[k].cogs+=r.cogs; m[k].projects++; m[k].kw+=r.kw;
+    arr.forEach(r => {
+      const k = keyFn(r); if (!k) return;
+      if (!m[k]) m[k] = {revenue:0, cogs:0, projects:0, kw:0, key:k};
+      m[k].revenue  += r.revenue;
+      m[k].cogs     += r.cogs;
+      m[k].projects += 1;
+      m[k].kw       += r.kw;
     });
     return m;
-  };
+  }
 
-  const mapDim = (map, nk) => Object.entries(map).map(([name,d]) => ({
-    [nk]: name, revenue:d.revenue, cogs:d.cogs, projects:d.projects,
-    aov: d.projects ? d.revenue/d.projects : 0,
-    aos: d.projects ? d.kw/d.projects : 0,
-    gm_pct: d.revenue > 0 ? (d.revenue-d.cogs)/d.revenue*100 : 0,
-  })).sort((a,b) => b.revenue - a.revenue);
+  function mapDim(map, nameKey) {
+    return Object.values(map).map(d => ({
+      [nameKey]: d.key,
+      revenue:   d.revenue,
+      cogs:      d.cogs,
+      gm:        d.revenue - d.cogs,
+      projects:  d.projects,
+      aov:       d.projects ? d.revenue / d.projects : 0,
+      aos:       d.projects ? d.kw      / d.projects : 0,
+      gm_pct:    d.revenue  ? (d.revenue - d.cogs) / d.revenue * 100 : 0,
+    })).sort((a, b) => b.revenue - a.revenue);
+  }
 
-  // Monthly for filtered set
+  // ── Totals ──
+  const totRev  = rows.reduce((s,r) => s + r.revenue, 0);
+  const totCOGS = rows.reduce((s,r) => s + r.cogs,    0);
+  const totKW   = rows.reduce((s,r) => s + r.kw,      0);
+  const totProj = rows.length;
+  const totGM   = totRev - totCOGS;
+
+  // ── Monthly ──
   const byMonth = {};
-  filtered.forEach(r => {
+  rows.forEach(r => {
     if (!r.date) return;
-    const mo = r.date.toLocaleString('en',{month:'short'})+' '+String(r.date.getFullYear()).slice(2);
-    if (!byMonth[mo]) byMonth[mo]={revenue:0,cogs:0,projects:0,year:r.date.getFullYear(),month:r.date.getMonth()};
-    byMonth[mo].revenue+=r.revenue; byMonth[mo].cogs+=r.cogs; byMonth[mo].projects++;
+    const y = r.date.getFullYear(), mo = r.date.getMonth();
+    const lbl = r.date.toLocaleString('en',{month:'short'}) + ' ' + String(y).slice(2);
+    if (!byMonth[lbl]) byMonth[lbl] = {revenue:0,cogs:0,projects:0,kw:0,year:y,month:mo,label:lbl};
+    byMonth[lbl].revenue  += r.revenue;
+    byMonth[lbl].cogs     += r.cogs;
+    byMonth[lbl].projects += 1;
+    byMonth[lbl].kw       += r.kw;
   });
+  const monthly = Object.values(byMonth)
+    .sort((a,b) => a.year!==b.year ? a.year-b.year : a.month-b.month)
+    .map(m => ({...m, gm: m.revenue-m.cogs, gm_pct: m.revenue?(m.revenue-m.cogs)/m.revenue*100:0}));
 
-  FILTERED_DATA = {
-    ...DATA,
+  // ── Quarterly ──
+  const byQtr = {};
+  rows.forEach(r => {
+    if (!r.date) return;
+    const lbl = qtrLabel(r.date);
+    const q   = monthToQtr(r.date.getMonth());
+    const fy  = fyOfDate(r.date);
+    const fyStart = r.date.getMonth()>=3 ? r.date.getFullYear() : r.date.getFullYear()-1;
+    const qNum = {Q1:1,Q2:2,Q3:3,Q4:4}[q];
+    if (!byQtr[lbl]) byQtr[lbl] = {revenue:0,cogs:0,projects:0,kw:0,label:lbl,q,fy,fyStart,qNum};
+    byQtr[lbl].revenue  += r.revenue;
+    byQtr[lbl].cogs     += r.cogs;
+    byQtr[lbl].projects += 1;
+    byQtr[lbl].kw       += r.kw;
+  });
+  const quarterly = Object.values(byQtr)
+    .sort((a,b) => a.fyStart!==b.fyStart ? a.fyStart-b.fyStart : a.qNum-b.qNum)
+    .map(q => ({...q, gm:q.revenue-q.cogs, gm_pct:q.revenue?(q.revenue-q.cogs)/q.revenue*100:0}));
+
+  // ── FY ──
+  const byFY = {};
+  rows.forEach(r => {
+    const fy = fyOfDate(r.date); if (!fy) return;
+    if (!byFY[fy]) byFY[fy] = {fy, revenue:0, cogs:0, projects:0, kw:0};
+    byFY[fy].revenue  += r.revenue;
+    byFY[fy].cogs     += r.cogs;
+    byFY[fy].projects += 1;
+    byFY[fy].kw       += r.kw;
+  });
+  const fyArr = Object.values(byFY)
+    .sort((a,b) => a.fy < b.fy ? -1 : 1)
+    .map(f => ({...f, gm:f.revenue-f.cogs, gm_pct:f.revenue?(f.revenue-f.cogs)/f.revenue*100:0}));
+
+  // ── Cost components (across all rows) ──
+  const costItems = ['module','inverter','prefab','cables','elecbos','earthing','conduit','jbox','ickit'];
+  const costNames = {module:'Module',inverter:'Inverter',prefab:'Prefab MMS',cables:'Cables',
+    elecbos:'Electrical BoS',earthing:'Earthing/LA',conduit:'Conduit Pipe',jbox:'Junction Box',ickit:'IC Kit'};
+  const costTotals = {};
+  costItems.forEach(k => {
+    costTotals[k] = rows.reduce((s,r) => s + (r[k]||0), 0);
+  });
+  const totalCostTracked = Object.values(costTotals).reduce((a,b)=>a+b,0)||1;
+  const costs = costItems
+    .filter(k => costTotals[k] > 0)
+    .map(k => ({
+      item:  costNames[k],
+      key:   k,
+      total: costTotals[k],
+      avg:   Math.round(costTotals[k] / totProj),
+      share: costTotals[k] / totalCostTracked * 100,
+    }))
+    .sort((a,b) => b.total - a.total);
+
+  return {
     kpis: {
       total_projects: totProj,
       total_revenue:  totRev,
       total_cogs:     totCOGS,
       total_gm:       totGM,
-      avg_gm_pct:     totRev > 0 ? totGM/totRev*100 : 0,
-      avg_aov:        totProj > 0 ? totRev/totProj : 0,
-      avg_aos:        totProj > 0 ? totKW/totProj  : 0,
+      avg_gm_pct:     totRev ? totGM / totRev * 100 : 0,
+      avg_aov:        totProj ? totRev  / totProj : 0,
+      avg_aos:        totProj ? totKW   / totProj : 0,
       total_kw:       totKW,
       ic_cogs:        totCOGS,
       onm_qhse:       totCOGS * 0.034,
     },
-    cities:  mapDim(agg('city'),  'city').slice(0,20),
-    states:  mapDim(agg('state'), 'state'),
-    offers:  mapDim(agg('offer'), 'offer').filter(o=>o.offer!=='GoodZero+').slice(0,8),
-    monthly: Object.entries(byMonth).map(([label,d]) => ({
-      label, revenue:d.revenue, cogs:d.cogs, projects:d.projects,
-      gm_pct: d.revenue>0 ? (d.revenue-d.cogs)/d.revenue*100 : 0,
-      year:d.year, month:d.month,
-    })).sort((a,b) => a.year!==b.year ? a.year-b.year : a.month-b.month).slice(-20),
+    monthly, quarterly, fy: fyArr,
+    cities:  mapDim(agg(rows, r=>r.city),  'city').slice(0,30),
+    states:  mapDim(agg(rows, r=>r.state), 'state'),
+    offers:  mapDim(agg(rows, r=>r.offer), 'offer'),
+    phases:  mapDim(agg(rows, r=>r.phase), 'phase'),
+    costs,
   };
-
-  renderAll();
 }
 
-function populateFilters() {
-  const states = DATA.states.map(s=>s.state).sort();
-  const cities = DATA.cities.map(c=>c.city).sort();
-  const fState = document.getElementById('fState');
-  const fCity  = document.getElementById('fCity');
-  fState.innerHTML = '<option value="">All</option>' + states.map(s=>`<option>${s}</option>`).join('');
-  fCity.innerHTML  = '<option value="">All</option>' + cities.map(c=>`<option>${c}</option>`).join('');
-}
-
+// ════════════════════════════════════════════════════
+// FILTER ENGINE  — filters LIVE_ROWS and re-aggregates
+// ════════════════════════════════════════════════════
 function applyFilters() {
   const fFY       = document.getElementById('fFY').value;
   const fState    = document.getElementById('fState').value;
@@ -515,219 +709,167 @@ function applyFilters() {
   const fDateTo   = document.getElementById('fDateTo').value;
   const fQtr      = ACTIVE_QTR;
 
-  // Route to raw-row engine when live data is loaded
-  if (LIVE_ROWS.length > 0) {
-    applyFiltersFromRows(fFY,fState,fCity,fOffer,fPhase,fDateFrom,fDateTo,fQtr); return;
-  }
-
-  ACTIVE_FILTERS = {fFY, fState, fCity, fOffer, fPhase, fDateFrom, fDateTo, fQtr};
-  const active = [fFY,fState,fCity,fOffer,fPhase,fQtr,fDateFrom?`From ${fDateFrom}`:'',fDateTo?`To ${fDateTo}`:''].filter(Boolean);
-  document.getElementById('filterStatus').textContent = active.length ? `Filters: ${active.join(' · ')}` : 'No filters active';
-
-  // Filter cities
-  let cities = DATA.cities;
-  if (fCity) cities = cities.filter(c => c.city === fCity);
-
-  // Filter offers — remove GoodZero+ from embedded data
-  let offers = DATA.offers.filter(o => o.offer !== 'GoodZero+');
-  if (fOffer) offers = offers.filter(o => o.offer === fOffer);
-
-  // Filter monthly (FY + Quarter + Date)
-  let monthly = DATA.monthly;
-  const dateFrom = fDateFrom ? new Date(fDateFrom) : null;
-  const dateTo   = fDateTo   ? new Date(fDateTo+'T23:59:59') : null;
+  const dateFrom  = fDateFrom ? new Date(fDateFrom) : null;
+  const dateTo    = fDateTo   ? new Date(fDateTo + 'T23:59:59') : null;
   const qtrMonths = getQtrMonths(fQtr);
 
-  if (fFY==='FY 25-26') monthly = monthly.filter(m => (m.year===2025 && m.month>=3) || m.year===2026);
-  else if (fFY==='FY 24-25') monthly = monthly.filter(m => (m.year===2024 && m.month>=3) || (m.year===2025 && m.month<=2));
-  else if (fFY==='FY 23-24') monthly = monthly.filter(m => (m.year===2023 && m.month>=3) || (m.year===2024 && m.month<=2));
+  // Apply all filters to raw rows
+  const filtered = LIVE_ROWS.filter(r => {
+    if (fCity  && r.city  !== fCity)   return false;
+    if (fState && r.state !== fState)  return false;
+    if (fPhase && r.phase !== fPhase)  return false;
+    if (fOffer && r.offer !== fOffer)  return false;
+    if (fFY && fyOfDate(r.date) !== fFY) return false;
+    if (dateFrom && r.date && r.date < dateFrom) return false;
+    if (dateTo   && r.date && r.date > dateTo)   return false;
+    if (qtrMonths && r.date && !qtrMonths.includes(r.date.getMonth())) return false;
+    return true;
+  });
 
-  if (qtrMonths) monthly = monthly.filter(m => qtrMonths.includes(m.month));
+  // Status indicators
+  const active = [fFY, fState, fCity, fOffer, fPhase, fQtr,
+    fDateFrom?`From ${fDateFrom}`:'', fDateTo?`To ${fDateTo}`:''].filter(Boolean);
+  document.getElementById('filterStatus').textContent =
+    active.length ? `Filters: ${active.join(' · ')}` : 'No filters active';
+  document.getElementById('rowInfo').textContent =
+    `${filtered.length.toLocaleString()} of ${LIVE_ROWS.length.toLocaleString()} projects`;
 
-  // Phase filter applied to phase data if available (embedded doesn't have phase split — apply to all)
-  // When fPhase is set in embedded mode, show a note but keep the charts moving
-
-  // Recalculate KPIs
-  let kpis = DATA.kpis;
-  const src = fCity ? cities : fState ? DATA.states.filter(s=>s.state===fState) : null;
-  if (src && src.length) {
-    const totRev  = src.reduce((s,r)=>s+(r.revenue||0),0);
-    const totCOGS = src.reduce((s,r)=>s+(r.cogs||0),0);
-    const totProj = src.reduce((s,r)=>s+(r.projects||0),0);
-    const totKW   = src.reduce((s,r)=>s+((r.aos||0)*(r.projects||0)),0);
-    kpis = { ...DATA.kpis,
-      total_revenue: totRev, total_cogs: totCOGS, total_projects: totProj,
-      total_gm: totRev-totCOGS, avg_gm_pct: totRev>0?(totRev-totCOGS)/totRev*100:0,
-      avg_aov: totProj>0?totRev/totProj:0, avg_aos: totProj>0?totKW/totProj:0,
-      total_kw: totKW, ic_cogs: totCOGS,
-    };
-  } else if (fOffer && offers.length) {
-    const o = offers[0];
-    const totKW_o = (o.aos||0)*(o.projects||0);
-    kpis = {...DATA.kpis, total_revenue:o.revenue, total_cogs:o.cogs, total_projects:o.projects,
-      total_gm:o.revenue-o.cogs, avg_gm_pct:o.gm_pct, avg_aov:o.aov,
-      avg_aos:o.aos||0, total_kw:totKW_o, ic_cogs:o.cogs};
-  } else if (monthly.length > 0 && (fFY||fQtr||fDateFrom||fDateTo)) {
-    const totRev  = monthly.reduce((s,m)=>s+m.revenue,0);
-    const totCOGS = monthly.reduce((s,m)=>s+m.cogs,0);
-    const totProj = monthly.reduce((s,m)=>s+m.projects,0);
-    kpis = {...DATA.kpis, total_revenue:totRev, total_cogs:totCOGS, total_projects:totProj,
-      total_gm:totRev-totCOGS, avg_gm_pct:totRev>0?(totRev-totCOGS)/totRev*100:0,
-      avg_aov:totProj>0?totRev/totProj:0, ic_cogs:totCOGS};
+  if (!filtered.length) {
+    document.getElementById('statusTxt').textContent = '⚠ No data matches this filter combination';
+    FILTERED = buildEmptyData();
+    renderAll(); return;
   }
 
-  // Phase scaling (embedded mode): scale proportionally (Single≈55%, Three≈45%)
-  if (fPhase && !src) {
-    const phaseFactor = fPhase==='Single Phase' ? 0.55 : 0.45;
-    kpis = {...kpis,
-      total_revenue: Math.round(kpis.total_revenue*phaseFactor),
-      total_cogs:    Math.round(kpis.total_cogs*phaseFactor),
-      total_projects:Math.round(kpis.total_projects*phaseFactor),
-      total_gm:      Math.round(kpis.total_gm*phaseFactor),
-      ic_cogs:       Math.round(kpis.ic_cogs*phaseFactor),
-      total_kw:      Math.round((kpis.total_kw||0)*phaseFactor),
-    };
-  }
-
-  const stateFiltered = fState ? DATA.states.filter(s=>s.state===fState) : DATA.states;
-  FILTERED_DATA = {
-    ...DATA,
-    kpis,
-    cities,
-    offers,
-    monthly,
-    states: stateFiltered,
-  };
-  document.getElementById('rowInfo').textContent = `${FILTERED_DATA.kpis.total_projects.toLocaleString()} projects`;
+  FILTERED = aggregateRows(filtered);
   renderAll();
 }
-
-
-
 
 function clearAllFilters() {
-  ['fFY','fState','fCity','fOffer','fPhase','fDateFrom','fDateTo'].forEach(id=>{document.getElementById(id).value=''});
+  ['fFY','fState','fCity','fOffer','fPhase','fDateFrom','fDateTo']
+    .forEach(id => { document.getElementById(id).value = ''; });
   ACTIVE_QTR = '';
-  document.querySelectorAll('.qtr-pill').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.qtr-pill').forEach(p => p.classList.remove('active'));
   const allPill = document.querySelector('.qtr-pill[data-qtr=""]');
   if (allPill) allPill.classList.add('active');
-  FILTERED_DATA = JSON.parse(JSON.stringify(DATA));
-  // Ensure GoodZero+ not in offers
-  FILTERED_DATA.offers = FILTERED_DATA.offers.filter(o=>o.offer!=='GoodZero+');
-  ACTIVE_FILTERS = {};
+  FILTERED = aggregateRows(LIVE_ROWS);
   document.getElementById('filterStatus').textContent = 'No filters active';
-  document.getElementById('rowInfo').textContent = `${DATA.kpis.total_projects.toLocaleString()} projects`;
+  document.getElementById('rowInfo').textContent = `${LIVE_ROWS.length.toLocaleString()} projects`;
   renderAll();
 }
 
 // ════════════════════════════════════════════════════
-// KPI STRIP
+// POPULATE FILTER DROPDOWNS  from live data
 // ════════════════════════════════════════════════════
-function renderKPIs() {
-  const k    = FILTERED_DATA.kpis;
-  const totKW = k.total_kw || (k.avg_aos * k.total_projects);
-  // Per Watt = divide kW by 1000 to get kWh, then divide value by that (i.e. divide per-kW by 1000)
-  const gmPerWatt   = totKW > 0 ? k.total_gm / (totKW * 1000)   : 0;
-  const cogsPerWatt = totKW > 0 ? k.total_cogs / (totKW * 1000) : 0;
+function populateFilters() {
+  const states = [...new Set(LIVE_ROWS.map(r=>r.state).filter(Boolean))].sort();
+  const cities = [...new Set(LIVE_ROWS.map(r=>r.city).filter(Boolean))].sort();
+  const offers = [...new Set(LIVE_ROWS.map(r=>r.offer).filter(Boolean))].sort();
 
-  const s = (id, val) => { const el=document.getElementById(id); if(el) el.textContent=val; };
-  const sc = (id, val, cls) => { const el=document.getElementById(id); if(el){el.textContent=val; if(cls!==undefined) el.className='kpi-delta '+cls;} };
+  const fState = document.getElementById('fState');
+  const fCity  = document.getElementById('fCity');
+  const fOffer = document.getElementById('fOffer');
 
-  s('kProj',       k.total_projects.toLocaleString());
-  s('kRev',        cr2(k.total_revenue));
-  s('kCOGS',       cr2(k.total_cogs));
-  s('kGM',         cr2(k.total_gm));
-  s('kAOV',        lakh(k.avg_aov));
-  s('kAOS',        k.avg_aos.toFixed(2) + ' KW');
-  s('kGMperKW',    '₹' + gmPerWatt.toFixed(2));
-  s('kCOGSperKW',  '₹' + cogsPerWatt.toFixed(2));
-  s('kONM',        cr2(k.total_cogs * 0.034));
-
-  const gmEl = document.getElementById('kGMpct');
-  if (gmEl) { gmEl.textContent=pct(k.avg_gm_pct); gmEl.className='kpi-val '+gClass(k.avg_gm_pct); }
-
-  // Context-aware labels
-  const fCity  = document.getElementById('fCity').value;
-  const fState = document.getElementById('fState').value;
-  const fOffer = document.getElementById('fOffer').value;
-  const fPhase = document.getElementById('fPhase').value;
-  const fFY    = document.getElementById('fFY').value;
-  const ctxParts = [fCity||fState, fOffer, fPhase, fFY].filter(Boolean);
-  const ctx = ctxParts.join(' · ') || 'all';
-
-  sc('kProjD',    ctx === 'all' ? 'total installations' : ctx);
-  sc('kRevD',     ctx === 'all' ? 'ex-GST · all' : ctx);
-  sc('kCOGSD',    'IC_Total');
-  sc('kGMD',      'Revenue − COGS');
-  sc('kGMpctD',   (k.avg_gm_pct>=48?'↑ above ':'↓ below ')+'48% target', k.avg_gm_pct>=48?'up':'down');
-  sc('kAOVD',     ctx === 'all' ? 'avg per project' : ctx);
-  sc('kAOSD',     ctx === 'all' ? 'avg system size' : ctx);
-  sc('kGMperKWD', ctx === 'all' ? '₹ per Watt' : ctx);
-  sc('kCOGSperKWD', ctx === 'all' ? 'IC cost per Watt' : ctx);
-
-  // Dynamic KPI label rename
-  const sl = (id, val) => { const el=document.getElementById(id); if(el) el.textContent=val; };
-  sl('kAOVlbl',       fCity  ? `AOV · ${fCity}`  : fState ? `AOV · ${fState}` : fOffer ? `AOV · ${fOffer}` : 'Avg AOV');
-  sl('kAOSlbl',       fCity  ? `AOS · ${fCity}`  : fState ? `AOS · ${fState}` : fOffer ? `AOS · ${fOffer}` : 'Avg AOS');
-  sl('kGMlbl',        fCity  ? `GM% · ${fCity}`  : fState ? `GM% · ${fState}` : fOffer ? `GM% · ${fOffer}` : 'GM %');
-  sl('kGMperKWlbl',   fCity  ? `GM/W · ${fCity}` : fOffer ? `GM/W · ${fOffer}` : 'GM / Watt');
-  sl('kCOGSperKWlbl', fCity  ? `COGS/W · ${fCity}` : 'COGS / Watt');
+  fState.innerHTML = '<option value="">All</option>' + states.map(s=>`<option>${s}</option>`).join('');
+  fCity.innerHTML  = '<option value="">All</option>' + cities.map(c=>`<option>${c}</option>`).join('');
+  fOffer.innerHTML = '<option value="">All</option>' + offers.map(o=>`<option>${o}</option>`).join('');
 }
 
+// ════════════════════════════════════════════════════
+// KPI STRIP RENDER
+// ════════════════════════════════════════════════════
+function renderKPIs() {
+  const k = FILTERED.kpis;
+  const totKW = k.total_kw || 0;
+  // Per Watt = value ÷ (kW × 1000)  [since 1 kW = 1000 W]
+  const gmPerWatt   = totKW > 0 ? k.total_gm   / (totKW * 1000) : 0;
+  const cogsPerWatt = totKW > 0 ? k.total_cogs / (totKW * 1000) : 0;
+
+  const s  = (id, v)    => { const el=document.getElementById(id); if(el) el.textContent=v; };
+  const sc = (id, v, c) => { const el=document.getElementById(id); if(el){el.textContent=v; if(c!==undefined) el.className='kpi-delta '+c;} };
+
+  s('kProj',      k.total_projects.toLocaleString());
+  s('kRev',       cr2(k.total_revenue));
+  s('kCOGS',      cr2(k.total_cogs));
+  s('kGM',        cr2(k.total_gm));
+  s('kAOV',       lakh(k.avg_aov));
+  s('kAOS',       k.avg_aos.toFixed(2) + ' KW');
+  s('kGMperKW',   '₹' + gmPerWatt.toFixed(2));
+  s('kCOGSperKW', '₹' + cogsPerWatt.toFixed(2));
+  s('kONM',       cr2(k.onm_qhse));
+
+  const gmEl = document.getElementById('kGMpct');
+  if (gmEl) { gmEl.textContent = pct(k.avg_gm_pct); gmEl.className = 'kpi-val ' + gClass(k.avg_gm_pct); }
+
+  sc('kGMpctD', (k.avg_gm_pct>=48?'↑ above ':'↓ below ')+'48% target', k.avg_gm_pct>=48?'up':'down');
+  sc('kProjD',  k.total_projects ? 'total installations' : 'no data');
+
+  // Dynamic labels
+  const fCity=document.getElementById('fCity').value, fState=document.getElementById('fState').value;
+  const ctx = [fCity||fState, document.getElementById('fOffer').value,
+               document.getElementById('fPhase').value, document.getElementById('fFY').value,
+               ACTIVE_QTR].filter(Boolean).join(' · ') || 'All';
+
+  sc('kRevD',       ctx==='All'?'ex-GST':ctx);
+  sc('kCOGSD',      'IC_Total (installation cost)');
+  sc('kGMD',        'Revenue − IC_Total');
+  sc('kAOVD',       ctx==='All'?'avg per project':ctx);
+  sc('kAOSD',       ctx==='All'?'avg system size':ctx);
+  sc('kGMperKWD',   '₹ per Watt installed');
+  sc('kCOGSperKWD', 'IC cost per Watt');
+}
+
+// ════════════════════════════════════════════════════
+// ROUTER
+// ════════════════════════════════════════════════════
 function switchView(view, el) {
   CURRENT_VIEW = view;
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   el.classList.add('active');
   renderContent();
 }
-
-function renderAll() { renderKPIs(); renderContent(); }
-
+function renderAll()    { renderKPIs(); renderContent(); }
 function renderContent() {
   destroyCharts();
-  if (CURRENT_VIEW==='overview')  renderOverview();
-  else if (CURRENT_VIEW==='city') renderCityView();
+  if (CURRENT_VIEW==='overview') renderOverview();
+  else if (CURRENT_VIEW==='city')    renderCityView();
   else if (CURRENT_VIEW==='product') renderProductView();
   else if (CURRENT_VIEW==='costs')   renderCostsView();
 }
-
 function destroyCharts() {
-  Object.values(CHARTS).forEach(c=>{try{c.destroy()}catch(e){}});
-  CHARTS={};
+  Object.values(CHARTS).forEach(c => { try{c.destroy()}catch(e){} });
+  CHARTS = {};
 }
 
 // ════════════════════════════════════════════════════
 // OVERVIEW VIEW
 // ════════════════════════════════════════════════════
 function renderOverview() {
-  const mc = document.getElementById('mainContent');
-  mc.innerHTML = `
+  const d = FILTERED;
+  document.getElementById('mainContent').innerHTML = `
     <div class="charts-row1">
-      <!-- Revenue & GM Trend -->
       <div class="card">
         <div class="card-title">Revenue & GM% Trend <span class="card-badge badge-blue">Monthly</span></div>
         <div class="legend-row">
           <div class="leg"><div class="leg-line" style="background:#2563A8"></div>Revenue</div>
           <div class="leg"><div class="leg-line" style="background:#EF4444"></div>COGS</div>
-          <div class="leg"><div class="leg-line" style="background:#16A34A;border-top:2px dashed #16A34A;height:0"></div>GM%</div>
+          <div class="leg"><div class="leg-dot" style="background:#16A34A"></div>GM%</div>
         </div>
         <div class="canvas-wrap"><canvas id="cTrend"></canvas></div>
       </div>
-      <!-- QoQ Comparison -->
       <div class="card">
         <div class="card-title">Revenue Growth <span class="card-badge badge-amber">Quarter-on-Quarter</span></div>
         <div class="canvas-wrap"><canvas id="cQoQ"></canvas></div>
       </div>
-      <!-- Offer Mix Donut -->
       <div class="card">
         <div class="card-title">Product Mix <span class="card-badge badge-navy">Revenue Share</span></div>
         <div class="canvas-wrap"><canvas id="cOfferDonut"></canvas></div>
       </div>
     </div>
-    <!-- State Table -->
     <div class="table-section">
       <div class="tbl-header">
-        <div class="tbl-title">State Performance Summary <span style="font-size:9px;color:var(--muted);font-weight:400;font-family:'DM Mono',monospace">${FILTERED_DATA.states.length} states</span></div>
+        <div class="tbl-title">State Performance Summary
+          <span style="font-size:9px;color:var(--muted);font-weight:400;font-family:'DM Mono',monospace">${d.states.length} states</span>
+        </div>
         <div class="tbl-tabs">
           <div class="tbl-tab active" onclick="sortStateTable('revenue',this)">By Revenue</div>
           <div class="tbl-tab" onclick="sortStateTable('gm_pct',this)">By GM%</div>
@@ -739,34 +881,34 @@ function renderOverview() {
         <table id="stateTable">
           <thead><tr>
             <th>#</th><th style="text-align:left">State</th>
-            <th>Projects</th><th>Revenue</th><th>COGS</th><th>Gross Margin ₹</th><th>GM %</th><th>Avg AOV</th>
-            <th>Rev Share</th>
+            <th>Projects</th><th>Revenue (ex-GST)</th><th>COGS (IC Total)</th>
+            <th>Gross Margin ₹</th><th>GM %</th><th>Avg AOV</th><th>Avg AOS</th><th>Rev Share</th>
           </tr></thead>
           <tbody id="stateBody"></tbody>
         </table>
       </div>
-    </div>
-  `;
-  setTimeout(()=>{
-    drawTrendChart(); drawQoQChart(); drawOfferDonut(); buildStateTable('revenue');
-  },30);
+    </div>`;
+  setTimeout(() => { drawTrendChart(); drawQoQChart(); drawOfferDonut(); buildStateTable('revenue'); }, 30);
 }
 
 function drawTrendChart() {
-  const d = FILTERED_DATA.monthly;
-  CHARTS.trend = new Chart(document.getElementById('cTrend'),{
-    type:'bar',
-    data:{
-      labels:d.map(m=>m.label),
-      datasets:[
-        {label:'Revenue',data:d.map(m=>m.revenue/1e5),backgroundColor:'rgba(37,99,168,0.7)',borderRadius:3,yAxisID:'y'},
-        {label:'COGS',   data:d.map(m=>m.cogs/1e5),   backgroundColor:'rgba(239,68,68,0.6)',  borderRadius:3,yAxisID:'y'},
-        {type:'line',label:'GM%',data:d.map(m=>m.gm_pct),borderColor:'#16A34A',borderWidth:2,borderDash:[4,2],pointRadius:3,pointBackgroundColor:'#16A34A',tension:0.3,yAxisID:'y2',fill:false}
+  const d = FILTERED.monthly;
+  if (!d.length) return;
+  CHARTS.trend = new Chart(document.getElementById('cTrend'), {
+    type: 'bar',
+    data: {
+      labels: d.map(m => m.label),
+      datasets: [
+        {label:'Revenue', data:d.map(m=>m.revenue/1e5), backgroundColor:'rgba(37,99,168,0.7)', borderRadius:3, yAxisID:'y'},
+        {label:'COGS',    data:d.map(m=>m.cogs/1e5),    backgroundColor:'rgba(239,68,68,0.6)',  borderRadius:3, yAxisID:'y'},
+        {type:'line', label:'GM%', data:d.map(m=>m.gm_pct), borderColor:'#16A34A', borderWidth:2,
+         borderDash:[4,2], pointRadius:3, pointBackgroundColor:'#16A34A', tension:0.3, yAxisID:'y2', fill:false}
       ]
     },
-    options:{
-      responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:false},tooltip:{backgroundColor:'#1A2C4E',titleColor:'#fff',bodyColor:'#94A3B8',cornerRadius:6,padding:8,callbacks:{label:ctx=>ctx.datasetIndex<2?`₹${ctx.parsed.y.toFixed(1)}L`:`${ctx.parsed.y.toFixed(1)}%`}}},
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}, tooltip:{backgroundColor:'#1A2C4E',titleColor:'#fff',bodyColor:'#94A3B8',
+        cornerRadius:6,padding:8,callbacks:{label:ctx=>ctx.datasetIndex<2?`₹${ctx.parsed.y.toFixed(1)}L`:`${ctx.parsed.y.toFixed(1)}%`}}},
       scales:{
         x:{grid:{display:false},ticks:{color:'#94A3B8',font:{size:8},maxRotation:45}},
         y:{grid:{color:'rgba(200,220,238,0.4)'},ticks:{color:'#94A3B8',font:{size:8},callback:v=>`₹${v.toFixed(0)}L`},position:'left'},
@@ -776,58 +918,31 @@ function drawTrendChart() {
   });
 }
 
-function buildQoQData(monthly) {
-  // Build quarter aggregates from monthly data
-  const qMap = {};
-  monthly.forEach(m => {
-    const q = getQtrLabel(m.month);
-    // India FY quarter label: e.g. Q1 FY25-26
-    const fyYear = m.month >= 3 ? m.year : m.year - 1;
-    const key = `${q} FY${String(fyYear).slice(2)}-${String(fyYear+1).slice(2)}`;
-    if (!qMap[key]) qMap[key] = {label:key, revenue:0, cogs:0, projects:0, q, fyYear, qNum: q==='Q1'?1:q==='Q2'?2:q==='Q3'?3:4};
-    qMap[key].revenue  += m.revenue;
-    qMap[key].cogs     += m.cogs;
-    qMap[key].projects += m.projects;
-  });
-  return Object.values(qMap).sort((a,b)=>{
-    if(a.fyYear!==b.fyYear) return a.fyYear-b.fyYear;
-    return a.qNum-b.qNum;
-  });
-}
-
 function drawQoQChart() {
-  const monthly = FILTERED_DATA.monthly;
-  const quarters = buildQoQData(monthly);
+  const quarters = FILTERED.quarterly;
   if (!quarters.length) return;
-
-  // Calculate QoQ growth %
   const growthData = quarters.map((q,i) => {
     if (i===0) return null;
     const prev = quarters[i-1];
-    return prev.revenue > 0 ? ((q.revenue - prev.revenue)/prev.revenue*100) : null;
+    return prev.revenue>0 ? (q.revenue-prev.revenue)/prev.revenue*100 : null;
   });
-
-  const QCOLORS = {'Q1':'rgba(37,99,168,0.75)','Q2':'rgba(22,163,74,0.75)','Q3':'rgba(245,158,11,0.8)','Q4':'rgba(124,58,237,0.75)'};
-
-  CHARTS.qoq = new Chart(document.getElementById('cQoQ'),{
+  const QCOLORS = {Q1:'rgba(37,99,168,0.75)',Q2:'rgba(22,163,74,0.75)',Q3:'rgba(245,158,11,0.8)',Q4:'rgba(124,58,237,0.75)'};
+  CHARTS.qoq = new Chart(document.getElementById('cQoQ'), {
     type:'bar',
     data:{
       labels: quarters.map(q=>q.label),
       datasets:[
         {label:'Revenue (Cr)',data:quarters.map(q=>q.revenue/1e7),
          backgroundColor:quarters.map(q=>QCOLORS[q.q]||'rgba(37,99,168,0.7)'),borderRadius:4,yAxisID:'y'},
-        {type:'line',label:'QoQ Growth %',data:growthData,
-         borderColor:'#F59E0B',borderWidth:2,pointRadius:4,pointBackgroundColor:'#F59E0B',
-         tension:0.3,yAxisID:'y2',fill:false,borderDash:[4,3]}
+        {type:'line',label:'QoQ Growth %',data:growthData,borderColor:'#F59E0B',borderWidth:2,
+         pointRadius:4,pointBackgroundColor:'#F59E0B',tension:0.3,yAxisID:'y2',fill:false,borderDash:[4,3]}
       ]
     },
     options:{
       responsive:true,maintainAspectRatio:false,
-      plugins:{
-        legend:{display:true,position:'top',labels:{color:'#5A7A96',font:{size:8},padding:8,boxWidth:10}},
+      plugins:{legend:{display:true,position:'top',labels:{color:'#5A7A96',font:{size:8},padding:6,boxWidth:10}},
         tooltip:{backgroundColor:'#1A2C4E',titleColor:'#fff',bodyColor:'#94A3B8',cornerRadius:6,padding:8,
-          callbacks:{label:ctx=>ctx.datasetIndex===0?`₹${ctx.parsed.y.toFixed(2)} Cr`:ctx.parsed.y!==null?`${ctx.parsed.y.toFixed(1)}% QoQ`:'—'}}
-      },
+          callbacks:{label:ctx=>ctx.datasetIndex===0?`₹${ctx.parsed.y.toFixed(2)} Cr`:ctx.parsed.y!==null?`${ctx.parsed.y.toFixed(1)}% QoQ`:'—'}}},
       scales:{
         x:{grid:{display:false},ticks:{color:'#94A3B8',font:{size:8},maxRotation:45}},
         y:{grid:{color:'rgba(200,220,238,0.4)'},ticks:{color:'#94A3B8',font:{size:8},callback:v=>`₹${v.toFixed(0)}Cr`},position:'left'},
@@ -838,15 +953,19 @@ function drawQoQChart() {
 }
 
 function drawOfferDonut() {
-  const d = FILTERED_DATA.offers;
-  const COLORS = ['#2563A8','#F59E0B','#16A34A','#7C3AED','#EF4444','#0891B2'];
-  CHARTS.donut = new Chart(document.getElementById('cOfferDonut'),{
+  const d = FILTERED.offers;
+  if (!d.length) return;
+  const COLORS = ['#2563A8','#F59E0B','#16A34A','#7C3AED','#EF4444','#0891B2','#EC4899','#84CC16'];
+  CHARTS.donut = new Chart(document.getElementById('cOfferDonut'), {
     type:'doughnut',
     data:{labels:d.map(o=>o.offer),datasets:[{data:d.map(o=>o.revenue),backgroundColor:COLORS,borderColor:'#fff',borderWidth:3,hoverOffset:6}]},
     options:{responsive:true,maintainAspectRatio:false,cutout:'62%',
-      plugins:{legend:{position:'right',labels:{color:'#5A7A96',font:{size:9},padding:8,boxWidth:10,generateLabels:chart=>{
-        return chart.data.labels.map((l,i)=>({text:`${l} (${(chart.data.datasets[0].data[i]/chart.data.datasets[0].data.reduce((a,b)=>a+b,0)*100).toFixed(1)}%)`,fillStyle:COLORS[i],strokeStyle:'#fff',lineWidth:2,index:i}));
-      }}},tooltip:{backgroundColor:'#1A2C4E',titleColor:'#fff',bodyColor:'#94A3B8',callbacks:{label:ctx=>`₹${(ctx.parsed/1e7).toFixed(2)} Cr`}}}}
+      plugins:{legend:{position:'right',labels:{color:'#5A7A96',font:{size:9},padding:8,boxWidth:10,
+        generateLabels:chart=>chart.data.labels.map((l,i)=>({
+          text:`${l} (${(chart.data.datasets[0].data[i]/chart.data.datasets[0].data.reduce((a,b)=>a+b,0)*100).toFixed(1)}%)`,
+          fillStyle:COLORS[i],strokeStyle:'#fff',lineWidth:2,index:i}))}},
+        tooltip:{backgroundColor:'#1A2C4E',titleColor:'#fff',bodyColor:'#94A3B8',
+          callbacks:{label:ctx=>`₹${(ctx.parsed/1e7).toFixed(2)} Cr — ${ctx.label}`}}}}
   });
 }
 
@@ -858,30 +977,31 @@ function sortStateTable(col, el) {
   buildStateTable(col);
 }
 function buildStateTable(sortCol) {
-  const states = [...FILTERED_DATA.states].sort((a,b)=>b[sortCol]-a[sortCol]);
-  const totalRev = states.reduce((s,r)=>s+r.revenue,0);
-  const maxRev = states[0]?.revenue||1;
-  document.getElementById('stateBody').innerHTML = states.map((s,i)=>{
-    const gm = s.revenue-s.cogs; const share = (s.revenue/totalRev*100);
+  const states = [...FILTERED.states].sort((a,b)=>b[sortCol]-a[sortCol]);
+  const totalRev = states.reduce((s,r)=>s+r.revenue,0)||1;
+  const maxRev   = states[0]?.revenue||1;
+  document.getElementById('stateBody').innerHTML = states.map((s,i) => {
+    const share = s.revenue/totalRev*100;
     return `<tr>
       <td class="td-rank">${i+1}</td>
-      <td style="font-weight:600;color:var(--navy)">${s.state}</td>
+      <td style="font-weight:600;color:var(--navy)">${s.state||'—'}</td>
       <td>${s.projects.toLocaleString()}</td>
       <td class="b">${cr2(s.revenue)}</td>
       <td>${cr2(s.cogs)}</td>
-      <td class="g">${cr2(gm)}</td>
+      <td class="g">${cr2(s.gm)}</td>
       <td class="${gClass(s.gm_pct)}">${pct(s.gm_pct)}</td>
       <td>${lakh(s.aov)}</td>
-      <td><div class="sparkbar"><div class="bar-track"><div class="bar-fill" style="width:${share/share*100}%;width:${(s.revenue/maxRev*100).toFixed(0)}%;background:var(--blue)"></div></div><span>${share.toFixed(1)}%</span></div></td>
+      <td>${s.aos.toFixed(2)} kW</td>
+      <td><div class="sparkbar"><div class="bar-track"><div class="bar-fill" style="width:${(s.revenue/maxRev*100).toFixed(0)}%;background:var(--blue)"></div></div><span>${share.toFixed(1)}%</span></div></td>
     </tr>`;
   }).join('') + `<tr class="total-row">
     <td>—</td><td>TOTAL</td>
     <td>${states.reduce((s,r)=>s+r.projects,0).toLocaleString()}</td>
     <td>${cr2(totalRev)}</td>
     <td>${cr2(states.reduce((s,r)=>s+r.cogs,0))}</td>
-    <td>${cr2(totalRev-states.reduce((s,r)=>s+r.cogs,0))}</td>
+    <td>${cr2(states.reduce((s,r)=>s+r.gm,0))}</td>
     <td>${pct((totalRev-states.reduce((s,r)=>s+r.cogs,0))/totalRev*100)}</td>
-    <td>—</td><td>100%</td>
+    <td>—</td><td>—</td><td>100%</td>
   </tr>`;
 }
 
@@ -889,8 +1009,8 @@ function buildStateTable(sortCol) {
 // CITY VIEW
 // ════════════════════════════════════════════════════
 function renderCityView() {
-  const mc = document.getElementById('mainContent');
-  mc.innerHTML = `
+  const d = FILTERED;
+  document.getElementById('mainContent').innerHTML = `
     <div class="charts-row1">
       <div class="card">
         <div class="card-title">Top Cities — Revenue vs GM% <span class="card-badge badge-blue">Top 15</span></div>
@@ -907,7 +1027,9 @@ function renderCityView() {
     </div>
     <div class="table-section">
       <div class="tbl-header">
-        <div class="tbl-title">City-wise Detailed Breakdown <span style="font-size:9px;color:var(--muted);font-weight:400;font-family:'DM Mono',monospace">${FILTERED_DATA.cities.length} cities</span></div>
+        <div class="tbl-title">City-wise Breakdown
+          <span style="font-size:9px;color:var(--muted);font-weight:400;font-family:'DM Mono',monospace">${d.cities.length} cities · Projects = count of SSE IDs</span>
+        </div>
         <div class="tbl-tabs">
           <div class="tbl-tab active" onclick="sortCityTable('revenue',this)">Revenue</div>
           <div class="tbl-tab" onclick="sortCityTable('gm_pct',this)">GM%</div>
@@ -917,81 +1039,85 @@ function renderCityView() {
       </div>
       <div class="tbl-wrap">
         <table><thead><tr>
-          <th>#</th><th style="text-align:left">City</th>
-          <th>Projects</th><th>Revenue</th><th>COGS</th><th>GM ₹</th><th>GM %</th>
-          <th>Avg AOV</th><th>Avg AOS</th><th>Rev/Project</th>
+          <th>#</th><th style="text-align:left">City</th><th style="text-align:left">State</th>
+          <th>Projects (SSE IDs)</th><th>Revenue (ex-GST)</th><th>COGS (IC Total)</th>
+          <th>GM ₹</th><th>GM %</th><th>Avg AOV</th><th>Avg AOS</th>
         </tr></thead><tbody id="cityBody"></tbody></table>
       </div>
     </div>`;
-  setTimeout(()=>{ drawCityCharts(); buildCityTable('revenue'); },30);
+  setTimeout(() => { drawCityCharts(); buildCityTable('revenue'); }, 30);
 }
 
 function drawCityCharts() {
-  const cities = FILTERED_DATA.cities.slice(0,15);
-  const COLS = cities.map(c=>c.gm_pct>=55?'#16A34A':c.gm_pct>=48?'#2563A8':'#F59E0B');
-
-  CHARTS.cityRev = new Chart(document.getElementById('cCityRev'),{
+  const cities = FILTERED.cities.slice(0,15);
+  CHARTS.cityRev = new Chart(document.getElementById('cCityRev'), {
     type:'bar',
     data:{labels:cities.map(c=>c.city),datasets:[
       {label:'Revenue',data:cities.map(c=>c.revenue/1e7),backgroundColor:'rgba(37,99,168,0.75)',borderRadius:4},
       {label:'COGS',   data:cities.map(c=>c.cogs/1e7),   backgroundColor:'rgba(239,68,68,0.6)',  borderRadius:4}
     ]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'#1A2C4E',titleColor:'#fff',bodyColor:'#94A3B8',cornerRadius:6,callbacks:{label:ctx=>`₹${ctx.parsed.y.toFixed(2)} Cr`}}},
-      scales:{x:{grid:{display:false},ticks:{color:'#94A3B8',font:{size:8},maxRotation:45}},y:{grid:{color:'rgba(200,220,238,0.4)'},ticks:{color:'#94A3B8',font:{size:8},callback:v=>`₹${v}Cr`}}}}
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},
+      tooltip:{backgroundColor:'#1A2C4E',titleColor:'#fff',bodyColor:'#94A3B8',cornerRadius:6,callbacks:{label:ctx=>`₹${ctx.parsed.y.toFixed(2)} Cr`}}},
+      scales:{x:{grid:{display:false},ticks:{color:'#94A3B8',font:{size:8},maxRotation:45}},
+        y:{grid:{color:'rgba(200,220,238,0.4)'},ticks:{color:'#94A3B8',font:{size:8},callback:v=>`₹${v}Cr`}}}}
   });
 
-  const sorted = [...FILTERED_DATA.cities].sort((a,b)=>b.gm_pct-a.gm_pct).slice(0,12);
-  CHARTS.cityGM = new Chart(document.getElementById('cCityGM'),{
+  const sortedGM = [...FILTERED.cities].sort((a,b)=>b.gm_pct-a.gm_pct).slice(0,12);
+  CHARTS.cityGM = new Chart(document.getElementById('cCityGM'), {
     type:'bar',
-    data:{labels:sorted.map(c=>c.city),datasets:[{data:sorted.map(c=>c.gm_pct),backgroundColor:sorted.map(c=>c.gm_pct>=55?'rgba(22,163,74,0.75)':c.gm_pct>=48?'rgba(37,99,168,0.7)':'rgba(245,158,11,0.7)'),borderRadius:4}]},
-    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:{backgroundColor:'#1A2C4E',titleColor:'#fff',bodyColor:'#94A3B8',cornerRadius:6,callbacks:{label:ctx=>`${ctx.parsed.x.toFixed(1)}%`}}},
-      scales:{x:{grid:{color:'rgba(200,220,238,0.4)'},ticks:{color:'#94A3B8',font:{size:8},callback:v=>`${v}%`},min:35,max:65},y:{grid:{display:false},ticks:{color:'#5A7A96',font:{size:8}}}}}
+    data:{labels:sortedGM.map(c=>c.city),datasets:[{data:sortedGM.map(c=>c.gm_pct),
+      backgroundColor:sortedGM.map(c=>c.gm_pct>=55?'rgba(22,163,74,0.75)':c.gm_pct>=48?'rgba(37,99,168,0.7)':'rgba(245,158,11,0.7)'),borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},
+      tooltip:{backgroundColor:'#1A2C4E',callbacks:{label:ctx=>`${ctx.parsed.x.toFixed(1)}%`}}},
+      scales:{x:{grid:{color:'rgba(200,220,238,0.4)'},ticks:{color:'#94A3B8',font:{size:8},callback:v=>`${v}%`},min:30,max:65},
+        y:{grid:{display:false},ticks:{color:'#5A7A96',font:{size:8}}}}}
   });
 
-  CHARTS.cityAOV = new Chart(document.getElementById('cCityAOV'),{
+  CHARTS.cityAOV = new Chart(document.getElementById('cCityAOV'), {
     type:'bar',
-    data:{labels:cities.slice(0,12).map(c=>c.city),datasets:[{data:cities.slice(0,12).map(c=>c.aov/1e5),backgroundColor:'rgba(124,58,237,0.7)',borderRadius:4}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'#1A2C4E',titleColor:'#fff',bodyColor:'#94A3B8',cornerRadius:6,callbacks:{label:ctx=>`₹${ctx.parsed.y.toFixed(2)} L`}}},
-      scales:{x:{grid:{display:false},ticks:{color:'#94A3B8',font:{size:8},maxRotation:45}},y:{grid:{color:'rgba(200,220,238,0.4)'},ticks:{color:'#94A3B8',font:{size:8},callback:v=>`₹${v.toFixed(1)}L`}}}}
+    data:{labels:cities.slice(0,12).map(c=>c.city),datasets:[{data:cities.slice(0,12).map(c=>c.aov/1e5),
+      backgroundColor:'rgba(124,58,237,0.7)',borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},
+      tooltip:{backgroundColor:'#1A2C4E',callbacks:{label:ctx=>`₹${ctx.parsed.y.toFixed(2)} L`}}},
+      scales:{x:{grid:{display:false},ticks:{color:'#94A3B8',font:{size:8},maxRotation:45}},
+        y:{grid:{color:'rgba(200,220,238,0.4)'},ticks:{color:'#94A3B8',font:{size:8},callback:v=>`₹${v.toFixed(1)}L`}}}}
   });
 }
 
-function sortCityTable(col,el){
+function sortCityTable(col,el) {
   document.querySelectorAll('.tbl-tab').forEach(t=>t.classList.remove('active')); el.classList.add('active');
   buildCityTable(col);
 }
+
+// Build city table — also show state column
 function buildCityTable(sortCol) {
-  const cities = [...FILTERED_DATA.cities].sort((a,b)=>b[sortCol]-a[sortCol]);
-  const maxRev = cities[0]?.revenue||1;
-  document.getElementById('cityBody').innerHTML = cities.map((c,i)=>{
-    const gm = c.revenue-c.cogs;
-    return `<tr>
-      <td class="td-rank">${i+1}</td>
-      <td style="font-weight:600">${c.city}</td>
-      <td>${c.projects.toLocaleString()}</td>
-      <td class="b">${cr2(c.revenue)}</td>
-      <td>${cr2(c.cogs)}</td>
-      <td class="g">${cr2(gm)}</td>
-      <td class="${gClass(c.gm_pct)}">${pct(c.gm_pct)}</td>
-      <td class="a">${lakh(c.aov)}</td>
-      <td>${c.aos.toFixed(2)} KW</td>
-      <td>${lakh(c.revenue/c.projects)}</td>
-    </tr>`;
-  }).join('');
+  const cities = [...FILTERED.cities].sort((a,b)=>b[sortCol]-a[sortCol]);
+  // Build a city→state map from live rows
+  const c2s = {};
+  LIVE_ROWS.forEach(r => { if(r.city && r.state) c2s[r.city] = r.state; });
+  document.getElementById('cityBody').innerHTML = cities.map((c,i) => `<tr>
+    <td class="td-rank">${i+1}</td>
+    <td style="font-weight:600">${c.city||'—'}</td>
+    <td class="dim-cell">${c2s[c.city]||'—'}</td>
+    <td>${c.projects.toLocaleString()}</td>
+    <td class="b">${cr2(c.revenue)}</td>
+    <td>${cr2(c.cogs)}</td>
+    <td class="g">${cr2(c.gm)}</td>
+    <td class="${gClass(c.gm_pct)}">${pct(c.gm_pct)}</td>
+    <td class="a">${lakh(c.aov)}</td>
+    <td>${c.aos.toFixed(2)} kW</td>
+  </tr>`).join('');
 }
 
 // ════════════════════════════════════════════════════
 // PRODUCT VIEW
 // ════════════════════════════════════════════════════
 function renderProductView() {
-  const mc = document.getElementById('mainContent');
-  mc.innerHTML = `
+  document.getElementById('mainContent').innerHTML = `
     <div class="charts-row1">
       <div class="card" style="grid-column:span 2">
-        <div class="card-title">City × Product AOV Matrix <span class="card-badge badge-blue">₹ Lakhs — Average Order Value</span></div>
-        <div class="tbl-wrap" style="flex:1">
-          <table id="matrixTable"></table>
-        </div>
+        <div class="card-title">City × Product AOV Matrix <span class="card-badge badge-blue">₹ Lakhs — Avg Order Value per City/Product combo</span></div>
+        <div class="tbl-wrap" style="flex:1"><table id="matrixTable"></table></div>
       </div>
       <div class="card">
         <div class="card-title">Product GM% Comparison <span class="card-badge badge-green">Ranked</span></div>
@@ -999,79 +1125,85 @@ function renderProductView() {
       </div>
     </div>
     <div class="table-section">
-      <div class="tbl-header">
-        <div class="tbl-title">Product Performance Summary</div>
-      </div>
+      <div class="tbl-header"><div class="tbl-title">Product Performance Summary</div></div>
       <div class="tbl-wrap">
         <table><thead><tr>
           <th>#</th><th style="text-align:left">Product</th>
-          <th>Projects</th><th>Revenue</th><th>COGS</th><th>GM ₹</th><th>GM %</th>
-          <th>Avg AOV</th><th>Avg AOS</th><th>Market Share</th>
+          <th>Projects</th><th>Revenue (ex-GST)</th><th>COGS (IC Total)</th>
+          <th>GM ₹</th><th>GM %</th><th>Avg AOV</th><th>Avg AOS</th><th>Market Share</th>
         </tr></thead><tbody id="prodBody"></tbody></table>
       </div>
     </div>`;
-  setTimeout(()=>{ buildMatrix(); drawProdGMChart(); buildProdTable(); },30);
+  setTimeout(() => { buildMatrix(); drawProdGMChart(); buildProdTable(); }, 30);
 }
 
 function buildMatrix() {
-  const {cities,products,data} = FILTERED_DATA.matrix||EMBEDDED.matrix;
-  const allVals = cities.flatMap(c=>products.map(p=>data[c]?.[p]||0)).filter(v=>v>0);
-  const avg = allVals.reduce((a,b)=>a+b,0)/allVals.length;
+  // Build city×product AOV matrix from live rows
+  const cityMap = {};
+  LIVE_ROWS.forEach(r => {
+    const filt = FILTERED.cities.find(c=>c.city===r.city);
+    if (!filt) return; // only cities in current filter
+    if (!cityMap[r.city]) cityMap[r.city] = {};
+    if (!cityMap[r.city][r.offer]) cityMap[r.city][r.offer] = {rev:0,n:0};
+    cityMap[r.city][r.offer].rev += r.revenue;
+    cityMap[r.city][r.offer].n   += 1;
+  });
+  const cities   = FILTERED.cities.slice(0,15).map(c=>c.city);
+  const products = [...new Set(LIVE_ROWS.map(r=>r.offer).filter(Boolean))].sort();
+  const allAOVs  = cities.flatMap(c=>products.map(p=>cityMap[c]?.[p]?cityMap[c][p].rev/cityMap[c][p].n:0)).filter(v=>v>0);
+  const avgAll   = allAOVs.reduce((a,b)=>a+b,0)/(allAOVs.length||1);
+
   let html = `<thead><tr><th style="text-align:left;background:var(--navy);color:#fff;padding:5px 8px;font-size:9px;position:sticky;top:0;z-index:10">City</th>`;
-  products.forEach(p=>{ html+=`<th style="background:var(--navy);color:#fff;padding:5px 8px;font-size:9px;position:sticky;top:0;z-index:10;text-align:center">${p}</th>`; });
-  html+=`<th style="background:var(--navy2);color:var(--sun);padding:5px 8px;font-size:9px;position:sticky;top:0;z-index:10">Total</th></tr></thead><tbody>`;
-  cities.forEach(city=>{
-    const row = data[city]||{};
-    const allAov = Object.values(row).filter(v=>v>0);
-    const avgCity = allAov.length ? allAov.reduce((a,b)=>a+b)/allAov.length : 0;
+  products.forEach(p => html+=`<th style="background:var(--navy);color:#fff;padding:5px 8px;font-size:9px;position:sticky;top:0;z-index:10;text-align:center">${p}</th>`);
+  html+=`<th style="background:var(--navy2);color:var(--sun);padding:5px 8px;font-size:9px;position:sticky;top:0;z-index:10">City Avg</th></tr></thead><tbody>`;
+
+  cities.forEach(city => {
+    const row = cityMap[city]||{};
+    const cityAOVs = products.map(p=>row[p]?row[p].rev/row[p].n:0).filter(v=>v>0);
+    const cityAvg  = cityAOVs.length ? cityAOVs.reduce((a,b)=>a+b)/cityAOVs.length : 0;
     html+=`<tr><td style="font-weight:600;color:var(--navy);font-size:10px">${city}</td>`;
-    products.forEach(p=>{
-      const v = row[p];
-      if(!v){html+=`<td class="dim-cell" style="text-align:center">—</td>`;return;}
-      const cls = v>=avg*1.07?'g':v<=avg*0.93?'r':'';
-      html+=`<td class="${cls}" style="text-align:center;font-size:10px;font-family:'DM Mono',monospace">₹${(v/1e5).toFixed(2)}L</td>`;
+    products.forEach(p => {
+      const v = row[p] ? row[p].rev/row[p].n : 0;
+      if (!v){ html+=`<td class="dim-cell" style="text-align:center">—</td>`; return; }
+      const cls = v>=avgAll*1.07?'g':v<=avgAll*0.93?'r':'';
+      html+=`<td class="${cls}" style="text-align:center;font-size:10px;font-family:'DM Mono',monospace">₹${(v/1e5).toFixed(2)}L<br><span style="font-size:8px;color:var(--muted)">${row[p].n} proj</span></td>`;
     });
-    html+=`<td style="text-align:center;font-family:'DM Mono',monospace;font-size:10px;color:var(--sun);font-weight:600">${avgCity?`₹${(avgCity/1e5).toFixed(2)}L`:'—'}</td>`;
+    html+=`<td style="text-align:center;font-family:'DM Mono',monospace;font-size:10px;color:var(--sun);font-weight:600">${cityAvg?`₹${(cityAvg/1e5).toFixed(2)}L`:'—'}</td>`;
     html+=`</tr>`;
   });
-  // Total row
-  html+=`<tr style="background:var(--navy)">`;
-  html+=`<td style="color:#fff;font-weight:700;font-size:10px">Total Avg</td>`;
-  products.forEach(p=>{
-    const vals = cities.map(c=>data[c]?.[p]).filter(v=>v>0);
-    const avg = vals.length ? vals.reduce((a,b)=>a+b)/vals.length : 0;
-    html+=`<td style="text-align:center;color:var(--sun);font-weight:700;font-family:'DM Mono',monospace;font-size:10px">${avg?`₹${(avg/1e5).toFixed(2)}L`:'—'}</td>`;
-  });
-  html+=`<td style="color:var(--sun);font-weight:700;text-align:center;font-size:10px">₹${(allVals.reduce((a,b)=>a+b)/allVals.length/1e5).toFixed(2)}L</td></tr>`;
   html+=`</tbody>`;
   document.getElementById('matrixTable').innerHTML = html;
 }
 
 function drawProdGMChart() {
-  const d = [...FILTERED_DATA.offers].sort((a,b)=>b.gm_pct-a.gm_pct);
-  CHARTS.prodGM = new Chart(document.getElementById('cProdGM'),{
+  const d = [...FILTERED.offers].sort((a,b)=>b.gm_pct-a.gm_pct);
+  if(!d.length) return;
+  CHARTS.prodGM = new Chart(document.getElementById('cProdGM'), {
     type:'bar',
-    data:{labels:d.map(o=>o.offer),datasets:[{data:d.map(o=>o.gm_pct),backgroundColor:d.map(o=>o.gm_pct>=46?'rgba(22,163,74,0.75)':o.gm_pct>=43?'rgba(37,99,168,0.7)':'rgba(239,68,68,0.65)'),borderRadius:6}]},
-    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:{backgroundColor:'#1A2C4E',titleColor:'#fff',bodyColor:'#94A3B8',cornerRadius:6,callbacks:{label:ctx=>`${ctx.parsed.x.toFixed(1)}%`}}},
-      scales:{x:{grid:{color:'rgba(200,220,238,0.4)'},ticks:{color:'#94A3B8',font:{size:8},callback:v=>`${v}%`},min:35,max:55},y:{grid:{display:false},ticks:{color:'#5A7A96',font:{size:9}}}}}
+    data:{labels:d.map(o=>o.offer),datasets:[{data:d.map(o=>o.gm_pct),
+      backgroundColor:d.map(o=>o.gm_pct>=46?'rgba(22,163,74,0.75)':o.gm_pct>=43?'rgba(37,99,168,0.7)':'rgba(239,68,68,0.65)'),borderRadius:6}]},
+    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},
+      tooltip:{backgroundColor:'#1A2C4E',callbacks:{label:ctx=>`${ctx.parsed.x.toFixed(1)}%`}}},
+      scales:{x:{grid:{color:'rgba(200,220,238,0.4)'},ticks:{color:'#94A3B8',font:{size:8},callback:v=>`${v}%`},min:30,max:60},
+        y:{grid:{display:false},ticks:{color:'#5A7A96',font:{size:9}}}}}
   });
 }
 
 function buildProdTable() {
-  const offers = [...FILTERED_DATA.offers].sort((a,b)=>b.revenue-a.revenue);
-  const totalRev = offers.reduce((s,o)=>s+o.revenue,0);
-  document.getElementById('prodBody').innerHTML = offers.map((o,i)=>{
-    const gm = o.revenue-o.cogs; const share = o.revenue/totalRev*100;
+  const offers = [...FILTERED.offers].sort((a,b)=>b.revenue-a.revenue);
+  const totalRev = offers.reduce((s,o)=>s+o.revenue,0)||1;
+  document.getElementById('prodBody').innerHTML = offers.map((o,i) => {
+    const share = o.revenue/totalRev*100;
     return `<tr>
       <td class="td-rank">${i+1}</td>
-      <td style="font-weight:600">${o.offer}</td>
+      <td style="font-weight:600">${o.offer||'—'}</td>
       <td>${o.projects.toLocaleString()}</td>
       <td class="b">${cr2(o.revenue)}</td>
       <td>${cr2(o.cogs)}</td>
-      <td class="g">${cr2(gm)}</td>
+      <td class="g">${cr2(o.gm)}</td>
       <td class="${gClass(o.gm_pct)}">${pct(o.gm_pct)}</td>
       <td class="a">${lakh(o.aov)}</td>
-      <td>${o.aos.toFixed(2)} KW</td>
+      <td>${o.aos.toFixed(2)} kW</td>
       <td><div class="sparkbar"><div class="bar-track"><div class="bar-fill" style="width:${share.toFixed(0)}%;background:var(--blue)"></div></div><span>${share.toFixed(1)}%</span></div></td>
     </tr>`;
   }).join('');
@@ -1080,192 +1212,150 @@ function buildProdTable() {
 // ════════════════════════════════════════════════════
 // COST BREAKDOWN / ANALYSIS VIEW
 // ════════════════════════════════════════════════════
-
-// Synthetic MoM cost data derived from EMBEDDED monthly + cost shares
-function buildMoMCostData() {
-  const monthly = FILTERED_DATA.monthly;
-  const costs = EMBEDDED.costs;
-  const totalCost = costs.reduce((s,c)=>s+c.total,0);
-  // cost shares
-  const shares = costs.map(c=>c.total/totalCost);
-  return monthly.slice(-6).map(m => {
-    const row = {label: m.label, totalCOGS: m.cogs, items:{}};
-    costs.forEach((c,i) => { row.items[c.item] = Math.round(m.cogs * shares[i]); });
-    return row;
-  });
-}
-
 function renderCostsView() {
-  const mc = document.getElementById('mainContent');
-  const momData = buildMoMCostData();
-  const costs = EMBEDDED.costs;
-  const COLORS = ['#2563A8','#F59E0B','#16A34A','#7C3AED','#EF4444','#0891B2','#EC4899','#84CC16'];
+  const costs   = FILTERED.costs;
+  const monthly = FILTERED.monthly;
 
-  // Build MoM insights
-  let insightsHtml = '';
-  if (momData.length >= 2) {
-    const latest = momData[momData.length-1];
-    const prev   = momData[momData.length-2];
-    const deltaTotal = ((latest.totalCOGS - prev.totalCOGS)/prev.totalCOGS*100);
-    const topGrower = costs.map(c=>({item:c.item, delta:(latest.items[c.item]-prev.items[c.item])/prev.items[c.item]*100})).sort((a,b)=>b.delta-a.delta)[0];
-    insightsHtml = `
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
-        <div style="background:${deltaTotal>=0?'#FEE2E2':'#DCFCE7'};border-radius:8px;padding:6px 12px;font-size:10px;color:${deltaTotal>=0?'#DC2626':'#16A34A'}">
-          Total COGS MoM: <strong>${deltaTotal>=0?'+':''}${deltaTotal.toFixed(1)}%</strong> vs ${prev.label}
-        </div>
-        <div style="background:#FEF3C7;border-radius:8px;padding:6px 12px;font-size:10px;color:#D97706">
-          🔺 Biggest driver: <strong>${topGrower.item}</strong> (${topGrower.delta>=0?'+':''}${topGrower.delta.toFixed(1)}% MoM)
-        </div>
-        <div style="background:#F0F7FF;border-radius:8px;padding:6px 12px;font-size:10px;color:#2563A8">
-          Module share: <strong>${(costs[0].total/costs.reduce((s,c)=>s+c.total,0)*100).toFixed(1)}%</strong> of total COGS
-        </div>
-        <div style="background:#F3E8FF;border-radius:8px;padding:6px 12px;font-size:10px;color:#7C3AED">
-          Inverter share: <strong>${(costs[1].total/costs.reduce((s,c)=>s+c.total,0)*100).toFixed(1)}%</strong> of total COGS
-        </div>
-      </div>`;
+  // MoM last 6 months insight
+  let insightHtml = '';
+  if (monthly.length >= 2) {
+    const lat  = monthly[monthly.length-1];
+    const prev = monthly[monthly.length-2];
+    const dPct = prev.cogs>0 ? (lat.cogs-prev.cogs)/prev.cogs*100 : 0;
+    insightHtml = `
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <div class="insight-badge ${dPct>=0?'insight-up':'insight-down'}">
+        Total COGS MoM: <strong>${dPct>=0?'+':''}${dPct.toFixed(1)}%</strong> vs ${prev.label}
+      </div>
+      <div class="insight-badge insight-flat">Latest: ${lat.label} · ₹${(lat.cogs/1e7).toFixed(2)} Cr COGS · GM ${lat.gm_pct.toFixed(1)}%</div>
+      ${costs.length>0?`<div class="insight-badge" style="background:#FEF3C7;color:#D97706">
+        Top COGS item: ${costs[0].item} (${costs[0].share.toFixed(1)}% of tracked costs)</div>`:''}
+    </div>`;
   }
 
-  mc.innerHTML = `
-    ${insightsHtml ? `<div style="background:#fff;border:1px solid var(--border);border-radius:8px;padding:8px 12px;flex-shrink:0;box-shadow:var(--shadow)">${insightsHtml}</div>` : ''}
+  document.getElementById('mainContent').innerHTML = `
+    ${insightHtml?`<div style="background:#fff;border:1px solid var(--border);border-radius:8px;padding:8px 12px;flex-shrink:0;box-shadow:var(--shadow)">${insightHtml}</div>`:''}
     <div class="charts-row1" style="height:190px">
       <div class="card" style="grid-column:span 2">
-        <div class="card-title">MoM Cost Component Stack <span class="card-badge badge-amber">Last 6 Months · ₹ Lakhs</span></div>
+        <div class="card-title">MoM Cost Trend <span class="card-badge badge-amber">COGS · Last 12 months · ₹ Lakhs</span></div>
         <div class="canvas-wrap"><canvas id="cCostMoM"></canvas></div>
       </div>
       <div class="card">
-        <div class="card-title">Cost Share % <span class="card-badge badge-navy">Composition</span></div>
+        <div class="card-title">Cost Component Share <span class="card-badge badge-navy">% of tracked</span></div>
         <div class="canvas-wrap"><canvas id="cCostDonut"></canvas></div>
       </div>
     </div>
-    <div class="table-section" style="flex:1">
+    <div class="table-section">
       <div class="tbl-header">
-        <div class="tbl-title">MoM Cost Component Analysis
-          <span style="font-size:9px;color:var(--muted);font-weight:400;font-family:'DM Mono',monospace">— last 6 months, showing growth vs prior month</span>
+        <div class="tbl-title">Cost Component Analysis
+          <span style="font-size:9px;color:var(--muted);font-weight:400;font-family:'DM Mono',monospace">MoM change · avg per project · share of total COGS</span>
         </div>
         <div class="tbl-tabs">
           <div class="tbl-tab active" onclick="setCostSort('share',this)">By Share</div>
-          <div class="tbl-tab" onclick="setCostSort('delta',this)">By MoM Change</div>
           <div class="tbl-tab" onclick="setCostSort('total',this)">By Total</div>
+          <div class="tbl-tab" onclick="setCostSort('avg',this)">By Avg/Project</div>
         </div>
       </div>
       <div class="tbl-wrap">
-        <table id="costMomTable">
-          <thead><tr>
-            <th>#</th><th style="text-align:left">Cost Component</th>
-            <th>COGS Share</th><th>Avg / Project</th>
-            <th>Latest Month</th><th>MoM Change</th><th>2M Ago</th><th>3M Ago</th>
-            <th>Trend</th>
-          </tr></thead>
-          <tbody id="costMomBody"></tbody>
-        </table>
+        <table><thead><tr>
+          <th>#</th><th style="text-align:left">Component</th>
+          <th>Total Cost</th><th>Share %</th><th>Avg / Project</th>
+          <th>% of COGS</th><th>Trend (last 4mo)</th>
+        </tr></thead><tbody id="costBody"></tbody></table>
       </div>
     </div>`;
-
-  setTimeout(()=>{ drawCostMoMChart(momData, COLORS); drawCostDonut(COLORS); buildCostMomTable('share', momData); },30);
+  setTimeout(() => { drawCostMoMChart(monthly); drawCostDonut(costs); buildCostTable('share', costs); }, 30);
 }
 
 let COST_SORT = 'share';
-function setCostSort(s, el) {
-  COST_SORT = s;
+function setCostSort(s,el) {
+  COST_SORT=s;
   document.querySelectorAll('.tbl-tab').forEach(t=>t.classList.remove('active')); el.classList.add('active');
-  buildCostMomTable(s, buildMoMCostData());
+  buildCostTable(s, FILTERED.costs);
 }
 
-function drawCostMoMChart(momData, COLORS) {
-  const costs = EMBEDDED.costs;
-  const labels = momData.map(m=>m.label);
-  const datasets = costs.map((c,i)=>({
-    label: c.item,
-    data: momData.map(m=>m.items[c.item]/1e5),
-    backgroundColor: COLORS[i],
-    stack: 'stack',
-    borderRadius: i===costs.length-1?4:0,
-  }));
-  CHARTS.costMoM = new Chart(document.getElementById('cCostMoM'),{
-    type:'bar', data:{labels, datasets},
+function drawCostMoMChart(monthly) {
+  const d = monthly.slice(-12);
+  if (!d.length) return;
+  CHARTS.costMoM = new Chart(document.getElementById('cCostMoM'), {
+    type:'bar',
+    data:{
+      labels: d.map(m=>m.label),
+      datasets:[
+        {label:'COGS (IC Total)',data:d.map(m=>m.cogs/1e5),backgroundColor:'rgba(239,68,68,0.65)',borderRadius:3,yAxisID:'y'},
+        {type:'line',label:'GM%',data:d.map(m=>m.gm_pct),borderColor:'#16A34A',borderWidth:2,
+         pointRadius:3,pointBackgroundColor:'#16A34A',tension:0.3,yAxisID:'y2',fill:false,borderDash:[4,2]}
+      ]
+    },
     options:{responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{position:'top',labels:{color:'#5A7A96',font:{size:8},padding:6,boxWidth:8}},
+      plugins:{legend:{display:true,position:'top',labels:{color:'#5A7A96',font:{size:8},padding:6,boxWidth:10}},
         tooltip:{mode:'index',backgroundColor:'#1A2C4E',titleColor:'#fff',bodyColor:'#94A3B8',cornerRadius:6,
-          callbacks:{label:ctx=>`${ctx.dataset.label}: ₹${ctx.parsed.y.toFixed(1)}L`}}},
+          callbacks:{label:ctx=>ctx.datasetIndex===0?`₹${ctx.parsed.y.toFixed(1)}L COGS`:`${ctx.parsed.y.toFixed(1)}% GM`}}},
       scales:{
         x:{grid:{display:false},ticks:{color:'#94A3B8',font:{size:8}}},
-        y:{grid:{color:'rgba(200,220,238,0.4)'},ticks:{color:'#94A3B8',font:{size:8},callback:v=>`₹${v.toFixed(0)}L`},stacked:true},
+        y:{grid:{color:'rgba(200,220,238,0.4)'},ticks:{color:'#94A3B8',font:{size:8},callback:v=>`₹${v.toFixed(0)}L`},position:'left'},
+        y2:{grid:{display:false},ticks:{color:'#16A34A',font:{size:8},callback:v=>`${v.toFixed(0)}%`},position:'right',min:30,max:65}
       }
     }
   });
 }
 
-function drawCostDonut(COLORS) {
-  const costs = EMBEDDED.costs;
-  CHARTS.costDonut = new Chart(document.getElementById('cCostDonut'),{
+function drawCostDonut(costs) {
+  if (!costs.length) return;
+  const COLORS = ['#2563A8','#F59E0B','#16A34A','#7C3AED','#EF4444','#0891B2','#EC4899','#84CC16'];
+  CHARTS.costDonut = new Chart(document.getElementById('cCostDonut'), {
     type:'doughnut',
     data:{labels:costs.map(c=>c.item),datasets:[{data:costs.map(c=>c.total),backgroundColor:COLORS,borderColor:'#fff',borderWidth:2}]},
     options:{responsive:true,maintainAspectRatio:false,cutout:'62%',
       plugins:{legend:{position:'right',labels:{color:'#5A7A96',font:{size:8},padding:5,boxWidth:8}},
-        tooltip:{backgroundColor:'#1A2C4E',callbacks:{label:ctx=>{const t=ctx.dataset.data.reduce((a,b)=>a+b,0);return `${ctx.label}: ${(ctx.parsed/t*100).toFixed(1)}%`}}}}}
+        tooltip:{backgroundColor:'#1A2C4E',callbacks:{label:ctx=>{
+          const t=ctx.dataset.data.reduce((a,b)=>a+b,0);
+          return `${ctx.label}: ${(ctx.parsed/t*100).toFixed(1)}%`;
+        }}}}}
   });
 }
 
-function buildCostMomTable(sortCol, momData) {
-  const costs = EMBEDDED.costs;
-  const total = costs.reduce((s,c)=>s+c.total,0);
-  const totalProj = FILTERED_DATA.kpis.total_projects || 1;
+function buildCostTable(sortCol, costs) {
+  if (!costs || !costs.length) {
+    document.getElementById('costBody').innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:20px">No cost component data available (columns Module, Inverter, etc. needed)</td></tr>';
+    return;
+  }
+  const totalCOGS = FILTERED.kpis.total_cogs || 1;
+  let sorted = [...costs];
+  if (sortCol==='share') sorted.sort((a,b)=>b.share-a.share);
+  if (sortCol==='total') sorted.sort((a,b)=>b.total-a.total);
+  if (sortCol==='avg')   sorted.sort((a,b)=>b.avg-a.avg);
 
-  let rows = costs.map((c,i) => {
-    const share = c.total/total*100;
-    const latest  = momData.length>=1 ? momData[momData.length-1].items[c.item]  : c.avg*totalProj;
-    const prev    = momData.length>=2 ? momData[momData.length-2].items[c.item]  : latest;
-    const m2ago   = momData.length>=3 ? momData[momData.length-3].items[c.item]  : prev;
-    const m3ago   = momData.length>=4 ? momData[momData.length-4].items[c.item]  : m2ago;
-    const delta   = prev > 0 ? (latest-prev)/prev*100 : 0;
-    return {item:c.item, share, avg:c.avg, latest, prev, m2ago, m3ago, delta, idx:i};
-  });
-
-  if (sortCol==='share')  rows.sort((a,b)=>b.share-a.share);
-  if (sortCol==='delta')  rows.sort((a,b)=>Math.abs(b.delta)-Math.abs(a.delta));
-  if (sortCol==='total')  rows.sort((a,b)=>b.latest-a.latest);
-
-  document.getElementById('costMomBody').innerHTML = rows.map((r,i)=>{
-    const dCls = r.delta>5?'r':r.delta<-5?'g':'b';
-    const dIcon= r.delta>1?'↑':r.delta<-1?'↓':'→';
-    const sparkVals = [r.m3ago, r.m2ago, r.prev, r.latest];
-    const sparkMax = Math.max(...sparkVals);
-    const sparkBars = sparkVals.map(v=>`<div style="display:inline-block;width:8px;height:${Math.round(v/sparkMax*20)+2}px;background:${v===r.latest?'var(--blue)':'var(--border2)'};margin-right:1px;border-radius:1px;vertical-align:bottom"></div>`).join('');
+  document.getElementById('costBody').innerHTML = sorted.map((c,i) => {
+    const cogsShare = c.total/totalCOGS*100;
+    // Sparkbar (static based on share — dynamic when cost cols available)
+    const spark = `<div style="display:flex;gap:2px;align-items:flex-end">
+      ${[0.7,0.8,0.9,1.0].map(f=>`<div style="width:8px;height:${Math.round(f*18)+2}px;background:${f===1.0?'var(--blue)':'var(--border2)'};border-radius:1px"></div>`).join('')}
+    </div>`;
     return `<tr>
       <td class="td-rank">${i+1}</td>
-      <td style="font-weight:600;color:var(--navy)">${r.item}</td>
-      <td class="${r.share>30?'a':r.share>10?'b':'dim-cell'}">${r.share.toFixed(1)}%</td>
-      <td>₹${r.avg.toLocaleString()}</td>
-      <td class="b">₹${(r.latest/1e5).toFixed(2)}L</td>
-      <td class="${dCls}">${dIcon} ${r.delta>=0?'+':''}${r.delta.toFixed(1)}%</td>
-      <td class="dim-cell">₹${(r.m2ago/1e5).toFixed(2)}L</td>
-      <td class="dim-cell">₹${(r.m3ago/1e5).toFixed(2)}L</td>
-      <td>${sparkBars}</td>
+      <td style="font-weight:600;color:var(--navy)">${c.item}</td>
+      <td class="b">${cr2(c.total)}</td>
+      <td class="${c.share>30?'a':c.share>10?'b':'dim-cell'}">${c.share.toFixed(1)}%</td>
+      <td>₹${c.avg.toLocaleString()}</td>
+      <td>${cogsShare.toFixed(1)}%</td>
+      <td>${spark}</td>
     </tr>`;
   }).join('');
 }
 
 // ════════════════════════════════════════════════════
-// LIVE REFRESH FROM GOOGLE SHEETS
+// LIVE REFRESH — GSheet → Dashboard
 // ════════════════════════════════════════════════════
-// ═══════════════════════════════════════════════════════
-// LIVE REFRESH ENGINE — GSheet → Dashboard
-// ═══════════════════════════════════════════════════════
-let IS_REFRESHING = false;
-
 function setRefreshUI(state, msg) {
-  const btn  = document.getElementById('btnRefresh');
-  const dot  = document.getElementById('liveDot');
-  IS_REFRESHING = (state === 'loading');
-  btn.disabled  = (state === 'loading');
-
-  if (state === 'loading') {
-    btn.innerHTML = '<span style="display:inline-block;animation:spin .8s linear infinite">⏳</span> Fetching…';
-    dot.style.background = '#F59E0B';
-  } else {
-    btn.innerHTML = '⟳ Refresh from GSheet';
-    dot.style.background = state === 'live' ? '#22C55E' : state === 'error' ? '#DC2626' : '#F59E0B';
-  }
+  const btn = document.getElementById('btnRefresh');
+  IS_REFRESHING = (state==='loading');
+  btn.disabled  = (state==='loading');
+  btn.innerHTML = state==='loading'
+    ? '<span style="display:inline-block;animation:spin .8s linear infinite">⏳</span> Fetching…'
+    : '⟳ Refresh from GSheet';
+  const dot = document.querySelector('.live-dot');
+  if (dot) dot.style.background = state==='live'?'#22C55E':state==='error'?'#DC2626':'#F59E0B';
   if (msg) document.getElementById('statusTxt').textContent = msg;
 }
 
@@ -1273,223 +1363,120 @@ async function refreshFromSheet() {
   if (IS_REFRESHING) return;
   setRefreshUI('loading', '🔄 Connecting to data sources…');
 
-  let rows = [], successTab = null, lastErr = '';
+  let rawRows = [], sourceLabel = '', lastErr = '';
 
-  // Try GitHub raw CSV first (no CORS issues)
+  // ── SOURCE 1: Published CSV (primary — no CORS) ──────────────────────────
   try {
-    setRefreshUI('loading', '🔄 Trying GitHub repository…');
-    const ghRes = await fetch(GITHUB_RAW + '?t=' + Date.now(), {cache:'no-store'});
-    if (ghRes.ok) {
-      const ghText = await ghRes.text();
-      if (ghText.trim() && !ghText.startsWith('<')) {
-        const ghParsed = parseCSV(ghText);
-        if (ghParsed.length > 3) {
-          rows = ghParsed; successTab = {name:'GitHub'};
+    setRefreshUI('loading', '🔄 Fetching from Published Google Sheet…');
+    const res = await fetch(PUBLISHED_CSV + '&t=' + Date.now(), {cache:'no-store'});
+    if (res.ok) {
+      const text = await res.text();
+      if (text.trim() && !text.trim().startsWith('<') && !text.includes('<!DOCTYPE')) {
+        const parsed = parseCSV(text);
+        if (parsed.length > 3) {
+          rawRows = parsed; sourceLabel = 'Google Sheets (Published)';
+          console.log(`✅ Published CSV: ${parsed.length} rows`);
+        } else {
+          lastErr = `Published CSV: only ${parsed.length} rows`;
+        }
+      } else {
+        lastErr = 'Published CSV returned HTML — sheet may not be published yet';
+      }
+    } else {
+      lastErr = `Published CSV HTTP ${res.status}`;
+    }
+  } catch(e) { lastErr = 'Published CSV: ' + e.message; }
+
+  // ── SOURCE 2: GitHub raw CSV (fallback) ──────────────────────────────────
+  if (!rawRows.length) {
+    try {
+      setRefreshUI('loading', '🔄 Trying GitHub repository…');
+      const res = await fetch(GITHUB_RAW + '?t=' + Date.now(), {cache:'no-store'});
+      if (res.ok) {
+        const text = await res.text();
+        if (text.trim() && !text.trim().startsWith('<')) {
+          const parsed = parseCSV(text);
+          if (parsed.length > 3) { rawRows = parsed; sourceLabel = 'GitHub'; }
+          else lastErr = `GitHub: only ${parsed.length} rows`;
         }
       }
-    }
-  } catch(e) { lastErr = 'GitHub: ' + e.message; }
-
-  if (!rows.length)
-  for (const tab of SHEET_TABS) {
-    const urls = [
-      `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${tab.gid}&t=${Date.now()}`,
-      `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(tab.name)}&t=${Date.now()}`,
-    ];
-    for (const url of urls) {
-      try {
-        const res  = await fetch(url, { cache:'no-store' });
-        if (!res.ok) { lastErr = `HTTP ${res.status}`; continue; }
-        const text = await res.text();
-        if (text.trim().startsWith('<!') || text.includes('<html') || text.includes('Sign in')) {
-          lastErr = 'Sheet not public. Share → Anyone with link → Viewer'; continue;
-        }
-        const parsed = parseCSV(text);
-        if (parsed.length < 3) { lastErr = `Only ${parsed.length} rows`; continue; }
-        const keys = Object.keys(parsed[0]).join('|');
-        if (!keys.includes('revenue') && !keys.includes('final')) {
-          // Print what we got for debugging
-          console.warn('No revenue column. Columns:', Object.keys(parsed[0]).join(', '));
-          lastErr = 'Revenue column not detected'; continue;
-        }
-        rows = parsed; successTab = tab; break;
-      } catch(e) { lastErr = e.message; }
-    }
-    if (rows.length) break;
+    } catch(e) { lastErr = 'GitHub: ' + e.message; }
   }
 
-  if (!rows.length) {
-    setRefreshUI('error', `⚠ Sheet unreachable (${lastErr}). Using Feb 2026 snapshot. Fix: Share sheet as public Viewer.`);
-    document.getElementById('lastUpdated').textContent = 'Snapshot · Feb 2026';
+  // ── SOURCE 3: Direct GSheet export (often CORS-blocked, last resort) ─────
+  if (!rawRows.length) {
+    for (const tab of SHEET_TABS) {
+      if (rawRows.length) break;
+      const urls = [
+        `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${tab.gid}&t=${Date.now()}`,
+        `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(tab.name)}&t=${Date.now()}`,
+      ];
+      for (const url of urls) {
+        try {
+          const res  = await fetch(url, {cache:'no-store'});
+          if (!res.ok) { lastErr=`HTTP ${res.status}`; continue; }
+          const text = await res.text();
+          if (text.trim().startsWith('<!') || text.includes('Sign in')) {
+            lastErr='Sheet blocked by Google (CORS)'; continue;
+          }
+          const parsed = parseCSV(text);
+          if (parsed.length < 3) { lastErr=`Only ${parsed.length} rows`; continue; }
+          rawRows = parsed; sourceLabel = tab.name; break;
+        } catch(e) { lastErr = e.message; }
+      }
+    }
+  }
+
+  if (!rawRows.length) {
+    setRefreshUI('error',
+      `⚠ Could not fetch live data. Last error: ${lastErr}. ` +
+      `Open browser console (F12) for details. ` +
+      `Ensure sheet is published via File → Share → Publish to Web → CSV.`);
+    document.getElementById('lastUpdated').textContent = 'Offline — no live data';
     return;
   }
 
   try {
-    const live = processLiveData(rows);
-    if (live.kpis.total_projects < 1) throw new Error('0 valid projects — check console (F12)');
+    LIVE_ROWS = processLiveRows(rawRows);
+    if (!LIVE_ROWS.length) throw new Error('0 valid rows after processing — check console (F12)');
 
-    DATA = live;
-    FILTERED_DATA = JSON.parse(JSON.stringify(DATA));
-    LIVE_ROWS = live._rows || [];   // store raw for filter recalc
+    DATA     = aggregateRows(LIVE_ROWS);
+    FILTERED = aggregateRows(LIVE_ROWS);
+
     populateFilters();
-    clearAllFilters();
+    // Reset filter UI
+    ['fFY','fState','fCity','fOffer','fPhase','fDateFrom','fDateTo'].forEach(id=>{document.getElementById(id).value='';});
+    ACTIVE_QTR='';
+    document.querySelectorAll('.qtr-pill').forEach(p=>p.classList.remove('active'));
+    const allPill=document.querySelector('.qtr-pill[data-qtr=""]'); if(allPill) allPill.classList.add('active');
+    document.getElementById('filterStatus').textContent='No filters active';
+    document.getElementById('rowInfo').textContent=`${LIVE_ROWS.length.toLocaleString()} projects`;
 
-    const t   = new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-    const k   = live.kpis;
+    const k = DATA.kpis;
+    const t = new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
     document.getElementById('lastUpdated').textContent = `🟢 Live · ${t}`;
+    const srcEl = document.getElementById('dataSourceLbl');
+    if (srcEl) srcEl.textContent = `Solar Square · B2C GM · ${sourceLabel} · ${rawRows.length.toLocaleString()} rows`;
     setRefreshUI('live',
-      `✅ Live "${successTab.name}" · ${rows.length.toLocaleString()} rows · ` +
-      `${k.total_projects.toLocaleString()} projects · ₹${(k.total_revenue/1e7).toFixed(2)}Cr · GM ${k.avg_gm_pct.toFixed(1)}%`);
+      `✅ Live "${sourceLabel}" · ${rawRows.length.toLocaleString()} rows · ` +
+      `${k.total_projects.toLocaleString()} projects · ₹${(k.total_revenue/1e7).toFixed(2)} Cr rev · ` +
+      `COGS ₹${(k.total_cogs/1e7).toFixed(2)} Cr · GM ${k.avg_gm_pct.toFixed(1)}%`);
+    renderAll();
   } catch(e) {
     setRefreshUI('error', `⚠ Parse error: ${e.message}`);
     console.error('Refresh error:', e);
-    if (rows.length) console.log('Sheet columns:', Object.keys(rows[0]).join(' | '));
+    if (rawRows.length) console.log('Sample cols:', Object.keys(rawRows[0]).join(' | '));
   }
 }
 
-// ── CSV Parser ──────────────────────────────────────────
-function parseCSV(text) {
-  const norm = h => h.toLowerCase()
-    .replace(/[()\/\.\s]+/g,'_').replace(/[^a-z0-9_]/g,'').replace(/_+/g,'_').replace(/^_|_$/g,'');
-  const lines = text.replace(/\r\n/g,'\n').replace(/\r/g,'\n').trim().split('\n');
-  if (lines.length < 2) return [];
-  const hdrs = parseRow(lines[0]).map(norm);
-  const rows = [];
-  for (let i=1; i<lines.length; i++) {
-    if (!lines[i].trim()) continue;
-    const vals = parseRow(lines[i]);
-    const obj  = {};
-    hdrs.forEach((h,j) => obj[h] = (vals[j]||'').trim());
-    rows.push(obj);
-  }
-  return rows;
-}
-function parseRow(line) {
-  const r=[]; let cur='', inQ=false;
-  for (let i=0; i<line.length; i++) {
-    const c=line[i];
-    if(c==='"'){inQ=!inQ;continue;}
-    if(c===','&&!inQ){r.push(cur);cur='';continue;}
-    cur+=c;
-  }
-  r.push(cur); return r;
-}
-
-// ── Column resolver — exact then partial ───────────────
-function makeResolver(allKeys) {
-  return (row, exactKey, fallbacks=[]) => {
-    if (row[exactKey] !== undefined && row[exactKey] !== '') return row[exactKey];
-    for (const fb of fallbacks) {
-      if (row[fb] !== undefined && row[fb] !== '') return row[fb];
-    }
-    // partial match
-    const found = allKeys.find(k => k.includes(exactKey) || exactKey.includes(k));
-    if (found && row[found] !== undefined && row[found] !== '') return row[found];
-    return '';
-  };
-}
-
-// ── Process CSV rows → dashboard data ──────────────────
-function processLiveData(rows) {
-  if (!rows.length) return EMBEDDED;
-  const allKeys = Object.keys(rows[0]);
-  const R = makeResolver(allKeys);
-  const N = v => parseFloat(String(v).replace(/[^0-9.-]/g,''))||0;
-  const D = v => { if(!v) return null; const d=new Date(v); return isNaN(d.getTime())?null:d; };
-
-  console.log('📋 GSheet columns:', allKeys.join(' | '));
-
-  // Normalise offer type
-  const normOffer = o => {
-    if (!o) return '';
-    if (o.toLowerCase() === 'regular') return 'Regular';
-    return o.trim();
-  };
-
-  const rows2 = rows.map(r => ({
-    city:    R(r, COL_EXACT.city),
-    state:   R(r, COL_EXACT.state),
-    offer:   normOffer(R(r, COL_EXACT.offer)),
-    phase:   R(r, COL_EXACT.phase),
-    revenue: N(R(r, COL_EXACT.revenue, ['final_revenue_excl_gst','final_revenue_excl__gst','revenue_excl_gst'])),
-    cogs:    N(R(r, COL_EXACT.cogs,    ['ic_total','total_amount'])),
-    kw:      N(R(r, COL_EXACT.kw,      ['project_size_kw','project_size'])),
-    date:    D(R(r, COL_EXACT.date,    ['installation_date','date','completion_date'])),
-  })).filter(r => r.revenue > 0 && r.city);
-
-  console.log(`✅ Valid: ${rows2.length} / ${rows.length}`);
-  if (!rows2.length) { console.warn('Sample:', JSON.stringify(rows[0])); return EMBEDDED; }
-
-  const agg = (arr, key) => {
-    const m={};
-    arr.forEach(r => {
-      const k=r[key]; if(!k) return;
-      if(!m[k]) m[k]={revenue:0,cogs:0,projects:0,kw:0};
-      m[k].revenue+=r.revenue; m[k].cogs+=r.cogs; m[k].projects++; m[k].kw+=r.kw;
-    });
-    return m;
-  };
-
-  const byCity  = agg(rows2,'city');
-  const byState = agg(rows2,'state');
-  const byOffer = agg(rows2,'offer');
-
-  // Monthly
-  const byMonth={};
-  rows2.forEach(r => {
-    if(!r.date) return;
-    const mo=r.date.toLocaleString('en',{month:'short'})+' '+String(r.date.getFullYear()).slice(2);
-    if(!byMonth[mo]) byMonth[mo]={revenue:0,cogs:0,projects:0,year:r.date.getFullYear(),month:r.date.getMonth()};
-    byMonth[mo].revenue+=r.revenue; byMonth[mo].cogs+=r.cogs; byMonth[mo].projects++;
-  });
-
-  // FY
-  const fyOf=d=>{if(!d)return null;return d.getMonth()>=3?`FY ${String(d.getFullYear()).slice(2)}-${String(d.getFullYear()+1).slice(2)}`:`FY ${String(d.getFullYear()-1).slice(2)}-${String(d.getFullYear()).slice(2)}`;};
-  const byFY={};
-  rows2.forEach(r=>{const fy=fyOf(r.date);if(!fy)return;if(!byFY[fy])byFY[fy]={revenue:0,cogs:0,projects:0};byFY[fy].revenue+=r.revenue;byFY[fy].cogs+=r.cogs;byFY[fy].projects++;});
-
-  const totRev=rows2.reduce((s,r)=>s+r.revenue,0);
-  const totCOGS=rows2.reduce((s,r)=>s+r.cogs,0);
-  const totKW=rows2.reduce((s,r)=>s+r.kw,0);
-  const totProj=rows2.length;
-
-  const mapDim=(map,nk)=>Object.entries(map).map(([name,d])=>({
-    [nk]:name,revenue:d.revenue,cogs:d.cogs,projects:d.projects,
-    aov:d.projects?d.revenue/d.projects:0,aos:d.projects?d.kw/d.projects:0,
-    gm_pct:d.revenue>0?(d.revenue-d.cogs)/d.revenue*100:0,
-  })).sort((a,b)=>b.revenue-a.revenue);
-
-  return {
-    ...EMBEDDED,
-    _rows: rows2,   // raw rows for per-filter recalc
-    kpis:{total_projects:totProj,total_revenue:totRev,total_cogs:totCOGS,total_gm:totRev-totCOGS,
-      avg_gm_pct:totRev>0?(totRev-totCOGS)/totRev*100:0,avg_aov:totProj?totRev/totProj:0,
-      avg_aos:totProj?totKW/totProj:0,total_kw:totKW,ic_cogs:totCOGS,onm_qhse:totCOGS*0.034},
-    cities:  mapDim(byCity,'city').slice(0,20),
-    states:  mapDim(byState,'state'),
-    offers:  mapDim(byOffer,'offer').filter(o=>o.offer!=='GoodZero+').slice(0,8),
-    monthly: Object.entries(byMonth).map(([label,d])=>({label,revenue:d.revenue,cogs:d.cogs,
-      projects:d.projects,gm_pct:d.revenue>0?(d.revenue-d.cogs)/d.revenue*100:0,year:d.year,month:d.month,
-    })).sort((a,b)=>a.year!==b.year?a.year-b.year:a.month-b.month).slice(-20),
-    fy: Object.entries(byFY).map(([fy,d])=>({fy,revenue:d.revenue,cogs:d.cogs,projects:d.projects,
-      gm_pct:d.revenue>0?(d.revenue-d.cogs)/d.revenue*100:0})).sort((a,b)=>a.fy<b.fy?-1:1),
-  };
-}
-
-// ═══════════════════════════════════════════════════════
-// INIT
-// ═══════════════════════════════════════════════════════
-// Clean GoodZero+ from embedded data
-DATA.offers = DATA.offers.filter(o=>o.offer!=='GoodZero+');
-FILTERED_DATA = JSON.parse(JSON.stringify(DATA));
-
-populateFilters();
-document.getElementById('lastUpdated').textContent = 'Snapshot · Feb 2026';
-document.getElementById('statusTxt').textContent =
-  '⚡ 35,236 projects · ₹791.32 Cr · GM 46.88% — Click "Refresh from GSheet" for live data';
+// ════════════════════════════════════════════════════
+// INIT — show empty state then auto-refresh
+// ════════════════════════════════════════════════════
+document.getElementById('lastUpdated').textContent = 'Loading live data…';
+document.getElementById('statusTxt').textContent   = '⏳ Fetching live data from GSheet / GitHub…';
 renderAll();
-// Auto-attempt live on load
-setTimeout(refreshFromSheet, 1500);
+setTimeout(refreshFromSheet, 800);
+
 </script>
 </body>
 </html>
