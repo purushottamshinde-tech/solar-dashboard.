@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Solar Square — B2C Live Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root { --navy:#1A2C4E; --blue:#2563A8; --white:#FFF; --border:#C8DCEE; --text:#1A2744; --green:#16A34A; --red:#DC2626; }
+*{margin:0;padding:0;box-sizing:border-box}
+body{height:100vh;font-family:'DM Sans',sans-serif;background:#E4EDF7;display:flex;flex-direction:column;font-size:12px;overflow:hidden}
+.top{height:55px;background:var(--navy);display:flex;align-items:center;justify-content:space-between;padding:0 20px;color:#fff;flex-shrink:0}
+.filter-bar{height:45px;background:#fff;display:flex;align-items:center;padding:0 20px;gap:15px;border-bottom:1px solid var(--border);flex-shrink:0}
+.kpi-row{display:flex;height:70px;background:#fff;border-bottom:2px solid var(--border);align-items:center;padding:0 20px;flex-shrink:0}
+.k-item{flex:1;border-right:1px solid var(--border);padding:0 15px}
+.k-lbl{font-size:9px;color:#5A7A96;text-transform:uppercase;font-family:'DM Mono'}
+.k-val{font-size:20px;font-weight:700;font-family:'Syne';color:var(--navy)}
+.main{flex:1;padding:12px;display:flex;flex-direction:column;gap:10px;overflow:hidden}
+.charts{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:10px;height:240px;flex-shrink:0}
+.card{background:#fff;border-radius:8px;padding:12px;border:1px solid var(--border);display:flex;flex-direction:column}
+.table-wrap{flex:1;background:#fff;border-radius:8px;overflow:auto;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:11px}
+thead th{background:var(--navy);color:#fff;padding:10px;position:sticky;top:0;text-align:right}
+thead th:first-child{text-align:left}
+tbody td{padding:9px;border-bottom:1px solid #EBF2FA;text-align:right}
+tbody td:first-child{text-align:left;font-weight:600}
+.fs{border:1px solid var(--border);border-radius:4px;padding:4px 8px;font-size:11px;cursor:pointer}
+.btn{background:var(--blue);color:#fff;border:none;padding:6px 12px;border-radius:20px;cursor:pointer;font-weight:600}
+</style>
+</head>
+<body>
+
+<div class="top">
+    <div style="font-family:'Syne';font-weight:800;font-size:18px">Solar Square — B2C Live</div>
+    <div id="stat" style="font-family:'DM Mono';font-size:10px">Connecting...</div>
+    <button class="btn" onclick="fetchData()">⟳ Sync Mastersheet</button>
+</div>
+
+<div class="filter-bar">
+    <select class="fs" id="fSt" onchange="apply()"><option value="">All States</option></select>
+    <select class="fs" id="fCt" onchange="apply()"><option value="">All Cities</option></select>
+    <select class="fs" id="fOf" onchange="apply()"><option value="">All Products</option></select>
+</div>
+
+<div class="kpi-row">
+    <div class="k-item"><div class="k-lbl">Projects</div><div class="k-val" id="kP">-</div></div>
+    <div class="k-item"><div class="k-lbl">Revenue (Ex-GST)</div><div class="k-val" id="kR">-</div></div>
+    <div class="k-item"><div class="k-lbl">Gross Margin ₹</div><div class="k-val" style="color:var(--green)" id="kGM">-</div></div>
+    <div class="k-item"><div class="k-lbl">GM %</div><div class="k-val" style="color:var(--green)" id="kGP">-</div></div>
+    <div class="k-item"><div class="k-lbl">Avg AOV</div><div class="k-val" id="kA" style="color:var(--blue)">-</div></div>
+</div>
+
+<div class="main">
+    <div class="charts">
+        <div class="card"><canvas id="c1"></canvas></div>
+        <div class="card"><canvas id="c2"></canvas></div>
+        <div class="card"><canvas id="c3"></canvas></div>
+    </div>
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>City</th><th>Projects</th><th>Revenue</th><th>GM ₹</th><th>GM %</th><th>AOV</th></tr></thead>
+            <tbody id="tb"></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+const SID = '1cJJRb6REo1lHV6FXrW84cg8Poy_dRAgqlys7CCm2iok';
+const GID = '1783359057';
+let RAW = [];
+let CHS = {};
+
+const fmtCr = v => '₹' + (v / 1e7).toFixed(2) + ' Cr';
+const fmtL = v => '₹' + (v / 1e5).toFixed(2) + ' L';
+
+async function fetchData() {
+    document.getElementById('stat').innerText = "⏳ Fetching...";
+    try {
+        const url = `https://docs.google.com/spreadsheets/d/${SID}/gviz/tq?tqx=out:csv&gid=${GID}&t=${Date.now()}`;
+        const res = await fetch(url);
+        const txt = await res.text();
+        if (txt.includes('Sign in')) throw new Error('Private');
+        
+        const lines = txt.split('\n').map(l => l.split(',').map(v => v.replace(/^"|"$/g, '').trim()));
+        const h = lines[0];
+        const m = {
+            city: h.indexOf("City"),
+            state: h.indexOf("State"),
+            offer: h.indexOf("Offer Type"),
+            rev: h.indexOf("Final Revenue Excl. GST"),
+            cogs: h.indexOf("IC_Total"),
+            date: h.indexOf("Installation Completion Date")
+        };
+
+        RAW = lines.slice(1).map(r => ({
+            city: r[m.city], state: r[m.state], offer: r[m.offer],
+            rev: parseFloat(r[m.rev]) || 0, cogs: parseFloat(r[m.cogs]) || 0, date: r[m.date]
+        })).filter(r => r.rev > 0);
+
+        loadFilters();
+        apply();
+        document.getElementById('stat').innerText = "🟢 Live: " + new Date().toLocaleTimeString();
+    } catch (e) {
+        document.getElementById('stat').innerHTML = "<span style='color:red'>⚠️ Access Error: Check GSheet Sharing</span>";
+    }
+}
+
+function loadFilters() {
+    const fill = (id, key) => {
+        const items = [...new Set(RAW.map(r => r[key]))].sort();
+        document.getElementById(id).innerHTML = `<option value="">All ${key}s</option>` + items.map(i => `<option>${i}</option>`).join('');
+    };
+    fill('fSt', 'state'); fill('fCt', 'city'); fill('fOf', 'offer');
+}
+
+function apply() {
+    const s = document.getElementById('fSt').value, c = document.getElementById('fCt').value, o = document.getElementById('fOf').value;
+    const f = RAW.filter(r => (!s || r.state === s) && (!c || r.city === c) && (!o || r.offer === o));
+    render(f);
+}
+
+function render(data) {
+    const p = data.length, r = data.reduce((a,b)=>a+b.rev, 0), c = data.reduce((a,b)=>a+b.cogs, 0), gm = r-c;
+    document.getElementById('kP').innerText = p.toLocaleString();
+    document.getElementById('kR').innerText = fmtCr(r);
+    document.getElementById('kGM').innerText = fmtCr(gm);
+    document.getElementById('kGP').innerText = r > 0 ? ((gm/r)*100).toFixed(1) + '%' : '0%';
+    document.getElementById('kA').innerText = p > 0 ? fmtL(r/p) : '₹0';
+
+    const agg = {};
+    data.forEach(d => {
+        if(!agg[d.city]) agg[d.city] = {p:0, r:0, c:0};
+        agg[d.city].p++; agg[d.city].r += d.rev; agg[d.city].c += d.cogs;
+    });
+
+    document.getElementById('tb').innerHTML = Object.entries(agg).sort((a,b)=>b[1].r - a[1].r).map(([n, d]) => `
+        <tr><td>${n}</td><td>${d.p}</td><td>${fmtCr(d.r)}</td><td>${fmtCr(d.r-d.c)}</td><td>${((d.r-d.c)/d.r*100).toFixed(1)}%</td><td>${fmtL(d.r/d.p)}</td></tr>
+    `).join('');
+    updateCharts(data);
+}
+
+function updateCharts(data) {
+    if (CHS.c1) Object.values(CHS).forEach(c => c.destroy());
+    const ctx = id => document.getElementById(id).getContext('2d');
+    
+    const oM = {}; data.forEach(d => oM[d.offer] = (oM[d.offer] || 0) + d.rev);
+    CHS.c1 = new Chart(ctx('c1'), { type:'doughnut', data:{ labels:Object.keys(oM), datasets:[{ data:Object.values(oM), backgroundColor:['#1A2C4E','#2563A8','#16A34A','#F59E0B'] }] }, options:{ plugins:{ title:{ display:true, text:'Product Mix' } }, maintainAspectRatio:false } });
+
+    const tM = {}; data.forEach(r => { const m = r.date.split('-').slice(1).join(' '); tM[m] = (tM[m]||0) + r.rev; });
+    CHS.c2 = new Chart(ctx('c2'), { type:'line', data:{ labels:Object.keys(tM), datasets:[{ label:'Rev', data:Object.values(tM), borderColor:'#2563A8', fill:true, backgroundColor:'rgba(37,99,168,0.1)' }] }, options:{ plugins:{ title:{ display:true, text:'Monthly Trend' } }, maintainAspectRatio:false } });
+
+    const sM = {}; data.forEach(r => { if(!sMap[r.state]) sMap[r.state]={r:0,c:0}; sMap[r.state].r += r.rev; sMap[r.state].c += r.cogs; });
+    CHS.c3 = new Chart(ctx('c3'), { type:'bar', data:{ labels:Object.keys(sM), datasets:[{ label:'GM%', data:Object.values(sM).map(v=>((v.r-v.c)/v.r*100)), backgroundColor:'#16A34A' }] }, options:{ indexAxis:'y', plugins:{ title:{ display:true, text:'State GM%' } }, maintainAspectRatio:false } });
+}
+
+fetchData();
+</script>
+</body>
+</html>
