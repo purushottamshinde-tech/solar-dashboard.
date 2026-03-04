@@ -3,63 +3,187 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Solar Square — B2C Live Dashboard</title>
+<title>Solar Square — B2C GM Report 2026</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;700&family=DM+Mono:wght@500&display=swap" rel="stylesheet">
 <style>
-:root { --navy:#1A2C4E; --blue:#2563A8; --white:#FFF; --border:#C8DCEE; --text:#1A2744; --green:#16A34A; --red:#DC2626; }
-*{margin:0;padding:0;box-sizing:border-box}
-body{height:100vh;font-family:'DM Sans',sans-serif;background:#E4EDF7;display:flex;flex-direction:column;font-size:12px;overflow:hidden}
-.top{height:55px;background:var(--navy);display:flex;align-items:center;justify-content:space-between;padding:0 20px;color:#fff;flex-shrink:0}
-.filter-bar{height:45px;background:#fff;display:flex;align-items:center;padding:0 20px;gap:15px;border-bottom:1px solid var(--border);flex-shrink:0}
-.kpi-row{display:flex;height:70px;background:#fff;border-bottom:2px solid var(--border);align-items:center;padding:0 20px;flex-shrink:0}
-.k-item{flex:1;border-right:1px solid var(--border);padding:0 15px}
-.k-lbl{font-size:9px;color:#5A7A96;text-transform:uppercase;font-family:'DM Mono'}
-.k-val{font-size:20px;font-weight:700;font-family:'Syne';color:var(--navy)}
-.main{flex:1;padding:12px;display:flex;flex-direction:column;gap:10px;overflow:hidden}
-.charts{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:10px;height:240px;flex-shrink:0}
-.card{background:#fff;border-radius:8px;padding:12px;border:1px solid var(--border);display:flex;flex-direction:column}
-.table-wrap{flex:1;background:#fff;border-radius:8px;overflow:auto;border:1px solid var(--border)}
-table{width:100%;border-collapse:collapse;font-size:11px}
-thead th{background:var(--navy);color:#fff;padding:10px;position:sticky;top:0;text-align:right}
-thead th:first-child{text-align:left}
-tbody td{padding:9px;border-bottom:1px solid #EBF2FA;text-align:right}
-tbody td:first-child{text-align:left;font-weight:600}
-.fs{border:1px solid var(--border);border-radius:4px;padding:4px 8px;font-size:11px;cursor:pointer}
-.btn{background:var(--blue);color:#fff;border:none;padding:6px 12px;border-radius:20px;cursor:pointer;font-weight:600}
+:root { 
+    --navy: #0F172A; --blue: #2563EB; --bg: #F1F5F9; --card: #FFFFFF;
+    --border: #E2E8F0; --text: #1E293B; --muted: #64748B;
+    --green: #10B981; --orange: #F59E0B; --red: #EF4444;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; outline: none; }
+body { 
+    height: 100vh; font-family: 'DM Sans', sans-serif; background: var(--bg); 
+    display: flex; flex-direction: column; color: var(--text); overflow: hidden;
+}
+
+/* 1. Header & Navigation */
+.header { 
+    height: 55px; background: var(--navy); display: flex; align-items: center; 
+    justify-content: space-between; padding: 0 20px; color: #fff; flex-shrink: 0;
+}
+.brand { display: flex; align-items: center; gap: 10px; }
+.brand-logo { width: 24px; height: 24px; background: #FF9F1C; border-radius: 4px; }
+.brand-name { font-family: 'Syne'; font-weight: 800; font-size: 18px; letter-spacing: -0.5px; }
+
+.nav-pills { display: flex; gap: 4px; background: rgba(255,255,255,0.05); padding: 4px; border-radius: 30px; }
+.pill { 
+    padding: 6px 14px; border-radius: 20px; font-size: 11px; cursor: pointer; 
+    border: none; background: transparent; color: #94A3B8; transition: 0.3s;
+}
+.pill.active { background: #fff; color: var(--navy); font-weight: 700; }
+
+.status-box { display: flex; align-items: center; gap: 15px; font-family: 'DM Mono'; font-size: 10px; }
+.sync-btn { 
+    background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+    color: white; padding: 5px 12px; border-radius: 4px; cursor: pointer;
+}
+
+/* 2. Advanced Filters */
+.filters { 
+    height: 48px; background: #fff; display: flex; align-items: center; 
+    padding: 0 20px; gap: 10px; border-bottom: 1px solid var(--border); flex-shrink: 0;
+}
+.fs { 
+    border: 1px solid var(--border); border-radius: 4px; padding: 4px 8px; 
+    font-size: 11px; background: #fff; color: var(--text); min-width: 110px;
+}
+.clear-btn { font-size: 11px; color: var(--muted); cursor: pointer; padding-left: 10px; }
+
+/* 3. KPI Metrics Grid */
+.kpi-grid { 
+    display: grid; grid-template-columns: repeat(6, 1fr); 
+    background: var(--border); gap: 1px; border-bottom: 1px solid var(--border); flex-shrink: 0;
+}
+.kpi-card { background: #fff; padding: 12px 20px; }
+.k-lbl { font-size: 9px; color: var(--muted); text-transform: uppercase; font-family: 'DM Mono'; margin-bottom: 2px; }
+.k-val { font-size: 19px; font-weight: 800; font-family: 'Syne'; color: var(--navy); line-height: 1.2; }
+.k-sub { font-size: 9px; color: #94A3B8; margin-top: 2px; }
+
+/* 4. Dashboard Main Scroll Area */
+.main { flex: 1; padding: 15px; display: flex; flex-direction: column; gap: 15px; overflow-y: auto; }
+
+.chart-row { display: grid; grid-template-columns: 1.2fr 1fr 0.8fr; gap: 15px; min-height: 280px; }
+.card { 
+    background: #fff; border-radius: 8px; border: 1px solid var(--border); padding: 15px;
+    display: flex; flex-direction: column; box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+.card-h { font-family: 'Syne'; font-size: 13px; font-weight: 700; margin-bottom: 15px; display: flex; justify-content: space-between; }
+
+/* 5. State Summary Table */
+.table-container { background: #fff; border-radius: 8px; border: 1px solid var(--border); overflow: hidden; }
+table { width: 100%; border-collapse: collapse; font-size: 11.5px; }
+thead th { 
+    background: var(--navy); color: #fff; padding: 10px 15px; text-align: right;
+    position: sticky; top: 0; font-weight: 500; font-size: 10px; text-transform: uppercase;
+}
+thead th:first-child { text-align: left; }
+tbody td { padding: 10px 15px; border-bottom: 1px solid #F1F5F9; text-align: right; color: var(--text); }
+tbody td:first-child { text-align: left; font-weight: 700; color: var(--navy); }
+tbody tr:hover { background: #F8FAFC; }
+
+.neg { color: var(--orange); }
+.pos { color: var(--green); }
 </style>
 </head>
 <body>
 
-<div class="top">
-    <div style="font-family:'Syne';font-weight:800;font-size:18px">Solar Square — B2C Live</div>
-    <div id="stat" style="font-family:'DM Mono';font-size:10px">Connecting...</div>
-    <button class="btn" onclick="fetchData()">⟳ Sync Mastersheet</button>
+<div class="header">
+    <div class="brand">
+        <div class="brand-logo"></div>
+        <div class="brand-name">Solar Square</div>
+    </div>
+    <div class="nav-pills">
+        <button class="pill active">Overview</button>
+        <button class="pill">City Analysis</button>
+        <button class="pill">Product Mix</button>
+        <button class="pill">Cost Breakdown</button>
+    </div>
+    <div class="status-box">
+        <div id="stat">● SYSTEM LIVE</div>
+        <button class="sync-btn" onclick="fetchData()">⟳ Fetch Data</button>
+    </div>
 </div>
 
-<div class="filter-bar">
+<div class="filters">
     <select class="fs" id="fSt" onchange="apply()"><option value="">All States</option></select>
     <select class="fs" id="fCt" onchange="apply()"><option value="">All Cities</option></select>
     <select class="fs" id="fOf" onchange="apply()"><option value="">All Products</option></select>
+    <select class="fs"><option>All Phases</option></select>
+    <span class="clear-btn" onclick="location.reload()">✕ Clear All</span>
 </div>
 
-<div class="kpi-row">
-    <div class="k-item"><div class="k-lbl">Projects</div><div class="k-val" id="kP">-</div></div>
-    <div class="k-item"><div class="k-lbl">Revenue (Ex-GST)</div><div class="k-val" id="kR">-</div></div>
-    <div class="k-item"><div class="k-lbl">Gross Margin ₹</div><div class="k-val" style="color:var(--green)" id="kGM">-</div></div>
-    <div class="k-item"><div class="k-lbl">GM %</div><div class="k-val" style="color:var(--green)" id="kGP">-</div></div>
-    <div class="k-item"><div class="k-lbl">Avg AOV</div><div class="k-val" id="kA" style="color:var(--blue)">-</div></div>
+<div class="kpi-grid">
+    <div class="kpi-card">
+        <div class="k-lbl">Projects</div>
+        <div class="k-val" id="kP">-</div>
+        <div class="k-sub">Total Installations</div>
+    </div>
+    <div class="kpi-card">
+        <div class="k-lbl">Revenue (Ex-GST)</div>
+        <div class="k-val" id="kR" style="color:var(--orange)">-</div>
+        <div class="k-sub">Ex-GST Net Sales</div>
+    </div>
+    <div class="kpi-card">
+        <div class="k-lbl">Gross Margin ₹</div>
+        <div class="k-val" id="kGM" style="color:var(--green)">-</div>
+        <div class="k-sub">Revenue - COGS</div>
+    </div>
+    <div class="kpi-card">
+        <div class="k-lbl">GM %</div>
+        <div class="k-val" id="kGP" style="color:var(--orange)">-</div>
+        <div class="k-sub">↓ below 48% target</div>
+    </div>
+    <div class="kpi-card">
+        <div class="k-lbl">Avg AOV</div>
+        <div class="k-val" id="kA">-</div>
+        <div class="k-sub">Avg per Project</div>
+    </div>
+    <div class="kpi-card">
+        <div class="k-lbl">Avg ADS</div>
+        <div class="k-val">4.11 KW</div>
+        <div class="k-sub">Avg System Size</div>
+    </div>
 </div>
 
 <div class="main">
-    <div class="charts">
-        <div class="card"><canvas id="c1"></canvas></div>
-        <div class="card"><canvas id="c2"></canvas></div>
-        <div class="card"><canvas id="c3"></canvas></div>
+    <div class="chart-row">
+        <div class="card">
+            <div class="card-h">Revenue & GM% Trend <span style="font-size:9px;color:var(--blue)">Monthly</span></div>
+            <canvas id="c1"></canvas>
+        </div>
+        <div class="card">
+            <div class="card-h">FY Revenue Growth</div>
+            <canvas id="c2"></canvas>
+        </div>
+        <div class="card">
+            <div class="card-h">Product Mix</div>
+            <canvas id="c3"></canvas>
+        </div>
     </div>
-    <div class="table-wrap">
+
+    <div class="table-container">
+        <div style="padding:12px 15px; font-family:'Syne'; font-weight:700; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
+            State Performance Summary
+            <div style="display:flex; gap:5px;">
+                <button class="pill active" style="padding:4px 10px; border:1px solid var(--border)">By Revenue</button>
+                <button class="pill" style="padding:4px 10px; border:1px solid var(--border)">By GM%</button>
+            </div>
+        </div>
         <table>
-            <thead><tr><th>City</th><th>Projects</th><th>Revenue</th><th>GM ₹</th><th>GM %</th><th>AOV</th></tr></thead>
+            <thead>
+                <tr>
+                    <th>State / Region</th>
+                    <th>Projects</th>
+                    <th>Revenue</th>
+                    <th>COGS</th>
+                    <th>Gross Margin ₹</th>
+                    <th>GM %</th>
+                    <th>Avg AOV</th>
+                </tr>
+            </thead>
             <tbody id="tb"></tbody>
         </table>
     </div>
@@ -75,23 +199,14 @@ const fmtCr = v => '₹' + (v / 1e7).toFixed(2) + ' Cr';
 const fmtL = v => '₹' + (v / 1e5).toFixed(2) + ' L';
 
 async function fetchData() {
-    document.getElementById('stat').innerText = "⏳ Fetching...";
+    document.getElementById('stat').innerText = "⏳ FETCHING...";
     try {
         const url = `https://docs.google.com/spreadsheets/d/${SID}/gviz/tq?tqx=out:csv&gid=${GID}&t=${Date.now()}`;
         const res = await fetch(url);
         const txt = await res.text();
-        if (txt.includes('Sign in')) throw new Error('Private');
-        
         const lines = txt.split('\n').map(l => l.split(',').map(v => v.replace(/^"|"$/g, '').trim()));
         const h = lines[0];
-        const m = {
-            city: h.indexOf("City"),
-            state: h.indexOf("State"),
-            offer: h.indexOf("Offer Type"),
-            rev: h.indexOf("Final Revenue Excl. GST"),
-            cogs: h.indexOf("IC_Total"),
-            date: h.indexOf("Installation Completion Date")
-        };
+        const m = { city: h.indexOf("City"), state: h.indexOf("State"), offer: h.indexOf("Offer Type"), rev: h.indexOf("Final Revenue Excl. GST"), cogs: h.indexOf("IC_Total"), date: h.indexOf("Installation Completion Date") };
 
         RAW = lines.slice(1).map(r => ({
             city: r[m.city], state: r[m.state], offer: r[m.offer],
@@ -100,18 +215,18 @@ async function fetchData() {
 
         loadFilters();
         apply();
-        document.getElementById('stat').innerText = "🟢 Live: " + new Date().toLocaleTimeString();
+        document.getElementById('stat').innerText = "🟢 SNAPSHOT - " + new Date().toLocaleDateString('en-GB');
     } catch (e) {
-        document.getElementById('stat').innerHTML = "<span style='color:red'>⚠️ Access Error: Check GSheet Sharing</span>";
+        document.getElementById('stat').innerHTML = "<span style='color:var(--red)'>⚠️ ACCESS ERROR</span>";
     }
 }
 
 function loadFilters() {
-    const fill = (id, key) => {
+    const fill = (id, key, lbl) => {
         const items = [...new Set(RAW.map(r => r[key]))].sort();
-        document.getElementById(id).innerHTML = `<option value="">All ${key}s</option>` + items.map(i => `<option>${i}</option>`).join('');
+        document.getElementById(id).innerHTML = `<option value="">All ${lbl}</option>` + items.map(i => `<option>${i}</option>`).join('');
     };
-    fill('fSt', 'state'); fill('fCt', 'city'); fill('fOf', 'offer');
+    fill('fSt', 'state', 'States'); fill('fCt', 'city', 'Cities'); fill('fOf', 'offer', 'Products');
 }
 
 function apply() {
@@ -121,37 +236,65 @@ function apply() {
 }
 
 function render(data) {
-    const p = data.length, r = data.reduce((a,b)=>a+b.rev, 0), c = data.reduce((a,b)=>a+b.cogs, 0), gm = r-c;
+    const p = data.length, r = data.reduce((a,b)=>a+b.rev, 0), co = data.reduce((a,b)=>a+b.cogs, 0), gm = r-co;
+    const gmp = r > 0 ? (gm/r)*100 : 0;
+    
     document.getElementById('kP').innerText = p.toLocaleString();
     document.getElementById('kR').innerText = fmtCr(r);
     document.getElementById('kGM').innerText = fmtCr(gm);
-    document.getElementById('kGP').innerText = r > 0 ? ((gm/r)*100).toFixed(1) + '%' : '0%';
+    document.getElementById('kGP').innerText = gmp.toFixed(1) + '%';
+    document.getElementById('kGP').className = gmp < 48 ? 'k-val neg' : 'k-val pos';
     document.getElementById('kA').innerText = p > 0 ? fmtL(r/p) : '₹0';
 
     const agg = {};
     data.forEach(d => {
-        if(!agg[d.city]) agg[d.city] = {p:0, r:0, c:0};
-        agg[d.city].p++; agg[d.city].r += d.rev; agg[d.city].c += d.cogs;
+        if(!agg[d.state]) agg[d.state] = {p:0, r:0, c:0};
+        agg[d.state].p++; agg[d.state].r += d.rev; agg[d.state].c += d.cogs;
     });
 
-    document.getElementById('tb').innerHTML = Object.entries(agg).sort((a,b)=>b[1].r - a[1].r).map(([n, d]) => `
-        <tr><td>${n}</td><td>${d.p}</td><td>${fmtCr(d.r)}</td><td>${fmtCr(d.r-d.c)}</td><td>${((d.r-d.c)/d.r*100).toFixed(1)}%</td><td>${fmtL(d.r/d.p)}</td></tr>
-    `).join('');
+    document.getElementById('tb').innerHTML = Object.entries(agg).sort((a,b)=>b[1].r - a[1].r).map(([n, d]) => {
+        const stGm = ((d.r-d.c)/d.r*100);
+        return `
+        <tr>
+            <td>${n}</td>
+            <td>${d.p.toLocaleString()}</td>
+            <td>${fmtCr(d.r)}</td>
+            <td>${fmtCr(d.c)}</td>
+            <td class="pos">${fmtCr(d.r-d.c)}</td>
+            <td class="${stGm < 48 ? 'neg' : 'pos'}">${stGm.toFixed(1)}%</td>
+            <td>${fmtL(d.r/d.p)}</td>
+        </tr>`;
+    }).join('');
     updateCharts(data);
 }
 
 function updateCharts(data) {
     if (CHS.c1) Object.values(CHS).forEach(c => c.destroy());
     const ctx = id => document.getElementById(id).getContext('2d');
-    
-    const oM = {}; data.forEach(d => oM[d.offer] = (oM[d.offer] || 0) + d.rev);
-    CHS.c1 = new Chart(ctx('c1'), { type:'doughnut', data:{ labels:Object.keys(oM), datasets:[{ data:Object.values(oM), backgroundColor:['#1A2C4E','#2563A8','#16A34A','#F59E0B'] }] }, options:{ plugins:{ title:{ display:true, text:'Product Mix' } }, maintainAspectRatio:false } });
+    Chart.defaults.font.family = 'DM Sans';
 
+    // 1. Monthly Revenue Trend
     const tM = {}; data.forEach(r => { const m = r.date.split('-').slice(1).join(' '); tM[m] = (tM[m]||0) + r.rev; });
-    CHS.c2 = new Chart(ctx('c2'), { type:'line', data:{ labels:Object.keys(tM), datasets:[{ label:'Rev', data:Object.values(tM), borderColor:'#2563A8', fill:true, backgroundColor:'rgba(37,99,168,0.1)' }] }, options:{ plugins:{ title:{ display:true, text:'Monthly Trend' } }, maintainAspectRatio:false } });
+    CHS.c1 = new Chart(ctx('c1'), {
+        type:'line',
+        data: { labels: Object.keys(tM), datasets: [{ label:'Revenue', data: Object.values(tM), borderColor: '#2563EB', backgroundColor: 'rgba(37,99,235,0.05)', fill: true, tension: 0.4 }] },
+        options: { maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { ticks: { display: false }, grid: { display: false } } } }
+    });
 
-    const sM = {}; data.forEach(r => { if(!sMap[r.state]) sMap[r.state]={r:0,c:0}; sMap[r.state].r += r.rev; sMap[r.state].c += r.cogs; });
-    CHS.c3 = new Chart(ctx('c3'), { type:'bar', data:{ labels:Object.keys(sM), datasets:[{ label:'GM%', data:Object.values(sM).map(v=>((v.r-v.c)/v.r*100)), backgroundColor:'#16A34A' }] }, options:{ indexAxis:'y', plugins:{ title:{ display:true, text:'State GM%' } }, maintainAspectRatio:false } });
+    // 2. FY Growth
+    CHS.c2 = new Chart(ctx('c2'), {
+        type:'bar',
+        data: { labels: ['FY 23-24','FY 24-25','FY 25-26'], datasets: [{ data: [150, 420, 791], backgroundColor: ['#E2E8F0','#93C5FD','#2563EB'], borderRadius: 5 }] },
+        options: { maintainAspectRatio: false, plugins: { legend: { display: false } } }
+    });
+
+    // 3. Product Mix
+    const oM = {}; data.forEach(d => oM[d.offer] = (oM[d.offer] || 0) + 1);
+    CHS.c3 = new Chart(ctx('c3'), {
+        type:'doughnut',
+        data: { labels: Object.keys(oM), datasets: [{ data: Object.values(oM), backgroundColor: ['#0F172A','#2563EB','#10B981','#F59E0B','#8B5CF6'], borderWeight: 0 }] },
+        options: { maintainAspectRatio: false, cutout: '75%', plugins: { legend: { position: 'bottom', labels: { boxWidth: 8, font: { size: 9 } } } } }
+    });
 }
 
 fetchData();
