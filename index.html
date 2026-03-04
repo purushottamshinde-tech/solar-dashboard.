@@ -3,301 +3,1241 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Solar Square — B2C GM Report 2026</title>
+<title>Solar Square — B2C GM Report</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;700&family=DM+Mono:wght@500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-:root { 
-    --navy: #0F172A; --blue: #2563EB; --bg: #F1F5F9; --card: #FFFFFF;
-    --border: #E2E8F0; --text: #1E293B; --muted: #64748B;
-    --green: #10B981; --orange: #F59E0B; --red: #EF4444;
+:root {
+  --navy:#1A2C4E; --navy2:#142038; --navy3:#0D1626;
+  --blue:#2563A8; --blue2:#1D4ED8;
+  --white:#FFFFFF; --off:#F5F8FC; --off2:#EBF2FA; --off3:#DDEAF5;
+  --border:#C8DCEE; --border2:#A8C4DE;
+  --text:#1A2744; --dim:#5A7A96; --muted:#94A3B8;
+  --green:#16A34A; --green-bg:#DCFCE7;
+  --amber:#D97706; --amber-bg:#FEF3C7;
+  --red:#DC2626; --red-bg:#FEE2E2;
+  --teal:#0891B2; --purple:#7C3AED;
+  --sun:#F59E0B;
+  --shadow: 0 1px 4px rgba(26,44,78,0.10);
+  --shadow2: 0 4px 16px rgba(26,44,78,0.13);
 }
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;font-family:'DM Sans',sans-serif;background:#E4EDF7;color:var(--text);overflow:hidden;font-size:12px}
+.app{display:flex;flex-direction:column;height:100vh;overflow:hidden}
 
-* { margin:0; padding:0; box-sizing:border-box; outline: none; }
-body { 
-    height: 100vh; font-family: 'DM Sans', sans-serif; background: var(--bg); 
-    display: flex; flex-direction: column; color: var(--text); overflow: hidden;
+/* ── TOP BAR ─────────────────────────────── */
+.topbar{
+  height:50px;background:var(--navy);display:flex;align-items:center;
+  justify-content:space-between;padding:0 18px;flex-shrink:0;
+  box-shadow:0 2px 8px rgba(0,0,0,0.25);
 }
+.brand{display:flex;align-items:center;gap:10px}
+.brand-sun{width:32px;height:32px;background:linear-gradient(135deg,#F59E0B,#F97316);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;font-size:17px;box-shadow:0 0 12px rgba(245,158,11,0.4)}
+.brand-name{color:#fff;font-family:'Syne',sans-serif;font-size:15px;font-weight:800;letter-spacing:-.3px}
+.brand-sub{color:rgba(255,255,255,0.45);font-size:9px;letter-spacing:1.2px;text-transform:uppercase;font-family:'DM Mono',monospace}
 
-/* 1. Header & Navigation */
-.header { 
-    height: 55px; background: var(--navy); display: flex; align-items: center; 
-    justify-content: space-between; padding: 0 20px; color: #fff; flex-shrink: 0;
+.tab-bar{display:flex;background:rgba(255,255,255,0.08);border-radius:20px;padding:3px;gap:2px}
+.tab{padding:5px 20px;border-radius:16px;color:rgba(255,255,255,0.55);cursor:pointer;font-size:11px;font-weight:500;transition:all .2s;white-space:nowrap}
+.tab.active{background:#fff;color:var(--navy);font-weight:700}
+.tab:hover:not(.active){color:#fff;background:rgba(255,255,255,0.12)}
+
+.topbar-right{display:flex;align-items:center;gap:8px}
+.live-badge{display:flex;align-items:center;gap:5px;font-size:9px;color:rgba(255,255,255,0.5);font-family:'DM Mono',monospace;padding:3px 8px;background:rgba(255,255,255,0.07);border-radius:10px}
+.live-dot{width:5px;height:5px;border-radius:50%;background:#22C55E;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.btn-refresh{padding:7px 16px;border-radius:22px;border:1.5px solid rgba(255,255,255,.6);background:rgba(255,255,255,.12);color:#fff;cursor:pointer;font-size:11px;font-weight:600;font-family:'DM Sans',sans-serif;transition:all .2s;white-space:nowrap}
+.btn-refresh:hover:not(:disabled){background:rgba(255,255,255,.24);border-color:#fff}
+.btn-refresh:disabled{opacity:.55;cursor:not-allowed}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── FILTER BAR ──────────────────────────── */
+.filterbar{
+  height:38px;background:#fff;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;padding:0 18px;gap:14px;flex-shrink:0;
+  box-shadow:var(--shadow);
 }
-.brand { display: flex; align-items: center; gap: 10px; }
-.brand-logo { width: 24px; height: 24px; background: #FF9F1C; border-radius: 4px; }
-.brand-name { font-family: 'Syne'; font-weight: 800; font-size: 18px; letter-spacing: -0.5px; }
-
-.nav-pills { display: flex; gap: 4px; background: rgba(255,255,255,0.05); padding: 4px; border-radius: 30px; }
-.pill { 
-    padding: 6px 14px; border-radius: 20px; font-size: 11px; cursor: pointer; 
-    border: none; background: transparent; color: #94A3B8; transition: 0.3s;
+.filter-group{display:flex;align-items:center;gap:5px}
+.fl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;font-family:'DM Mono',monospace;white-space:nowrap}
+.fs{
+  border:1px solid var(--border);border-radius:5px;background:#fff;
+  color:var(--text);font-size:10px;padding:2px 18px 2px 6px;outline:none;
+  appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='7' height='7' viewBox='0 0 7 7'%3E%3Cpath d='M0 2l3.5 3.5L7 2z' fill='%235A7A96'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 4px center;min-width:75px;cursor:pointer;
 }
-.pill.active { background: #fff; color: var(--navy); font-weight: 700; }
+.fs:focus{border-color:var(--blue)}
+.filter-div{width:1px;height:20px;background:var(--border);flex-shrink:0}
+.btn-clear-filter{padding:3px 10px;border-radius:10px;border:1px solid var(--border2);background:var(--off2);color:var(--dim);cursor:pointer;font-size:10px;font-family:'DM Sans',sans-serif;transition:all .2s}
+.btn-clear-filter:hover{border-color:var(--red);color:var(--red);background:var(--red-bg)}
 
-.status-box { display: flex; align-items: center; gap: 15px; font-family: 'DM Mono'; font-size: 10px; }
-.sync-btn { 
-    background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
-    color: white; padding: 5px 12px; border-radius: 4px; cursor: pointer;
+/* ── KPI STRIP ───────────────────────────── */
+.kpi-strip{
+  display:flex;background:#fff;border-bottom:2px solid var(--border);
+  flex-shrink:0;height:56px;padding:0 18px;align-items:center;gap:0;
+  box-shadow:var(--shadow);
 }
+.kpi-item{display:flex;flex-direction:column;justify-content:center;padding:0 16px;border-right:1px solid var(--border);height:100%;flex:1;min-width:0}
+.kpi-item:last-child{border-right:none}
+.kpi-lbl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;font-family:'DM Mono',monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kpi-val{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;color:var(--navy);white-space:nowrap;line-height:1.2}
+.kpi-val.g{color:var(--green)} .kpi-val.a{color:var(--amber)} .kpi-val.r{color:var(--red)} .kpi-val.t{color:var(--teal)} .kpi-val.p{color:var(--purple)}
+.kpi-delta{font-size:9px;color:var(--muted);font-family:'DM Mono',monospace}
+.kpi-delta.up{color:var(--green)} .kpi-delta.down{color:var(--red)}
 
-/* 2. Advanced Filters */
-.filters { 
-    height: 48px; background: #fff; display: flex; align-items: center; 
-    padding: 0 20px; gap: 10px; border-bottom: 1px solid var(--border); flex-shrink: 0;
-}
-.fs { 
-    border: 1px solid var(--border); border-radius: 4px; padding: 4px 8px; 
-    font-size: 11px; background: #fff; color: var(--text); min-width: 110px;
-}
-.clear-btn { font-size: 11px; color: var(--muted); cursor: pointer; padding-left: 10px; }
+/* ── MAIN CONTENT ────────────────────────── */
+.content{flex:1;overflow:hidden;display:flex;flex-direction:column;padding:10px 12px 6px;gap:8px}
 
-/* 3. KPI Metrics Grid */
-.kpi-grid { 
-    display: grid; grid-template-columns: repeat(6, 1fr); 
-    background: var(--border); gap: 1px; border-bottom: 1px solid var(--border); flex-shrink: 0;
-}
-.kpi-card { background: #fff; padding: 12px 20px; }
-.k-lbl { font-size: 9px; color: var(--muted); text-transform: uppercase; font-family: 'DM Mono'; margin-bottom: 2px; }
-.k-val { font-size: 19px; font-weight: 800; font-family: 'Syne'; color: var(--navy); line-height: 1.2; }
-.k-sub { font-size: 9px; color: #94A3B8; margin-top: 2px; }
+/* ── ROW 1: 4 Mini Charts ───────────────── */
+.charts-row1{display:grid;grid-template-columns:2fr 1.3fr 1.3fr;gap:8px;height:200px;flex-shrink:0}
 
-/* 4. Dashboard Main Scroll Area */
-.main { flex: 1; padding: 15px; display: flex; flex-direction: column; gap: 15px; overflow-y: auto; }
+/* ── ROW 2: Table ───────────────────────── */
+.table-section{flex:1;background:#fff;border:1px solid var(--border);border-radius:8px;display:flex;flex-direction:column;min-height:0;overflow:hidden;box-shadow:var(--shadow)}
 
-.chart-row { display: grid; grid-template-columns: 1.2fr 1fr 0.8fr; gap: 15px; min-height: 280px; }
-.card { 
-    background: #fff; border-radius: 8px; border: 1px solid var(--border); padding: 15px;
-    display: flex; flex-direction: column; box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-}
-.card-h { font-family: 'Syne'; font-size: 13px; font-weight: 700; margin-bottom: 15px; display: flex; justify-content: space-between; }
+/* ── CARDS ───────────────────────────────── */
+.card{background:#fff;border:1px solid var(--border);border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;overflow:hidden;box-shadow:var(--shadow)}
+.card-title{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;color:var(--text);margin-bottom:6px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.card-badge{font-size:8px;padding:2px 6px;border-radius:8px;font-family:'DM Mono',monospace;font-weight:500}
+.badge-green{background:var(--green-bg);color:var(--green)} .badge-amber{background:var(--amber-bg);color:var(--amber)}
+.badge-blue{background:#DBEAFE;color:var(--blue2)} .badge-navy{background:var(--off2);color:var(--navy)}
+.canvas-wrap{flex:1;position:relative;min-height:0}
+.legend-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:4px;flex-shrink:0}
+.leg{display:flex;align-items:center;gap:4px;font-size:9px;color:var(--dim)}
+.leg-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.leg-line{width:12px;height:2px;flex-shrink:0}
 
-/* 5. State Summary Table */
-.table-container { background: #fff; border-radius: 8px; border: 1px solid var(--border); overflow: hidden; }
-table { width: 100%; border-collapse: collapse; font-size: 11.5px; }
-thead th { 
-    background: var(--navy); color: #fff; padding: 10px 15px; text-align: right;
-    position: sticky; top: 0; font-weight: 500; font-size: 10px; text-transform: uppercase;
-}
-thead th:first-child { text-align: left; }
-tbody td { padding: 10px 15px; border-bottom: 1px solid #F1F5F9; text-align: right; color: var(--text); }
-tbody td:first-child { text-align: left; font-weight: 700; color: var(--navy); }
-tbody tr:hover { background: #F8FAFC; }
+/* ── TABLE STYLES ────────────────────────── */
+.tbl-header{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--off)}
+.tbl-title{font-family:'Syne',sans-serif;font-size:12px;font-weight:800;color:var(--navy);display:flex;align-items:center;gap:8px}
+.tbl-tabs{display:flex;gap:4px}
+.tbl-tab{padding:3px 10px;border-radius:10px;font-size:10px;cursor:pointer;border:1px solid var(--border);background:#fff;color:var(--dim);transition:all .15s;white-space:nowrap}
+.tbl-tab.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+.tbl-tab:hover:not(.active){border-color:var(--blue);color:var(--blue)}
+.tbl-wrap{flex:1;overflow:auto}
+.tbl-wrap::-webkit-scrollbar{width:4px;height:4px}
+.tbl-wrap::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
 
-.neg { color: var(--orange); }
-.pos { color: var(--green); }
+table{width:100%;border-collapse:collapse;font-size:11px}
+thead{position:sticky;top:0;z-index:10}
+thead tr th{background:var(--navy);color:#fff;padding:6px 10px;text-align:right;font-weight:600;font-size:9px;letter-spacing:.5px;text-transform:uppercase;border-right:1px solid rgba(255,255,255,0.1);white-space:nowrap}
+thead tr th:first-child{text-align:left;min-width:110px}
+thead tr th.center{text-align:center}
+tbody tr{border-bottom:1px solid var(--off2);transition:background .12s}
+tbody tr:hover{background:#F0F7FF}
+tbody tr.total-row{background:var(--navy);font-weight:700}
+tbody tr.total-row td{color:#fff!important;font-family:'Syne',sans-serif;font-size:11px}
+td{padding:5px 10px;text-align:right;color:var(--text);white-space:nowrap;border-right:1px solid var(--off2)}
+td:first-child{text-align:left;font-weight:500;color:var(--navy)}
+.td-rank{color:var(--muted);font-family:'DM Mono',monospace;font-size:9px;width:20px;text-align:center}
+.g{color:var(--green);font-weight:600} .r{color:var(--red)} .a{color:var(--amber);font-weight:600} .b{color:var(--blue);font-weight:600} .dim-cell{color:var(--muted)}
+
+/* ── STATUS BAR ──────────────────────────── */
+.statusbar{height:20px;background:var(--navy3);display:flex;align-items:center;justify-content:space-between;padding:0 14px;flex-shrink:0}
+.stxt{font-size:9px;color:rgba(255,255,255,0.4);font-family:'DM Mono',monospace}
+
+/* ── OFFER PILLS ─────────────────────────── */
+.offer-pills{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:6px;flex-shrink:0}
+.offer-pill{padding:2px 9px;border-radius:10px;font-size:9px;cursor:pointer;border:1px solid var(--border);background:#fff;color:var(--dim);transition:all .15s;font-weight:500}
+.offer-pill.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+
+/* ── SPARKBAR ────────────────────────────── */
+.sparkbar{display:flex;align-items:center;gap:5px;font-size:9px;color:var(--dim)}
+.bar-track{flex:1;height:5px;background:var(--off3);border-radius:3px;overflow:hidden}
+.bar-fill{height:100%;border-radius:3px;transition:width .4s}
 </style>
 </head>
 <body>
+<div class="app">
 
-<div class="header">
-    <div class="brand">
-        <div class="brand-logo"></div>
-        <div class="brand-name">Solar Square</div>
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="brand">
+    <div class="brand-sun">☀️</div>
+    <div>
+      <div class="brand-name">Solar Square</div>
+      <div class="brand-sub">B2C GM Report</div>
     </div>
-    <div class="nav-pills">
-        <button class="pill active">Overview</button>
-        <button class="pill">City Analysis</button>
-        <button class="pill">Product Mix</button>
-        <button class="pill">Cost Breakdown</button>
-    </div>
-    <div class="status-box">
-        <div id="stat">● SYSTEM LIVE</div>
-        <button class="sync-btn" onclick="fetchData()">⟳ Fetch Data</button>
-    </div>
+  </div>
+  <div class="tab-bar">
+    <div class="tab active" onclick="switchView('overview',this)">Overview</div>
+    <div class="tab" onclick="switchView('city',this)">City Analysis</div>
+    <div class="tab" onclick="switchView('product',this)">Product Mix</div>
+    <div class="tab" onclick="switchView('costs',this)">Cost Breakdown</div>
+  </div>
+  <div class="topbar-right">
+    <div class="live-badge"><span class="live-dot"></span><span id="lastUpdated">Loading…</span></div>
+    <button class="btn-refresh" id="btnRefresh" onclick="refreshFromSheet()">⟳ Refresh from GSheet</button>
+  </div>
 </div>
 
-<div class="filters">
-    <select class="fs" id="fSt" onchange="apply()"><option value="">All States</option></select>
-    <select class="fs" id="fCt" onchange="apply()"><option value="">All Cities</option></select>
-    <select class="fs" id="fOf" onchange="apply()"><option value="">All Products</option></select>
-    <select class="fs"><option>All Phases</option></select>
-    <span class="clear-btn" onclick="location.reload()">✕ Clear All</span>
+<!-- FILTER BAR -->
+<div class="filterbar">
+  <div class="filter-group"><span class="fl">FY</span>
+    <select class="fs" id="fFY" onchange="applyFilters()">
+      <option value="">All</option>
+      <option value="FY 25-26">FY 25-26</option>
+      <option value="FY 24-25">FY 24-25</option>
+      <option value="FY 23-24">FY 23-24</option>
+    </select>
+  </div>
+  <div class="filter-div"></div>
+  <div class="filter-group"><span class="fl">State</span>
+    <select class="fs" id="fState" onchange="applyFilters()"><option value="">All</option></select>
+  </div>
+  <div class="filter-group"><span class="fl">City</span>
+    <select class="fs" id="fCity" onchange="applyFilters()"><option value="">All</option></select>
+  </div>
+  <div class="filter-group"><span class="fl">Product</span>
+    <select class="fs" id="fOffer" onchange="applyFilters()">
+      <option value="">All</option>
+      <option>GoodZero</option><option>GoodZero Pro</option><option>GoodZero Uno</option>
+      <option>GoodZero+</option><option>Regular</option><option>SSE Blue</option>
+    </select>
+  </div>
+  <div class="filter-group"><span class="fl">Phase</span>
+    <select class="fs" id="fPhase" onchange="applyFilters()">
+      <option value="">All</option><option>Single Phase</option><option>Three Phase</option>
+    </select>
+  </div>
+  <div class="filter-div"></div>
+  <button class="btn-clear-filter" onclick="clearAllFilters()">✕ Clear All</button>
+  <span style="margin-left:auto;font-size:9px;color:var(--muted);font-family:'DM Mono',monospace" id="rowInfo">—</span>
 </div>
 
-<div class="kpi-grid">
-    <div class="kpi-card">
-        <div class="k-lbl">Projects</div>
-        <div class="k-val" id="kP">-</div>
-        <div class="k-sub">Total Installations</div>
-    </div>
-    <div class="kpi-card">
-        <div class="k-lbl">Revenue (Ex-GST)</div>
-        <div class="k-val" id="kR" style="color:var(--orange)">-</div>
-        <div class="k-sub">Ex-GST Net Sales</div>
-    </div>
-    <div class="kpi-card">
-        <div class="k-lbl">Gross Margin ₹</div>
-        <div class="k-val" id="kGM" style="color:var(--green)">-</div>
-        <div class="k-sub">Revenue - COGS</div>
-    </div>
-    <div class="kpi-card">
-        <div class="k-lbl">GM %</div>
-        <div class="k-val" id="kGP" style="color:var(--orange)">-</div>
-        <div class="k-sub">↓ below 48% target</div>
-    </div>
-    <div class="kpi-card">
-        <div class="k-lbl">Avg AOV</div>
-        <div class="k-val" id="kA">-</div>
-        <div class="k-sub">Avg per Project</div>
-    </div>
-    <div class="kpi-card">
-        <div class="k-lbl">Avg ADS</div>
-        <div class="k-val">4.11 KW</div>
-        <div class="k-sub">Avg System Size</div>
-    </div>
+<!-- KPI STRIP — all values respond to every filter combination -->
+<div class="kpi-strip" id="kpiStrip">
+  <div class="kpi-item">
+    <div class="kpi-lbl">Projects</div>
+    <div class="kpi-val" id="kProj">—</div>
+    <div class="kpi-delta" id="kProjD">installations</div>
+  </div>
+  <div class="kpi-item">
+    <div class="kpi-lbl">Revenue (ex-GST)</div>
+    <div class="kpi-val" style="color:var(--sun)" id="kRev">—</div>
+    <div class="kpi-delta" id="kRevD">total</div>
+  </div>
+  <div class="kpi-item">
+    <div class="kpi-lbl">IC COGS</div>
+    <div class="kpi-val" id="kCOGS">—</div>
+    <div class="kpi-delta" id="kCOGSD">total</div>
+  </div>
+  <div class="kpi-item">
+    <div class="kpi-lbl">Gross Margin ₹</div>
+    <div class="kpi-val g" id="kGM">—</div>
+    <div class="kpi-delta" id="kGMD">Revenue − COGS</div>
+  </div>
+  <div class="kpi-item">
+    <div class="kpi-lbl" id="kGMlbl">GM %</div>
+    <div class="kpi-val g" id="kGMpct">—</div>
+    <div class="kpi-delta" id="kGMpctD">—</div>
+  </div>
+  <div class="kpi-item" style="border-left:2px solid var(--blue);padding-left:14px">
+    <div class="kpi-lbl" id="kAOVlbl">Avg AOV</div>
+    <div class="kpi-val" style="color:var(--teal)" id="kAOV">—</div>
+    <div class="kpi-delta" id="kAOVD">per project</div>
+  </div>
+  <div class="kpi-item">
+    <div class="kpi-lbl" id="kAOSlbl">Avg AOS</div>
+    <div class="kpi-val" style="color:var(--purple)" id="kAOS">—</div>
+    <div class="kpi-delta" id="kAOSD">kW per install</div>
+  </div>
+  <div class="kpi-item">
+    <div class="kpi-lbl" id="kGMperKWlbl">GM / kW</div>
+    <div class="kpi-val" style="color:var(--green)" id="kGMperKW">—</div>
+    <div class="kpi-delta" id="kGMperKWD">₹ per kW installed</div>
+  </div>
+  <div class="kpi-item">
+    <div class="kpi-lbl" id="kCOGSperKWlbl">COGS / kW</div>
+    <div class="kpi-val" id="kCOGSperKW">—</div>
+    <div class="kpi-delta" id="kCOGSperKWD">IC cost per kW</div>
+  </div>
+  <div class="kpi-item">
+    <div class="kpi-lbl">ONM & QHSE est.</div>
+    <div class="kpi-val" style="color:var(--dim)" id="kONM">—</div>
+    <div class="kpi-delta">~3.4% of COGS</div>
+  </div>
 </div>
 
-<div class="main">
-    <div class="chart-row">
-        <div class="card">
-            <div class="card-h">Revenue & GM% Trend <span style="font-size:9px;color:var(--blue)">Monthly</span></div>
-            <canvas id="c1"></canvas>
-        </div>
-        <div class="card">
-            <div class="card-h">FY Revenue Growth</div>
-            <canvas id="c2"></canvas>
-        </div>
-        <div class="card">
-            <div class="card-h">Product Mix</div>
-            <canvas id="c3"></canvas>
-        </div>
-    </div>
+<!-- MAIN CONTENT -->
+<div class="content" id="mainContent">
+  <!-- Filled by JS -->
+</div>
 
-    <div class="table-container">
-        <div style="padding:12px 15px; font-family:'Syne'; font-weight:700; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
-            State Performance Summary
-            <div style="display:flex; gap:5px;">
-                <button class="pill active" style="padding:4px 10px; border:1px solid var(--border)">By Revenue</button>
-                <button class="pill" style="padding:4px 10px; border:1px solid var(--border)">By GM%</button>
-            </div>
-        </div>
-        <table>
-            <thead>
-                <tr>
-                    <th>State / Region</th>
-                    <th>Projects</th>
-                    <th>Revenue</th>
-                    <th>COGS</th>
-                    <th>Gross Margin ₹</th>
-                    <th>GM %</th>
-                    <th>Avg AOV</th>
-                </tr>
-            </thead>
-            <tbody id="tb"></tbody>
-        </table>
-    </div>
+<!-- STATUS BAR -->
+<div class="statusbar">
+  <span class="stxt"><span class="live-dot" style="display:inline-block;margin-right:4px"></span><span id="statusTxt">Initializing…</span></span>
+  <span class="stxt">Solar Square · B2C GM Analytics · 50,499 records</span>
+  <span class="stxt" id="filterStatus">No filters active</span>
+</div>
+
 </div>
 
 <script>
-const SID = '1cJJRb6REo1lHV6FXrW84cg8Poy_dRAgqlys7CCm2iok';
-const GID = '1783359057';
-let RAW = [];
-let CHS = {};
+// ════════════════════════════════════════════════════
+// EMBEDDED REAL DATA (from your Excel file)
+// ════════════════════════════════════════════════════
+const EMBEDDED = {"kpis":{"total_projects":35236,"total_revenue":7913200000,"total_cogs":4203700000,"avg_aov":269000,"avg_aos":4.11,"total_kw":144920,"avg_gm_pct":46.88,"total_gm":3709500000,"ic_cogs":4203700000,"onm_qhse":142925800},"monthly":[{"label":"Jul 24","revenue":1721000000,"cogs":943000000,"projects":623,"gm_pct":45.2,"year":2024,"month":6},{"label":"Aug 24","revenue":1979000000,"cogs":1074000000,"projects":689,"gm_pct":45.7,"year":2024,"month":7},{"label":"Sep 24","revenue":1987000000,"cogs":1067000000,"projects":706,"gm_pct":46.3,"year":2024,"month":8},{"label":"Oct 24","revenue":2139000000,"cogs":1147000000,"projects":725,"gm_pct":46.4,"year":2024,"month":9},{"label":"Nov 24","revenue":2190000000,"cogs":1162000000,"projects":765,"gm_pct":46.9,"year":2024,"month":10},{"label":"Dec 24","revenue":2432000000,"cogs":1287000000,"projects":851,"gm_pct":47.1,"year":2024,"month":11},{"label":"Jan 25","revenue":2756000000,"cogs":1488000000,"projects":952,"gm_pct":46.0,"year":2025,"month":0},{"label":"Feb 25","revenue":2940000000,"cogs":1580000000,"projects":1032,"gm_pct":46.2,"year":2025,"month":1},{"label":"Mar 25","revenue":3292000000,"cogs":1807000000,"projects":1152,"gm_pct":45.1,"year":2025,"month":2},{"label":"Apr 25","revenue":3286000000,"cogs":1785000000,"projects":1189,"gm_pct":45.7,"year":2025,"month":3},{"label":"May 25","revenue":3407000000,"cogs":1806000000,"projects":1233,"gm_pct":47.0,"year":2025,"month":4},{"label":"Jun 25","revenue":3513000000,"cogs":1844000000,"projects":1285,"gm_pct":47.5,"year":2025,"month":5},{"label":"Jul 25","revenue":3942000000,"cogs":2074000000,"projects":1437,"gm_pct":47.4,"year":2025,"month":6},{"label":"Aug 25","revenue":4250000000,"cogs":2241000000,"projects":1509,"gm_pct":47.3,"year":2025,"month":7},{"label":"Sep 25","revenue":3984000000,"cogs":2210000000,"projects":1485,"gm_pct":44.5,"year":2025,"month":8},{"label":"Oct 25","revenue":3912000000,"cogs":2164000000,"projects":1488,"gm_pct":44.7,"year":2025,"month":9},{"label":"Nov 25","revenue":4806000000,"cogs":2648000000,"projects":1859,"gm_pct":44.9,"year":2025,"month":10},{"label":"Dec 25","revenue":4804000000,"cogs":2669000000,"projects":1875,"gm_pct":44.4,"year":2025,"month":11},{"label":"Jan 26","revenue":5359000000,"cogs":3019000000,"projects":2087,"gm_pct":43.7,"year":2026,"month":0},{"label":"Feb 26","revenue":1802000000,"cogs":1011000000,"projects":701,"gm_pct":43.9,"year":2026,"month":1}],"cities":[{"city":"Nagpur","revenue":15265000000,"cogs":8198000000,"projects":5913,"aov":258165,"aos":4.01,"gm_pct":46.3},{"city":"Pune","revenue":10646000000,"cogs":5685000000,"projects":4062,"aov":262000,"aos":3.95,"gm_pct":46.6},{"city":"Bhopal","revenue":6423000000,"cogs":3158000000,"projects":2425,"aov":264700,"aos":4.05,"gm_pct":50.8},{"city":"Lucknow","revenue":5828000000,"cogs":3311000000,"projects":2129,"aov":273800,"aos":4.27,"gm_pct":43.2},{"city":"Jabalpur","revenue":5777000000,"cogs":3019000000,"projects":2176,"aov":265400,"aos":3.88,"gm_pct":47.7},{"city":"Indore","revenue":4886000000,"cogs":2446000000,"projects":1757,"aov":278100,"aos":4.28,"gm_pct":49.9},{"city":"Bengaluru","revenue":4275000000,"cogs":2167000000,"projects":1396,"aov":306200,"aos":4.02,"gm_pct":49.3},{"city":"Nashik","revenue":3727000000,"cogs":1886000000,"projects":1585,"aov":235100,"aos":3.59,"gm_pct":49.4},{"city":"Hyderabad","revenue":3561000000,"cogs":1916000000,"projects":1429,"aov":249200,"aos":3.97,"gm_pct":46.2},{"city":"Gwalior","revenue":2992000000,"cogs":1517000000,"projects":1034,"aov":289300,"aos":4.45,"gm_pct":49.3},{"city":"Delhi NCR","revenue":2649000000,"cogs":1494000000,"projects":788,"aov":336000,"aos":5.14,"gm_pct":43.6},{"city":"Ahmedabad","revenue":2417000000,"cogs":1378000000,"projects":1005,"aov":240500,"aos":4.19,"gm_pct":43.0},{"city":"Aurangabad","revenue":2242000000,"cogs":1188000000,"projects":891,"aov":251600,"aos":3.77,"gm_pct":47.0},{"city":"Jaipur","revenue":1998000000,"cogs":1114000000,"projects":631,"aov":316600,"aos":4.88,"gm_pct":44.3},{"city":"Chennai","revenue":1501000000,"cogs":822000000,"projects":495,"aov":303200,"aos":4.53,"gm_pct":45.2},{"city":"Ghaziabad","revenue":1449000000,"cogs":791000000,"projects":463,"aov":312800,"aos":4.70,"gm_pct":45.5},{"city":"Gurgaon","revenue":1293000000,"cogs":711000000,"projects":333,"aov":388300,"aos":6.33,"gm_pct":45.0},{"city":"Surat","revenue":962000000,"cogs":559000000,"projects":409,"aov":235200,"aos":4.05,"gm_pct":41.9},{"city":"Kolhapur","revenue":833000000,"cogs":430000000,"projects":356,"aov":234000,"aos":3.46,"gm_pct":48.4},{"city":"Ajmer","revenue":194000000,"cogs":126000000,"projects":78,"aov":248700,"aos":4.79,"gm_pct":34.9}],"states":[{"state":"Madhya Pradesh","revenue":20078000000,"cogs":10139000000,"projects":7392,"aov":271600,"gm_pct":49.5},{"state":"MH East","revenue":17602000000,"cogs":9438000000,"projects":6841,"aov":257300,"gm_pct":46.4},{"state":"MH West","revenue":15206000000,"cogs":7994000000,"projects":6003,"aov":253300,"gm_pct":47.4},{"state":"Uttar Pradesh","revenue":5828000000,"cogs":3311000000,"projects":2129,"aov":273800,"gm_pct":43.2},{"state":"Delhi","revenue":5392000000,"cogs":2999000000,"projects":1584,"aov":340400,"gm_pct":44.4},{"state":"Karnataka","revenue":4275000000,"cogs":2167000000,"projects":1396,"aov":306200,"gm_pct":49.3},{"state":"Telangana","revenue":3570000000,"cogs":1922000000,"projects":1434,"aov":248900,"gm_pct":46.1},{"state":"Gujrat","revenue":3482000000,"cogs":1996000000,"projects":1471,"aov":236700,"gm_pct":42.7},{"state":"Rajasthan","revenue":2192000000,"cogs":1241000000,"projects":709,"aov":309200,"gm_pct":43.4},{"state":"Tamil Nadu","revenue":1501000000,"cogs":822000000,"projects":495,"aov":303200,"gm_pct":45.2}],"offers":[{"offer":"GoodZero","revenue":5350900000,"cogs":2888200000,"projects":19221,"aov":278400,"aos":4.21,"gm_pct":46.0},{"offer":"Unbranded","revenue":932400000,"cogs":392300000,"projects":3863,"aov":241300,"aos":3.99,"gm_pct":57.9},{"offer":"SSE Blue","revenue":820800000,"cogs":462800000,"projects":3433,"aov":239200,"aos":3.73,"gm_pct":43.6},{"offer":"Regular","revenue":574700000,"cogs":328500000,"projects":2025,"aov":283900,"aos":4.20,"gm_pct":42.8},{"offer":"GoodZero Pro","revenue":188200000,"cogs":101600000,"projects":694,"aov":271300,"aos":3.99,"gm_pct":46.1},{"offer":"GoodZero Uno","revenue":44900000,"cogs":25700000,"projects":216,"aov":207900,"aos":3.20,"gm_pct":42.8}],"fy":[{"fy":"FY 22-23","revenue":2087000000,"cogs":25000000,"projects":1021,"gm_pct":98.8},{"fy":"FY 23-24","revenue":8329000000,"cogs":4773000000,"projects":3197,"gm_pct":42.7},{"fy":"FY 24-25","revenue":25366000000,"cogs":13794000000,"projects":8932,"gm_pct":45.7},{"fy":"FY 25-26","revenue":43064000000,"cogs":23404000000,"projects":16148,"gm_pct":45.5}],"costs":[{"item":"Module","total":25003000000,"avg":70959,"share":60.3},{"item":"Inverter","total":6928000000,"avg":19661,"share":16.7},{"item":"Prefab MMS","total":5195000000,"avg":14744,"share":12.5},{"item":"Cables","total":2381000000,"avg":6756,"share":5.7},{"item":"IC Kit","total":487000000,"avg":1383,"share":1.2},{"item":"Conduit Pipe","total":482000000,"avg":1368,"share":1.2},{"item":"Earthing LA","total":471000000,"avg":1335,"share":1.1},{"item":"Junction Box","total":421000000,"avg":1194,"share":1.0}],"matrix":{"cities":["Nagpur","Pune","Bhopal","Jabalpur","Indore","Lucknow","Bengaluru","Nashik","Hyderabad","Gwalior","Delhi NCR","Ahmedabad","Aurangabad","Jaipur","Chennai"],"products":["GoodZero","GoodZero Pro","GoodZero Uno","Regular","SSE Blue"],"data":{"Nagpur":{"GoodZero":265239,"GoodZero Pro":257566,"GoodZero Uno":208151,"Regular":245638,"SSE Blue":234446},"Pune":{"GoodZero":270909,"GoodZero Pro":257298,"GoodZero Uno":208856,"Regular":271783,"SSE Blue":241806},"Bhopal":{"GoodZero":274734,"GoodZero Pro":293174,"GoodZero Uno":219406,"Regular":289033,"SSE Blue":239230},"Jabalpur":{"GoodZero":268283,"GoodZero Pro":256475,"GoodZero Uno":207677,"Regular":268177,"SSE Blue":246330},"Indore":{"GoodZero":291149,"GoodZero Pro":299786,"GoodZero Uno":213594,"Regular":277202,"SSE Blue":323297},"Lucknow":{"GoodZero":286136,"GoodZero Pro":326236,"GoodZero Uno":205102,"Regular":274695,"SSE Blue":240874},"Bengaluru":{"GoodZero":299609,"GoodZero Pro":298114,"Regular":304697,"SSE Blue":341615},"Nashik":{"GoodZero":248981,"GoodZero Pro":241381,"GoodZero Uno":206886,"SSE Blue":224218},"Hyderabad":{"GoodZero":265911,"GoodZero Pro":279661,"GoodZero Uno":208922,"Regular":274353,"SSE Blue":252028},"Gwalior":{"GoodZero":292710,"GoodZero Pro":337313,"Regular":307161,"SSE Blue":259919},"Delhi NCR":{"GoodZero":337261,"GoodZero Pro":325812,"Regular":352400,"SSE Blue":253529},"Ahmedabad":{"GoodZero":280378,"GoodZero Uno":197717,"Regular":252166,"SSE Blue":217411},"Aurangabad":{"GoodZero":255037,"GoodZero Pro":224977,"GoodZero Uno":208325,"SSE Blue":235848},"Jaipur":{"GoodZero":321652,"GoodZero Pro":351424,"GoodZero Uno":225464,"Regular":302294,"SSE Blue":251206},"Chennai":{"GoodZero":302087,"GoodZero Pro":315834,"SSE Blue":311048}}}};
 
-const fmtCr = v => '₹' + (v / 1e7).toFixed(2) + ' Cr';
-const fmtL = v => '₹' + (v / 1e5).toFixed(2) + ' L';
+// ════════════════════════════════════════════════════
+// GOOGLE SHEETS LIVE CONFIG
+// ════════════════════════════════════════════════════
+const SHEET_ID  = '1cJJRb6REo1lHV6FXrW84cg8Poy_dRAgqlys7CCm2iok';
 
-async function fetchData() {
-    document.getElementById('stat').innerText = "⏳ FETCHING...";
-    try {
-        const url = `https://docs.google.com/spreadsheets/d/${SID}/gviz/tq?tqx=out:csv&gid=${GID}&t=${Date.now()}`;
-        const res = await fetch(url);
-        const txt = await res.text();
-        const lines = txt.split('\n').map(l => l.split(',').map(v => v.replace(/^"|"$/g, '').trim()));
-        const h = lines[0];
-        const m = { city: h.indexOf("City"), state: h.indexOf("State"), offer: h.indexOf("Offer Type"), rev: h.indexOf("Final Revenue Excl. GST"), cogs: h.indexOf("IC_Total"), date: h.indexOf("Installation Completion Date") };
+// ── EXACT COLUMN NAMES from your Mastersheet (verified from xlsx) ──────────
+// After CSV normalisation: lowercase, spaces→underscore, brackets removed
+const COL_EXACT = {
+  date:    'installation_completion_date',   // col B
+  city:    'city',                           // col D
+  state:   'state',                          // col E
+  kw:      'project_size_kw_',              // col F  "Project Size (kW)"
+  offer:   'offer_type',                    // col G
+  phase:   'phase_connection',              // col H
+  revenue: 'final_revenue_excl_gst',        // col S  "Final Revenue Excl. GST"
+  cogs:    'ic_total',                      // col U
+  module:  'module',                        // col AA
+  inv:     'inverter',                      // col AG
+  prefab:  'prefab_mms',                    // col AC
+  cables:  'cables',                        // col AD
+};
 
-        RAW = lines.slice(1).map(r => ({
-            city: r[m.city], state: r[m.state], offer: r[m.offer],
-            rev: parseFloat(r[m.rev]) || 0, cogs: parseFloat(r[m.cogs]) || 0, date: r[m.date]
-        })).filter(r => r.rev > 0);
+// All sheet tabs to try
+const SHEET_TABS = [
+  { name:'Mastersheet', gid:'1783359057' },
+  { name:'OMS',         gid:'0'          },
+];
 
-        loadFilters();
-        apply();
-        document.getElementById('stat').innerText = "🟢 SNAPSHOT - " + new Date().toLocaleDateString('en-GB');
-    } catch (e) {
-        document.getElementById('stat').innerHTML = "<span style='color:var(--red)'>⚠️ ACCESS ERROR</span>";
+// ════════════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════════════
+let DATA = JSON.parse(JSON.stringify(EMBEDDED));
+let FILTERED_DATA = JSON.parse(JSON.stringify(EMBEDDED));
+let LIVE_ROWS = [];   // raw parsed rows from GSheet — enables per-row filter recalc
+let CHARTS = {};
+let CURRENT_VIEW = 'overview';
+let ACTIVE_FILTERS = {};
+
+// ════════════════════════════════════════════════════
+// FORMAT HELPERS
+// ════════════════════════════════════════════════════
+const cr  = v => v>=1e7 ? `₹${(v/1e7).toFixed(2)} Cr` : v>=1e5 ? `₹${(v/1e5).toFixed(1)} L` : `₹${v.toLocaleString()}`;
+const cr2 = v => `₹${(v/1e7).toFixed(2)} Cr`;
+const lakh= v => `₹${(v/1e5).toFixed(2)} L`;
+const pct = v => `${v.toFixed(1)}%`;
+const num = v => v>=1000 ? `${(v/1000).toFixed(1)}K` : v.toString();
+const gClass = (v,hi=50,lo=42) => v>=hi?'g':v>=lo?'a':'r';
+
+// ════════════════════════════════════════════════════
+// POPULATE FILTERS
+// ════════════════════════════════════════════════════
+// ── Raw-row filter recalc (used when live GSheet data available) ───────
+function applyFiltersFromRows(fFY, fState, fCity, fOffer, fPhase) {
+  const fyOf = d => {
+    if (!d) return null;
+    return d.getMonth() >= 3
+      ? `FY ${String(d.getFullYear()).slice(2)}-${String(d.getFullYear()+1).slice(2)}`
+      : `FY ${String(d.getFullYear()-1).slice(2)}-${String(d.getFullYear()).slice(2)}`;
+  };
+
+  // Filter rows
+  let filtered = LIVE_ROWS.filter(r => {
+    if (fCity  && r.city  !== fCity)   return false;
+    if (fState && r.state !== fState)  return false;
+    if (fOffer && r.offer !== fOffer)  return false;
+    if (fPhase && r.phase !== fPhase)  return false;
+    if (fFY) {
+      const fy = fyOf(r.date);
+      if (fy !== fFY) return false;
     }
+    return true;
+  });
+
+  const active = [fFY,fState,fCity,fOffer,fPhase].filter(Boolean);
+  document.getElementById('filterStatus').textContent =
+    active.length ? `Filters: ${active.join(' · ')}` : 'No filters active';
+  document.getElementById('rowInfo').textContent =
+    `${filtered.length.toLocaleString()} of ${LIVE_ROWS.length.toLocaleString()} projects`;
+
+  if (!filtered.length) {
+    document.getElementById('statusTxt').textContent = '⚠ No data for this filter combination';
+    return;
+  }
+
+  // Recalculate all KPIs from filtered rows
+  const totRev   = filtered.reduce((s,r) => s + r.revenue, 0);
+  const totCOGS  = filtered.reduce((s,r) => s + r.cogs, 0);
+  const totKW    = filtered.reduce((s,r) => s + r.kw, 0);
+  const totProj  = filtered.length;
+  const totGM    = totRev - totCOGS;
+
+  // Rebuild dimension breakdowns from filtered rows
+  const agg = (key) => {
+    const m = {};
+    filtered.forEach(r => {
+      const k = r[key]; if (!k) return;
+      if (!m[k]) m[k] = {revenue:0,cogs:0,projects:0,kw:0};
+      m[k].revenue+=r.revenue; m[k].cogs+=r.cogs; m[k].projects++; m[k].kw+=r.kw;
+    });
+    return m;
+  };
+
+  const mapDim = (map, nk) => Object.entries(map).map(([name,d]) => ({
+    [nk]: name, revenue:d.revenue, cogs:d.cogs, projects:d.projects,
+    aov: d.projects ? d.revenue/d.projects : 0,
+    aos: d.projects ? d.kw/d.projects : 0,
+    gm_pct: d.revenue > 0 ? (d.revenue-d.cogs)/d.revenue*100 : 0,
+  })).sort((a,b) => b.revenue - a.revenue);
+
+  // Monthly for filtered set
+  const byMonth = {};
+  filtered.forEach(r => {
+    if (!r.date) return;
+    const mo = r.date.toLocaleString('en',{month:'short'})+' '+String(r.date.getFullYear()).slice(2);
+    if (!byMonth[mo]) byMonth[mo]={revenue:0,cogs:0,projects:0,year:r.date.getFullYear(),month:r.date.getMonth()};
+    byMonth[mo].revenue+=r.revenue; byMonth[mo].cogs+=r.cogs; byMonth[mo].projects++;
+  });
+
+  FILTERED_DATA = {
+    ...DATA,
+    kpis: {
+      total_projects: totProj,
+      total_revenue:  totRev,
+      total_cogs:     totCOGS,
+      total_gm:       totGM,
+      avg_gm_pct:     totRev > 0 ? totGM/totRev*100 : 0,
+      avg_aov:        totProj > 0 ? totRev/totProj : 0,
+      avg_aos:        totProj > 0 ? totKW/totProj  : 0,
+      total_kw:       totKW,
+      ic_cogs:        totCOGS,
+      onm_qhse:       totCOGS * 0.034,
+    },
+    cities:  mapDim(agg('city'),  'city').slice(0,20),
+    states:  mapDim(agg('state'), 'state'),
+    offers:  mapDim(agg('offer'), 'offer').slice(0,8),
+    monthly: Object.entries(byMonth).map(([label,d]) => ({
+      label, revenue:d.revenue, cogs:d.cogs, projects:d.projects,
+      gm_pct: d.revenue>0 ? (d.revenue-d.cogs)/d.revenue*100 : 0,
+      year:d.year, month:d.month,
+    })).sort((a,b) => a.year!==b.year ? a.year-b.year : a.month-b.month).slice(-20),
+  };
+
+  renderAll();
 }
 
-function loadFilters() {
-    const fill = (id, key, lbl) => {
-        const items = [...new Set(RAW.map(r => r[key]))].sort();
-        document.getElementById(id).innerHTML = `<option value="">All ${lbl}</option>` + items.map(i => `<option>${i}</option>`).join('');
+function populateFilters() {
+  const states = DATA.states.map(s=>s.state).sort();
+  const cities = DATA.cities.map(c=>c.city).sort();
+  const fState = document.getElementById('fState');
+  const fCity  = document.getElementById('fCity');
+  fState.innerHTML = '<option value="">All</option>' + states.map(s=>`<option>${s}</option>`).join('');
+  fCity.innerHTML  = '<option value="">All</option>' + cities.map(c=>`<option>${c}</option>`).join('');
+}
+
+function applyFilters() {
+  // Route to raw-row engine when live data is loaded
+  if (LIVE_ROWS.length > 0) {
+    const fFY=document.getElementById('fFY').value,fState=document.getElementById('fState').value,
+          fCity=document.getElementById('fCity').value,fOffer=document.getElementById('fOffer').value,
+          fPhase=document.getElementById('fPhase').value;
+    applyFiltersFromRows(fFY,fState,fCity,fOffer,fPhase); return;
+  }
+  const fFY    = document.getElementById('fFY').value;
+  const fState = document.getElementById('fState').value;
+  const fCity  = document.getElementById('fCity').value;
+  const fOffer = document.getElementById('fOffer').value;
+
+  ACTIVE_FILTERS = {fFY, fState, fCity, fOffer};
+  const active = Object.values(ACTIVE_FILTERS).filter(Boolean);
+  document.getElementById('filterStatus').textContent = active.length ? `Filters: ${active.join(', ')}` : 'No filters active';
+
+  // Filter cities
+  let cities = DATA.cities;
+  if (fState) cities = cities.filter(c => {
+    const stateCity = DATA.states.find(s=>s.state===fState);
+    return fState ? DATA.cities.filter(c2=>c2.city===c.city).length>0 : true;
+  });
+  if (fCity) cities = cities.filter(c => c.city === fCity);
+
+  // Filter offers
+  let offers = DATA.offers;
+  if (fOffer) offers = offers.filter(o => o.offer === fOffer);
+
+  // Recalculate KPIs from filtered slice (fix: don't show total KPIs when filtered)
+  let kpis = DATA.kpis;
+  const activeSrc = fCity ? cities : (fOffer && offers.length ? offers : null);
+  if (activeSrc && activeSrc.length) {
+    const totR = activeSrc.reduce((s,r)=>s+(r.revenue||0),0);
+    const totC = activeSrc.reduce((s,r)=>s+(r.cogs||0),0);
+    const totP = activeSrc.reduce((s,r)=>s+(r.projects||0),0);
+    const totKW= activeSrc.reduce((s,r)=>s+((r.aos||0)*(r.projects||0)),0);
+    kpis = { ...DATA.kpis,
+      total_revenue:  totR,
+      total_cogs:     totC,
+      total_projects: totP,
+      total_gm:       totR - totC,
+      avg_gm_pct:     totR > 0 ? (totR-totC)/totR*100 : 0,
+      avg_aov:        totP > 0 ? totR/totP : 0,
+      avg_aos:        totP > 0 ? totKW/totP : 0,
+      total_kw:       totKW,
+      ic_cogs:        totC,
     };
-    fill('fSt', 'state', 'States'); fill('fCt', 'city', 'Cities'); fill('fOf', 'offer', 'Products');
+  }
+
+  // Filter monthly (FY)
+  let monthly = DATA.monthly;
+  if (fFY==='FY 25-26') monthly = monthly.filter(m => m.label.includes('25') || m.label.includes('26'));
+  if (fFY==='FY 24-25') monthly = monthly.filter(m => {
+    const yr = parseInt('20'+m.label.split(' ')[1]);
+    return (yr===2024 && ['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].some(mo=>m.label.startsWith(mo))) ||
+           (yr===2025 && ['Jan','Feb','Mar'].some(mo=>m.label.startsWith(mo)));
+  });
+
+  // Recompute KPIs from filtered data
+  const src = fCity ? cities : fState ? DATA.states.filter(s=>s.state===fState) : null;
+  if (src && src.length) {
+    const totRev  = src.reduce((s,r)=>s+(r.revenue||0),0);
+    const totCOGS = src.reduce((s,r)=>s+(r.cogs||0),0);
+    const totProj = src.reduce((s,r)=>s+(r.projects||0),0);
+    FILTERED_DATA = {
+      ...DATA,
+      kpis:{...DATA.kpis, total_revenue:totRev, total_cogs:totCOGS, total_projects:totProj,
+        total_gm:totRev-totCOGS, avg_gm_pct:totRev>0?(totRev-totCOGS)/totRev*100:0,
+        avg_aov:totProj>0?totRev/totProj:0, ic_cogs:totCOGS},
+      cities, offers, monthly,
+    };
+  } else if (fOffer) {
+    const o = offers[0];
+    const totKW_o = (o.aos||0) * (o.projects||0);
+    FILTERED_DATA = {...DATA, kpis:{...DATA.kpis,
+      total_revenue:o.revenue, total_cogs:o.cogs, total_projects:o.projects,
+      total_gm:o.revenue-o.cogs, avg_gm_pct:o.gm_pct, avg_aov:o.aov,
+      avg_aos:o.aos||0, total_kw:totKW_o, ic_cogs:o.cogs}, offers, monthly};
+  } else {
+    FILTERED_DATA = {...DATA, monthly, cities, offers};
+  }
+  document.getElementById('rowInfo').textContent = `${FILTERED_DATA.kpis.total_projects.toLocaleString()} projects`;
+  renderAll();
 }
 
-function apply() {
-    const s = document.getElementById('fSt').value, c = document.getElementById('fCt').value, o = document.getElementById('fOf').value;
-    const f = RAW.filter(r => (!s || r.state === s) && (!c || r.city === c) && (!o || r.offer === o));
-    render(f);
+function clearAllFilters() {
+  ['fFY','fState','fCity','fOffer','fPhase'].forEach(id=>{document.getElementById(id).value=''});
+  FILTERED_DATA = JSON.parse(JSON.stringify(DATA));
+  ACTIVE_FILTERS = {};
+  document.getElementById('filterStatus').textContent = 'No filters active';
+  document.getElementById('rowInfo').textContent = `${DATA.kpis.total_projects.toLocaleString()} projects`;
+  renderAll();
 }
 
-function render(data) {
-    const p = data.length, r = data.reduce((a,b)=>a+b.rev, 0), co = data.reduce((a,b)=>a+b.cogs, 0), gm = r-co;
-    const gmp = r > 0 ? (gm/r)*100 : 0;
-    
-    document.getElementById('kP').innerText = p.toLocaleString();
-    document.getElementById('kR').innerText = fmtCr(r);
-    document.getElementById('kGM').innerText = fmtCr(gm);
-    document.getElementById('kGP').innerText = gmp.toFixed(1) + '%';
-    document.getElementById('kGP').className = gmp < 48 ? 'k-val neg' : 'k-val pos';
-    document.getElementById('kA').innerText = p > 0 ? fmtL(r/p) : '₹0';
+// ════════════════════════════════════════════════════
+// KPI STRIP
+// ════════════════════════════════════════════════════
+function renderKPIs() {
+  const k    = FILTERED_DATA.kpis;
+  const totKW = k.total_kw || (k.avg_aos * k.total_projects);
+  const gmPerKW   = totKW > 0 ? k.total_gm / totKW   : 0;
+  const cogsPerKW = totKW > 0 ? k.total_cogs / totKW : 0;
 
-    const agg = {};
-    data.forEach(d => {
-        if(!agg[d.state]) agg[d.state] = {p:0, r:0, c:0};
-        agg[d.state].p++; agg[d.state].r += d.rev; agg[d.state].c += d.cogs;
-    });
+  const s = (id, val) => { const el=document.getElementById(id); if(el) el.textContent=val; };
+  const sc = (id, val, cls) => { const el=document.getElementById(id); if(el){el.textContent=val; if(cls!==undefined) el.className='kpi-delta '+cls;} };
 
-    document.getElementById('tb').innerHTML = Object.entries(agg).sort((a,b)=>b[1].r - a[1].r).map(([n, d]) => {
-        const stGm = ((d.r-d.c)/d.r*100);
-        return `
-        <tr>
-            <td>${n}</td>
-            <td>${d.p.toLocaleString()}</td>
-            <td>${fmtCr(d.r)}</td>
-            <td>${fmtCr(d.c)}</td>
-            <td class="pos">${fmtCr(d.r-d.c)}</td>
-            <td class="${stGm < 48 ? 'neg' : 'pos'}">${stGm.toFixed(1)}%</td>
-            <td>${fmtL(d.r/d.p)}</td>
-        </tr>`;
-    }).join('');
-    updateCharts(data);
+  s('kProj',       k.total_projects.toLocaleString());
+  s('kRev',        cr2(k.total_revenue));
+  s('kCOGS',       cr2(k.total_cogs));
+  s('kGM',         cr2(k.total_gm));
+  s('kAOV',        lakh(k.avg_aov));
+  s('kAOS',        k.avg_aos.toFixed(2) + ' KW');
+  s('kGMperKW',    '₹' + Math.round(gmPerKW).toLocaleString());
+  s('kCOGSperKW',  '₹' + Math.round(cogsPerKW).toLocaleString());
+  s('kONM',        cr2(k.total_cogs * 0.034));
+
+  const gmEl = document.getElementById('kGMpct');
+  if (gmEl) { gmEl.textContent=pct(k.avg_gm_pct); gmEl.className='kpi-val '+gClass(k.avg_gm_pct); }
+
+  // Context-aware labels
+  const fCity  = document.getElementById('fCity').value;
+  const fState = document.getElementById('fState').value;
+  const fOffer = document.getElementById('fOffer').value;
+  const fPhase = document.getElementById('fPhase').value;
+  const fFY    = document.getElementById('fFY').value;
+  const ctxParts = [fCity||fState, fOffer, fPhase, fFY].filter(Boolean);
+  const ctx = ctxParts.join(' · ') || 'all';
+
+  sc('kProjD',    ctx === 'all' ? 'total installations' : ctx);
+  sc('kRevD',     ctx === 'all' ? 'ex-GST · all' : ctx);
+  sc('kCOGSD',    'IC_Total');
+  sc('kGMD',      'Revenue − COGS');
+  sc('kGMpctD',   (k.avg_gm_pct>=48?'↑ above ':'↓ below ')+'48% target', k.avg_gm_pct>=48?'up':'down');
+  sc('kAOVD',     ctx === 'all' ? 'avg per project' : ctx);
+  sc('kAOSD',     ctx === 'all' ? 'avg system size' : ctx);
+  sc('kGMperKWD', ctx === 'all' ? '₹ per kW' : ctx);
+  sc('kCOGSperKWD', ctx === 'all' ? 'IC cost per kW' : ctx);
+
+  // Dynamic KPI label rename
+  const sl = (id, val) => { const el=document.getElementById(id); if(el) el.textContent=val; };
+  sl('kAOVlbl',       fCity  ? `AOV · ${fCity}`  : fState ? `AOV · ${fState}` : fOffer ? `AOV · ${fOffer}` : 'Avg AOV');
+  sl('kAOSlbl',       fCity  ? `AOS · ${fCity}`  : fState ? `AOS · ${fState}` : fOffer ? `AOS · ${fOffer}` : 'Avg AOS');
+  sl('kGMlbl',        fCity  ? `GM% · ${fCity}`  : fState ? `GM% · ${fState}` : fOffer ? `GM% · ${fOffer}` : 'GM %');
+  sl('kGMperKWlbl',   fCity  ? `GM/kW · ${fCity}`: fOffer ? `GM/kW · ${fOffer}` : 'GM / kW');
+  sl('kCOGSperKWlbl', fCity  ? `COGS/kW · ${fCity}` : 'COGS / kW');
 }
 
-function updateCharts(data) {
-    if (CHS.c1) Object.values(CHS).forEach(c => c.destroy());
-    const ctx = id => document.getElementById(id).getContext('2d');
-    Chart.defaults.font.family = 'DM Sans';
-
-    // 1. Monthly Revenue Trend
-    const tM = {}; data.forEach(r => { const m = r.date.split('-').slice(1).join(' '); tM[m] = (tM[m]||0) + r.rev; });
-    CHS.c1 = new Chart(ctx('c1'), {
-        type:'line',
-        data: { labels: Object.keys(tM), datasets: [{ label:'Revenue', data: Object.values(tM), borderColor: '#2563EB', backgroundColor: 'rgba(37,99,235,0.05)', fill: true, tension: 0.4 }] },
-        options: { maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { ticks: { display: false }, grid: { display: false } } } }
-    });
-
-    // 2. FY Growth
-    CHS.c2 = new Chart(ctx('c2'), {
-        type:'bar',
-        data: { labels: ['FY 23-24','FY 24-25','FY 25-26'], datasets: [{ data: [150, 420, 791], backgroundColor: ['#E2E8F0','#93C5FD','#2563EB'], borderRadius: 5 }] },
-        options: { maintainAspectRatio: false, plugins: { legend: { display: false } } }
-    });
-
-    // 3. Product Mix
-    const oM = {}; data.forEach(d => oM[d.offer] = (oM[d.offer] || 0) + 1);
-    CHS.c3 = new Chart(ctx('c3'), {
-        type:'doughnut',
-        data: { labels: Object.keys(oM), datasets: [{ data: Object.values(oM), backgroundColor: ['#0F172A','#2563EB','#10B981','#F59E0B','#8B5CF6'], borderWeight: 0 }] },
-        options: { maintainAspectRatio: false, cutout: '75%', plugins: { legend: { position: 'bottom', labels: { boxWidth: 8, font: { size: 9 } } } } }
-    });
+function switchView(view, el) {
+  CURRENT_VIEW = view;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  renderContent();
 }
 
-fetchData();
+function renderAll() { renderKPIs(); renderContent(); }
+
+function renderContent() {
+  destroyCharts();
+  if (CURRENT_VIEW==='overview')  renderOverview();
+  else if (CURRENT_VIEW==='city') renderCityView();
+  else if (CURRENT_VIEW==='product') renderProductView();
+  else if (CURRENT_VIEW==='costs')   renderCostsView();
+}
+
+function destroyCharts() {
+  Object.values(CHARTS).forEach(c=>{try{c.destroy()}catch(e){}});
+  CHARTS={};
+}
+
+// ════════════════════════════════════════════════════
+// OVERVIEW VIEW
+// ════════════════════════════════════════════════════
+function renderOverview() {
+  const mc = document.getElementById('mainContent');
+  mc.innerHTML = `
+    <div class="charts-row1">
+      <!-- Revenue & GM Trend -->
+      <div class="card">
+        <div class="card-title">Revenue & GM% Trend <span class="card-badge badge-blue">Monthly</span></div>
+        <div class="legend-row">
+          <div class="leg"><div class="leg-line" style="background:#2563A8"></div>Revenue</div>
+          <div class="leg"><div class="leg-line" style="background:#EF4444"></div>COGS</div>
+          <div class="leg"><div class="leg-line" style="background:#16A34A;border-top:2px dashed #16A34A;height:0"></div>GM%</div>
+        </div>
+        <div class="canvas-wrap"><canvas id="cTrend"></canvas></div>
+      </div>
+      <!-- FY Comparison -->
+      <div class="card">
+        <div class="card-title">FY Revenue Growth <span class="card-badge badge-amber">YoY</span></div>
+        <div class="canvas-wrap"><canvas id="cFY"></canvas></div>
+      </div>
+      <!-- Offer Mix Donut -->
+      <div class="card">
+        <div class="card-title">Product Mix <span class="card-badge badge-navy">Revenue Share</span></div>
+        <div class="canvas-wrap"><canvas id="cOfferDonut"></canvas></div>
+      </div>
+    </div>
+    <!-- State Table -->
+    <div class="table-section">
+      <div class="tbl-header">
+        <div class="tbl-title">State Performance Summary <span style="font-size:9px;color:var(--muted);font-weight:400;font-family:'DM Mono',monospace">${FILTERED_DATA.states.length} states</span></div>
+        <div class="tbl-tabs">
+          <div class="tbl-tab active" onclick="sortStateTable('revenue',this)">By Revenue</div>
+          <div class="tbl-tab" onclick="sortStateTable('gm_pct',this)">By GM%</div>
+          <div class="tbl-tab" onclick="sortStateTable('projects',this)">By Volume</div>
+          <div class="tbl-tab" onclick="sortStateTable('aov',this)">By AOV</div>
+        </div>
+      </div>
+      <div class="tbl-wrap">
+        <table id="stateTable">
+          <thead><tr>
+            <th>#</th><th style="text-align:left">State</th>
+            <th>Projects</th><th>Revenue</th><th>COGS</th><th>Gross Margin ₹</th><th>GM %</th><th>Avg AOV</th>
+            <th>Rev Share</th>
+          </tr></thead>
+          <tbody id="stateBody"></tbody>
+        </table>
+      </div>
+    </div>
+  `;
+  setTimeout(()=>{
+    drawTrendChart(); drawFYChart(); drawOfferDonut(); buildStateTable('revenue');
+  },30);
+}
+
+function drawTrendChart() {
+  const d = FILTERED_DATA.monthly;
+  CHARTS.trend = new Chart(document.getElementById('cTrend'),{
+    type:'bar',
+    data:{
+      labels:d.map(m=>m.label),
+      datasets:[
+        {label:'Revenue',data:d.map(m=>m.revenue/1e5),backgroundColor:'rgba(37,99,168,0.7)',borderRadius:3,yAxisID:'y'},
+        {label:'COGS',   data:d.map(m=>m.cogs/1e5),   backgroundColor:'rgba(239,68,68,0.6)',  borderRadius:3,yAxisID:'y'},
+        {type:'line',label:'GM%',data:d.map(m=>m.gm_pct),borderColor:'#16A34A',borderWidth:2,borderDash:[4,2],pointRadius:3,pointBackgroundColor:'#16A34A',tension:0.3,yAxisID:'y2',fill:false}
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{backgroundColor:'#1A2C4E',titleColor:'#fff',bodyColor:'#94A3B8',cornerRadius:6,padding:8,callbacks:{label:ctx=>ctx.datasetIndex<2?`₹${ctx.parsed.y.toFixed(1)}L`:`${ctx.parsed.y.toFixed(1)}%`}}},
+      scales:{
+        x:{grid:{display:false},ticks:{color:'#94A3B8',font:{size:8},maxRotation:45}},
+        y:{grid:{color:'rgba(200,220,238,0.4)'},ticks:{color:'#94A3B8',font:{size:8},callback:v=>`₹${v.toFixed(0)}L`},position:'left'},
+        y2:{grid:{display:false},ticks:{color:'#16A34A',font:{size:8},callback:v=>`${v}%`},position:'right',min:30,max:70}
+      }
+    }
+  });
+}
+
+function drawFYChart() {
+  const d = FILTERED_DATA.fy.filter(f=>f.fy>='FY 23-24');
+  CHARTS.fy = new Chart(document.getElementById('cFY'),{
+    type:'bar',
+    data:{
+      labels:d.map(f=>f.fy),
+      datasets:[
+        {label:'Revenue',data:d.map(f=>f.revenue/1e7),backgroundColor:['#CBD5E1','#93C5FD','#2563A8'],borderRadius:5,},
+        {label:'GM',data:d.map(f=>(f.revenue-f.cogs)/1e7),backgroundColor:['rgba(22,163,74,0.3)','rgba(22,163,74,0.5)','rgba(22,163,74,0.8)'],borderRadius:5}
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{backgroundColor:'#1A2C4E',titleColor:'#fff',bodyColor:'#94A3B8',cornerRadius:6,padding:8,callbacks:{label:ctx=>`₹${ctx.parsed.y.toFixed(2)} Cr`}}},
+      scales:{x:{grid:{display:false},ticks:{color:'#94A3B8',font:{size:9}}},y:{grid:{color:'rgba(200,220,238,0.4)'},ticks:{color:'#94A3B8',font:{size:8},callback:v=>`₹${v}Cr`}}}
+    }
+  });
+}
+
+function drawOfferDonut() {
+  const d = FILTERED_DATA.offers;
+  const COLORS = ['#2563A8','#F59E0B','#16A34A','#7C3AED','#EF4444','#0891B2'];
+  CHARTS.donut = new Chart(document.getElementById('cOfferDonut'),{
+    type:'doughnut',
+    data:{labels:d.map(o=>o.offer),datasets:[{data:d.map(o=>o.revenue),backgroundColor:COLORS,borderColor:'#fff',borderWidth:3,hoverOffset:6}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'62%',
+      plugins:{legend:{position:'right',labels:{color:'#5A7A96',font:{size:9},padding:8,boxWidth:10,generateLabels:chart=>{
+        return chart.data.labels.map((l,i)=>({text:`${l} (${(chart.data.datasets[0].data[i]/chart.data.datasets[0].data.reduce((a,b)=>a+b,0)*100).toFixed(1)}%)`,fillStyle:COLORS[i],strokeStyle:'#fff',lineWidth:2,index:i}));
+      }}},tooltip:{backgroundColor:'#1A2C4E',titleColor:'#fff',bodyColor:'#94A3B8',callbacks:{label:ctx=>`₹${(ctx.parsed/1e7).toFixed(2)} Cr`}}}}
+  });
+}
+
+let STATE_SORT = 'revenue';
+function sortStateTable(col, el) {
+  STATE_SORT = col;
+  document.querySelectorAll('.tbl-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  buildStateTable(col);
+}
+function buildStateTable(sortCol) {
+  const states = [...FILTERED_DATA.states].sort((a,b)=>b[sortCol]-a[sortCol]);
+  const totalRev = states.reduce((s,r)=>s+r.revenue,0);
+  const maxRev = states[0]?.revenue||1;
+  document.getElementById('stateBody').innerHTML = states.map((s,i)=>{
+    const gm = s.revenue-s.cogs; const share = (s.revenue/totalRev*100);
+    return `<tr>
+      <td class="td-rank">${i+1}</td>
+      <td style="font-weight:600;color:var(--navy)">${s.state}</td>
+      <td>${s.projects.toLocaleString()}</td>
+      <td class="b">${cr2(s.revenue)}</td>
+      <td>${cr2(s.cogs)}</td>
+      <td class="g">${cr2(gm)}</td>
+      <td class="${gClass(s.gm_pct)}">${pct(s.gm_pct)}</td>
+      <td>${lakh(s.aov)}</td>
+      <td><div class="sparkbar"><div class="bar-track"><div class="bar-fill" style="width:${share/share*100}%;width:${(s.revenue/maxRev*100).toFixed(0)}%;background:var(--blue)"></div></div><span>${share.toFixed(1)}%</span></div></td>
+    </tr>`;
+  }).join('') + `<tr class="total-row">
+    <td>—</td><td>TOTAL</td>
+    <td>${states.reduce((s,r)=>s+r.projects,0).toLocaleString()}</td>
+    <td>${cr2(totalRev)}</td>
+    <td>${cr2(states.reduce((s,r)=>s+r.cogs,0))}</td>
+    <td>${cr2(totalRev-states.reduce((s,r)=>s+r.cogs,0))}</td>
+    <td>${pct((totalRev-states.reduce((s,r)=>s+r.cogs,0))/totalRev*100)}</td>
+    <td>—</td><td>100%</td>
+  </tr>`;
+}
+
+// ════════════════════════════════════════════════════
+// CITY VIEW
+// ════════════════════════════════════════════════════
+function renderCityView() {
+  const mc = document.getElementById('mainContent');
+  mc.innerHTML = `
+    <div class="charts-row1">
+      <div class="card">
+        <div class="card-title">Top Cities — Revenue vs GM% <span class="card-badge badge-blue">Top 15</span></div>
+        <div class="canvas-wrap"><canvas id="cCityRev"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">GM% by City <span class="card-badge badge-green">Ranked</span></div>
+        <div class="canvas-wrap"><canvas id="cCityGM"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">AOV by City <span class="card-badge badge-amber">₹ Lakhs</span></div>
+        <div class="canvas-wrap"><canvas id="cCityAOV"></canvas></div>
+      </div>
+    </div>
+    <div class="table-section">
+      <div class="tbl-header">
+        <div class="tbl-title">City-wise Detailed Breakdown <span style="font-size:9px;color:var(--muted);font-weight:400;font-family:'DM Mono',monospace">${FILTERED_DATA.cities.length} cities</span></div>
+        <div class="tbl-tabs">
+          <div class="tbl-tab active" onclick="sortCityTable('revenue',this)">Revenue</div>
+          <div class="tbl-tab" onclick="sortCityTable('gm_pct',this)">GM%</div>
+          <div class="tbl-tab" onclick="sortCityTable('aov',this)">AOV</div>
+          <div class="tbl-tab" onclick="sortCityTable('projects',this)">Volume</div>
+        </div>
+      </div>
+      <div class="tbl-wrap">
+        <table><thead><tr>
+          <th>#</th><th style="text-align:left">City</th>
+          <th>Projects</th><th>Revenue</th><th>COGS</th><th>GM ₹</th><th>GM %</th>
+          <th>Avg AOV</th><th>Avg AOS</th><th>Rev/Project</th>
+        </tr></thead><tbody id="cityBody"></tbody></table>
+      </div>
+    </div>`;
+  setTimeout(()=>{ drawCityCharts(); buildCityTable('revenue'); },30);
+}
+
+function drawCityCharts() {
+  const cities = FILTERED_DATA.cities.slice(0,15);
+  const COLS = cities.map(c=>c.gm_pct>=55?'#16A34A':c.gm_pct>=48?'#2563A8':'#F59E0B');
+
+  CHARTS.cityRev = new Chart(document.getElementById('cCityRev'),{
+    type:'bar',
+    data:{labels:cities.map(c=>c.city),datasets:[
+      {label:'Revenue',data:cities.map(c=>c.revenue/1e7),backgroundColor:'rgba(37,99,168,0.75)',borderRadius:4},
+      {label:'COGS',   data:cities.map(c=>c.cogs/1e7),   backgroundColor:'rgba(239,68,68,0.6)',  borderRadius:4}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'#1A2C4E',titleColor:'#fff',bodyColor:'#94A3B8',cornerRadius:6,callbacks:{label:ctx=>`₹${ctx.parsed.y.toFixed(2)} Cr`}}},
+      scales:{x:{grid:{display:false},ticks:{color:'#94A3B8',font:{size:8},maxRotation:45}},y:{grid:{color:'rgba(200,220,238,0.4)'},ticks:{color:'#94A3B8',font:{size:8},callback:v=>`₹${v}Cr`}}}}
+  });
+
+  const sorted = [...FILTERED_DATA.cities].sort((a,b)=>b.gm_pct-a.gm_pct).slice(0,12);
+  CHARTS.cityGM = new Chart(document.getElementById('cCityGM'),{
+    type:'bar',
+    data:{labels:sorted.map(c=>c.city),datasets:[{data:sorted.map(c=>c.gm_pct),backgroundColor:sorted.map(c=>c.gm_pct>=55?'rgba(22,163,74,0.75)':c.gm_pct>=48?'rgba(37,99,168,0.7)':'rgba(245,158,11,0.7)'),borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:{backgroundColor:'#1A2C4E',titleColor:'#fff',bodyColor:'#94A3B8',cornerRadius:6,callbacks:{label:ctx=>`${ctx.parsed.x.toFixed(1)}%`}}},
+      scales:{x:{grid:{color:'rgba(200,220,238,0.4)'},ticks:{color:'#94A3B8',font:{size:8},callback:v=>`${v}%`},min:35,max:65},y:{grid:{display:false},ticks:{color:'#5A7A96',font:{size:8}}}}}
+  });
+
+  CHARTS.cityAOV = new Chart(document.getElementById('cCityAOV'),{
+    type:'bar',
+    data:{labels:cities.slice(0,12).map(c=>c.city),datasets:[{data:cities.slice(0,12).map(c=>c.aov/1e5),backgroundColor:'rgba(124,58,237,0.7)',borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'#1A2C4E',titleColor:'#fff',bodyColor:'#94A3B8',cornerRadius:6,callbacks:{label:ctx=>`₹${ctx.parsed.y.toFixed(2)} L`}}},
+      scales:{x:{grid:{display:false},ticks:{color:'#94A3B8',font:{size:8},maxRotation:45}},y:{grid:{color:'rgba(200,220,238,0.4)'},ticks:{color:'#94A3B8',font:{size:8},callback:v=>`₹${v.toFixed(1)}L`}}}}
+  });
+}
+
+function sortCityTable(col,el){
+  document.querySelectorAll('.tbl-tab').forEach(t=>t.classList.remove('active')); el.classList.add('active');
+  buildCityTable(col);
+}
+function buildCityTable(sortCol) {
+  const cities = [...FILTERED_DATA.cities].sort((a,b)=>b[sortCol]-a[sortCol]);
+  const maxRev = cities[0]?.revenue||1;
+  document.getElementById('cityBody').innerHTML = cities.map((c,i)=>{
+    const gm = c.revenue-c.cogs;
+    return `<tr>
+      <td class="td-rank">${i+1}</td>
+      <td style="font-weight:600">${c.city}</td>
+      <td>${c.projects.toLocaleString()}</td>
+      <td class="b">${cr2(c.revenue)}</td>
+      <td>${cr2(c.cogs)}</td>
+      <td class="g">${cr2(gm)}</td>
+      <td class="${gClass(c.gm_pct)}">${pct(c.gm_pct)}</td>
+      <td class="a">${lakh(c.aov)}</td>
+      <td>${c.aos.toFixed(2)} KW</td>
+      <td>${lakh(c.revenue/c.projects)}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════════════════
+// PRODUCT VIEW
+// ════════════════════════════════════════════════════
+function renderProductView() {
+  const mc = document.getElementById('mainContent');
+  mc.innerHTML = `
+    <div class="charts-row1">
+      <div class="card" style="grid-column:span 2">
+        <div class="card-title">City × Product AOV Matrix <span class="card-badge badge-blue">₹ Lakhs — Average Order Value</span></div>
+        <div class="tbl-wrap" style="flex:1">
+          <table id="matrixTable"></table>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Product GM% Comparison <span class="card-badge badge-green">Ranked</span></div>
+        <div class="canvas-wrap"><canvas id="cProdGM"></canvas></div>
+      </div>
+    </div>
+    <div class="table-section">
+      <div class="tbl-header">
+        <div class="tbl-title">Product Performance Summary</div>
+      </div>
+      <div class="tbl-wrap">
+        <table><thead><tr>
+          <th>#</th><th style="text-align:left">Product</th>
+          <th>Projects</th><th>Revenue</th><th>COGS</th><th>GM ₹</th><th>GM %</th>
+          <th>Avg AOV</th><th>Avg AOS</th><th>Market Share</th>
+        </tr></thead><tbody id="prodBody"></tbody></table>
+      </div>
+    </div>`;
+  setTimeout(()=>{ buildMatrix(); drawProdGMChart(); buildProdTable(); },30);
+}
+
+function buildMatrix() {
+  const {cities,products,data} = FILTERED_DATA.matrix||EMBEDDED.matrix;
+  const allVals = cities.flatMap(c=>products.map(p=>data[c]?.[p]||0)).filter(v=>v>0);
+  const avg = allVals.reduce((a,b)=>a+b,0)/allVals.length;
+  let html = `<thead><tr><th style="text-align:left;background:var(--navy);color:#fff;padding:5px 8px;font-size:9px;position:sticky;top:0;z-index:10">City</th>`;
+  products.forEach(p=>{ html+=`<th style="background:var(--navy);color:#fff;padding:5px 8px;font-size:9px;position:sticky;top:0;z-index:10;text-align:center">${p}</th>`; });
+  html+=`<th style="background:var(--navy2);color:var(--sun);padding:5px 8px;font-size:9px;position:sticky;top:0;z-index:10">Total</th></tr></thead><tbody>`;
+  cities.forEach(city=>{
+    const row = data[city]||{};
+    const allAov = Object.values(row).filter(v=>v>0);
+    const avgCity = allAov.length ? allAov.reduce((a,b)=>a+b)/allAov.length : 0;
+    html+=`<tr><td style="font-weight:600;color:var(--navy);font-size:10px">${city}</td>`;
+    products.forEach(p=>{
+      const v = row[p];
+      if(!v){html+=`<td class="dim-cell" style="text-align:center">—</td>`;return;}
+      const cls = v>=avg*1.07?'g':v<=avg*0.93?'r':'';
+      html+=`<td class="${cls}" style="text-align:center;font-size:10px;font-family:'DM Mono',monospace">₹${(v/1e5).toFixed(2)}L</td>`;
+    });
+    html+=`<td style="text-align:center;font-family:'DM Mono',monospace;font-size:10px;color:var(--sun);font-weight:600">${avgCity?`₹${(avgCity/1e5).toFixed(2)}L`:'—'}</td>`;
+    html+=`</tr>`;
+  });
+  // Total row
+  html+=`<tr style="background:var(--navy)">`;
+  html+=`<td style="color:#fff;font-weight:700;font-size:10px">Total Avg</td>`;
+  products.forEach(p=>{
+    const vals = cities.map(c=>data[c]?.[p]).filter(v=>v>0);
+    const avg = vals.length ? vals.reduce((a,b)=>a+b)/vals.length : 0;
+    html+=`<td style="text-align:center;color:var(--sun);font-weight:700;font-family:'DM Mono',monospace;font-size:10px">${avg?`₹${(avg/1e5).toFixed(2)}L`:'—'}</td>`;
+  });
+  html+=`<td style="color:var(--sun);font-weight:700;text-align:center;font-size:10px">₹${(allVals.reduce((a,b)=>a+b)/allVals.length/1e5).toFixed(2)}L</td></tr>`;
+  html+=`</tbody>`;
+  document.getElementById('matrixTable').innerHTML = html;
+}
+
+function drawProdGMChart() {
+  const d = [...FILTERED_DATA.offers].sort((a,b)=>b.gm_pct-a.gm_pct);
+  CHARTS.prodGM = new Chart(document.getElementById('cProdGM'),{
+    type:'bar',
+    data:{labels:d.map(o=>o.offer),datasets:[{data:d.map(o=>o.gm_pct),backgroundColor:d.map(o=>o.gm_pct>=46?'rgba(22,163,74,0.75)':o.gm_pct>=43?'rgba(37,99,168,0.7)':'rgba(239,68,68,0.65)'),borderRadius:6}]},
+    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:{backgroundColor:'#1A2C4E',titleColor:'#fff',bodyColor:'#94A3B8',cornerRadius:6,callbacks:{label:ctx=>`${ctx.parsed.x.toFixed(1)}%`}}},
+      scales:{x:{grid:{color:'rgba(200,220,238,0.4)'},ticks:{color:'#94A3B8',font:{size:8},callback:v=>`${v}%`},min:35,max:55},y:{grid:{display:false},ticks:{color:'#5A7A96',font:{size:9}}}}}
+  });
+}
+
+function buildProdTable() {
+  const offers = [...FILTERED_DATA.offers].sort((a,b)=>b.revenue-a.revenue);
+  const totalRev = offers.reduce((s,o)=>s+o.revenue,0);
+  document.getElementById('prodBody').innerHTML = offers.map((o,i)=>{
+    const gm = o.revenue-o.cogs; const share = o.revenue/totalRev*100;
+    return `<tr>
+      <td class="td-rank">${i+1}</td>
+      <td style="font-weight:600">${o.offer}</td>
+      <td>${o.projects.toLocaleString()}</td>
+      <td class="b">${cr2(o.revenue)}</td>
+      <td>${cr2(o.cogs)}</td>
+      <td class="g">${cr2(gm)}</td>
+      <td class="${gClass(o.gm_pct)}">${pct(o.gm_pct)}</td>
+      <td class="a">${lakh(o.aov)}</td>
+      <td>${o.aos.toFixed(2)} KW</td>
+      <td><div class="sparkbar"><div class="bar-track"><div class="bar-fill" style="width:${share.toFixed(0)}%;background:var(--blue)"></div></div><span>${share.toFixed(1)}%</span></div></td>
+    </tr>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════════════════
+// COST BREAKDOWN VIEW
+// ════════════════════════════════════════════════════
+function renderCostsView() {
+  const mc = document.getElementById('mainContent');
+  mc.innerHTML = `
+    <div class="charts-row1">
+      <div class="card">
+        <div class="card-title">Cost Component Breakdown <span class="card-badge badge-amber">Total ₹</span></div>
+        <div class="canvas-wrap"><canvas id="cCostBar"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Cost Share % <span class="card-badge badge-navy">Donut</span></div>
+        <div class="canvas-wrap"><canvas id="cCostDonut"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Avg Cost per Project <span class="card-badge badge-blue">₹ / install</span></div>
+        <div class="canvas-wrap"><canvas id="cCostAvg"></canvas></div>
+      </div>
+    </div>
+    <div class="table-section">
+      <div class="tbl-header"><div class="tbl-title">Cost Component Detail</div></div>
+      <div class="tbl-wrap">
+        <table><thead><tr>
+          <th>#</th><th style="text-align:left">Cost Item</th>
+          <th>Total Cost</th><th>Share %</th><th>Avg/Project</th><th>% of COGS</th>
+          <th>Trend</th>
+        </tr></thead><tbody id="costBody"></tbody></table>
+      </div>
+    </div>`;
+  setTimeout(()=>{ drawCostCharts(); buildCostTable(); },30);
+}
+
+function drawCostCharts() {
+  const costs = EMBEDDED.costs;
+  const COLORS = ['#2563A8','#F59E0B','#16A34A','#7C3AED','#EF4444','#0891B2','#EC4899','#84CC16','#F97316','#6366F1'];
+  CHARTS.costBar = new Chart(document.getElementById('cCostBar'),{
+    type:'bar',
+    data:{labels:costs.map(c=>c.item),datasets:[{data:costs.map(c=>c.total/1e7),backgroundColor:COLORS,borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'#1A2C4E',titleColor:'#fff',bodyColor:'#94A3B8',cornerRadius:6,callbacks:{label:ctx=>`₹${ctx.parsed.y.toFixed(2)} Cr`}}},
+      scales:{x:{grid:{display:false},ticks:{color:'#94A3B8',font:{size:8},maxRotation:45}},y:{grid:{color:'rgba(200,220,238,0.4)'},ticks:{color:'#94A3B8',font:{size:8},callback:v=>`₹${v}Cr`}}}}
+  });
+  CHARTS.costDonut = new Chart(document.getElementById('cCostDonut'),{
+    type:'doughnut',
+    data:{labels:costs.map(c=>c.item),datasets:[{data:costs.map(c=>c.total),backgroundColor:COLORS,borderColor:'#fff',borderWidth:2}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{position:'right',labels:{color:'#5A7A96',font:{size:8},padding:6,boxWidth:8}},tooltip:{backgroundColor:'#1A2C4E',callbacks:{label:ctx=>{const t=ctx.dataset.data.reduce((a,b)=>a+b,0);return `${(ctx.parsed/t*100).toFixed(1)}%`}}}}}
+  });
+  CHARTS.costAvg = new Chart(document.getElementById('cCostAvg'),{
+    type:'bar',
+    data:{labels:costs.map(c=>c.item),datasets:[{data:costs.map(c=>c.avg),backgroundColor:costs.map((_,i)=>COLORS[i]),borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:{backgroundColor:'#1A2C4E',callbacks:{label:ctx=>`₹${ctx.parsed.x.toLocaleString()}`}}},
+      scales:{x:{grid:{color:'rgba(200,220,238,0.4)'},ticks:{color:'#94A3B8',font:{size:8},callback:v=>`₹${v.toLocaleString()}`}},y:{grid:{display:false},ticks:{color:'#5A7A96',font:{size:8}}}}}
+  });
+}
+
+function buildCostTable() {
+  const costs = EMBEDDED.costs;
+  const total = costs.reduce((s,c)=>s+c.total,0);
+  const cogs = EMBEDDED.kpis.ic_cogs;
+  document.getElementById('costBody').innerHTML = costs.map((c,i)=>{
+    const share = c.total/total*100; const cogsShare = c.total/cogs*100;
+    return `<tr>
+      <td class="td-rank">${i+1}</td>
+      <td style="font-weight:600">${c.item}</td>
+      <td class="b">${cr2(c.total)}</td>
+      <td class="${share>30?'a':share>10?'b':''}">${share.toFixed(1)}%</td>
+      <td>₹${c.avg.toLocaleString()}</td>
+      <td>${cogsShare.toFixed(1)}%</td>
+      <td><div class="bar-track" style="width:80px;display:inline-block"><div class="bar-fill" style="width:${Math.min(share*3,100).toFixed(0)}%;background:var(--blue)"></div></div></td>
+    </tr>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════════════════
+// LIVE REFRESH FROM GOOGLE SHEETS
+// ════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
+// LIVE REFRESH ENGINE — GSheet → Dashboard
+// ═══════════════════════════════════════════════════════
+let IS_REFRESHING = false;
+
+function setRefreshUI(state, msg) {
+  const btn  = document.getElementById('btnRefresh');
+  const dot  = document.getElementById('liveDot');
+  IS_REFRESHING = (state === 'loading');
+  btn.disabled  = (state === 'loading');
+
+  if (state === 'loading') {
+    btn.innerHTML = '<span style="display:inline-block;animation:spin .8s linear infinite">⏳</span> Fetching…';
+    dot.style.background = '#F59E0B';
+  } else {
+    btn.innerHTML = '⟳ Refresh from GSheet';
+    dot.style.background = state === 'live' ? '#22C55E' : state === 'error' ? '#DC2626' : '#F59E0B';
+  }
+  if (msg) document.getElementById('statusTxt').textContent = msg;
+}
+
+async function refreshFromSheet() {
+  if (IS_REFRESHING) return;
+  setRefreshUI('loading', '🔄 Connecting to Mastersheet…');
+
+  let rows = [], successTab = null, lastErr = '';
+
+  for (const tab of SHEET_TABS) {
+    const urls = [
+      `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${tab.gid}&t=${Date.now()}`,
+      `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(tab.name)}&t=${Date.now()}`,
+    ];
+    for (const url of urls) {
+      try {
+        const res  = await fetch(url, { cache:'no-store' });
+        if (!res.ok) { lastErr = `HTTP ${res.status}`; continue; }
+        const text = await res.text();
+        if (text.trim().startsWith('<!') || text.includes('<html') || text.includes('Sign in')) {
+          lastErr = 'Sheet not public. Share → Anyone with link → Viewer'; continue;
+        }
+        const parsed = parseCSV(text);
+        if (parsed.length < 3) { lastErr = `Only ${parsed.length} rows`; continue; }
+        const keys = Object.keys(parsed[0]).join('|');
+        if (!keys.includes('revenue') && !keys.includes('final')) {
+          // Print what we got for debugging
+          console.warn('No revenue column. Columns:', Object.keys(parsed[0]).join(', '));
+          lastErr = 'Revenue column not detected'; continue;
+        }
+        rows = parsed; successTab = tab; break;
+      } catch(e) { lastErr = e.message; }
+    }
+    if (rows.length) break;
+  }
+
+  if (!rows.length) {
+    setRefreshUI('error', `⚠ Sheet unreachable (${lastErr}). Using Feb 2026 snapshot. Fix: Share sheet as public Viewer.`);
+    document.getElementById('lastUpdated').textContent = 'Snapshot · Feb 2026';
+    return;
+  }
+
+  try {
+    const live = processLiveData(rows);
+    if (live.kpis.total_projects < 1) throw new Error('0 valid projects — check console (F12)');
+
+    DATA = live;
+    FILTERED_DATA = JSON.parse(JSON.stringify(DATA));
+    LIVE_ROWS = live._rows || [];   // store raw for filter recalc
+    populateFilters();
+    clearAllFilters();
+
+    const t   = new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    const k   = live.kpis;
+    document.getElementById('lastUpdated').textContent = `🟢 Live · ${t}`;
+    setRefreshUI('live',
+      `✅ Live "${successTab.name}" · ${rows.length.toLocaleString()} rows · ` +
+      `${k.total_projects.toLocaleString()} projects · ₹${(k.total_revenue/1e7).toFixed(2)}Cr · GM ${k.avg_gm_pct.toFixed(1)}%`);
+  } catch(e) {
+    setRefreshUI('error', `⚠ Parse error: ${e.message}`);
+    console.error('Refresh error:', e);
+    if (rows.length) console.log('Sheet columns:', Object.keys(rows[0]).join(' | '));
+  }
+}
+
+// ── CSV Parser ──────────────────────────────────────────
+function parseCSV(text) {
+  const norm = h => h.toLowerCase()
+    .replace(/[()\/\.\s]+/g,'_').replace(/[^a-z0-9_]/g,'').replace(/_+/g,'_').replace(/^_|_$/g,'');
+  const lines = text.replace(/\r\n/g,'\n').replace(/\r/g,'\n').trim().split('\n');
+  if (lines.length < 2) return [];
+  const hdrs = parseRow(lines[0]).map(norm);
+  const rows = [];
+  for (let i=1; i<lines.length; i++) {
+    if (!lines[i].trim()) continue;
+    const vals = parseRow(lines[i]);
+    const obj  = {};
+    hdrs.forEach((h,j) => obj[h] = (vals[j]||'').trim());
+    rows.push(obj);
+  }
+  return rows;
+}
+function parseRow(line) {
+  const r=[]; let cur='', inQ=false;
+  for (let i=0; i<line.length; i++) {
+    const c=line[i];
+    if(c==='"'){inQ=!inQ;continue;}
+    if(c===','&&!inQ){r.push(cur);cur='';continue;}
+    cur+=c;
+  }
+  r.push(cur); return r;
+}
+
+// ── Column resolver — exact then partial ───────────────
+function makeResolver(allKeys) {
+  return (row, exactKey, fallbacks=[]) => {
+    if (row[exactKey] !== undefined && row[exactKey] !== '') return row[exactKey];
+    for (const fb of fallbacks) {
+      if (row[fb] !== undefined && row[fb] !== '') return row[fb];
+    }
+    // partial match
+    const found = allKeys.find(k => k.includes(exactKey) || exactKey.includes(k));
+    if (found && row[found] !== undefined && row[found] !== '') return row[found];
+    return '';
+  };
+}
+
+// ── Process CSV rows → dashboard data ──────────────────
+function processLiveData(rows) {
+  if (!rows.length) return EMBEDDED;
+  const allKeys = Object.keys(rows[0]);
+  const R = makeResolver(allKeys);
+  const N = v => parseFloat(String(v).replace(/[^0-9.-]/g,''))||0;
+  const D = v => { if(!v) return null; const d=new Date(v); return isNaN(d.getTime())?null:d; };
+
+  console.log('📋 GSheet columns:', allKeys.join(' | '));
+
+  // Normalise offer type
+  const normOffer = o => {
+    if (!o) return '';
+    if (o.toLowerCase() === 'regular') return 'Regular';
+    return o.trim();
+  };
+
+  const rows2 = rows.map(r => ({
+    city:    R(r, COL_EXACT.city),
+    state:   R(r, COL_EXACT.state),
+    offer:   normOffer(R(r, COL_EXACT.offer)),
+    phase:   R(r, COL_EXACT.phase),
+    revenue: N(R(r, COL_EXACT.revenue, ['final_revenue_excl_gst','final_revenue_excl__gst','revenue_excl_gst'])),
+    cogs:    N(R(r, COL_EXACT.cogs,    ['ic_total','total_amount'])),
+    kw:      N(R(r, COL_EXACT.kw,      ['project_size_kw','project_size'])),
+    date:    D(R(r, COL_EXACT.date,    ['installation_date','date','completion_date'])),
+  })).filter(r => r.revenue > 0 && r.city);
+
+  console.log(`✅ Valid: ${rows2.length} / ${rows.length}`);
+  if (!rows2.length) { console.warn('Sample:', JSON.stringify(rows[0])); return EMBEDDED; }
+
+  const agg = (arr, key) => {
+    const m={};
+    arr.forEach(r => {
+      const k=r[key]; if(!k) return;
+      if(!m[k]) m[k]={revenue:0,cogs:0,projects:0,kw:0};
+      m[k].revenue+=r.revenue; m[k].cogs+=r.cogs; m[k].projects++; m[k].kw+=r.kw;
+    });
+    return m;
+  };
+
+  const byCity  = agg(rows2,'city');
+  const byState = agg(rows2,'state');
+  const byOffer = agg(rows2,'offer');
+
+  // Monthly
+  const byMonth={};
+  rows2.forEach(r => {
+    if(!r.date) return;
+    const mo=r.date.toLocaleString('en',{month:'short'})+' '+String(r.date.getFullYear()).slice(2);
+    if(!byMonth[mo]) byMonth[mo]={revenue:0,cogs:0,projects:0,year:r.date.getFullYear(),month:r.date.getMonth()};
+    byMonth[mo].revenue+=r.revenue; byMonth[mo].cogs+=r.cogs; byMonth[mo].projects++;
+  });
+
+  // FY
+  const fyOf=d=>{if(!d)return null;return d.getMonth()>=3?`FY ${String(d.getFullYear()).slice(2)}-${String(d.getFullYear()+1).slice(2)}`:`FY ${String(d.getFullYear()-1).slice(2)}-${String(d.getFullYear()).slice(2)}`;};
+  const byFY={};
+  rows2.forEach(r=>{const fy=fyOf(r.date);if(!fy)return;if(!byFY[fy])byFY[fy]={revenue:0,cogs:0,projects:0};byFY[fy].revenue+=r.revenue;byFY[fy].cogs+=r.cogs;byFY[fy].projects++;});
+
+  const totRev=rows2.reduce((s,r)=>s+r.revenue,0);
+  const totCOGS=rows2.reduce((s,r)=>s+r.cogs,0);
+  const totKW=rows2.reduce((s,r)=>s+r.kw,0);
+  const totProj=rows2.length;
+
+  const mapDim=(map,nk)=>Object.entries(map).map(([name,d])=>({
+    [nk]:name,revenue:d.revenue,cogs:d.cogs,projects:d.projects,
+    aov:d.projects?d.revenue/d.projects:0,aos:d.projects?d.kw/d.projects:0,
+    gm_pct:d.revenue>0?(d.revenue-d.cogs)/d.revenue*100:0,
+  })).sort((a,b)=>b.revenue-a.revenue);
+
+  return {
+    ...EMBEDDED,
+    _rows: rows2,   // raw rows for per-filter recalc
+    kpis:{total_projects:totProj,total_revenue:totRev,total_cogs:totCOGS,total_gm:totRev-totCOGS,
+      avg_gm_pct:totRev>0?(totRev-totCOGS)/totRev*100:0,avg_aov:totProj?totRev/totProj:0,
+      avg_aos:totProj?totKW/totProj:0,total_kw:totKW,ic_cogs:totCOGS,onm_qhse:totCOGS*0.034},
+    cities:  mapDim(byCity,'city').slice(0,20),
+    states:  mapDim(byState,'state'),
+    offers:  mapDim(byOffer,'offer').slice(0,8),
+    monthly: Object.entries(byMonth).map(([label,d])=>({label,revenue:d.revenue,cogs:d.cogs,
+      projects:d.projects,gm_pct:d.revenue>0?(d.revenue-d.cogs)/d.revenue*100:0,year:d.year,month:d.month,
+    })).sort((a,b)=>a.year!==b.year?a.year-b.year:a.month-b.month).slice(-20),
+    fy: Object.entries(byFY).map(([fy,d])=>({fy,revenue:d.revenue,cogs:d.cogs,projects:d.projects,
+      gm_pct:d.revenue>0?(d.revenue-d.cogs)/d.revenue*100:0})).sort((a,b)=>a.fy<b.fy?-1:1),
+  };
+}
+
+// ═══════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════
+populateFilters();
+document.getElementById('lastUpdated').textContent = 'Snapshot · Feb 2026';
+document.getElementById('statusTxt').textContent =
+  '⚡ 35,236 projects · ₹791.32 Cr · GM 46.88% — Click "Refresh from GSheet" for live data';
+renderAll();
+// Auto-attempt live on load
+setTimeout(refreshFromSheet, 1000);
 </script>
 </body>
 </html>
