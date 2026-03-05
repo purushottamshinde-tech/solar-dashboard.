@@ -139,6 +139,26 @@ td:first-child{text-align:left;font-weight:500;color:var(--navy)}
 .offer-pill{padding:2px 9px;border-radius:10px;font-size:9px;cursor:pointer;border:1px solid var(--border);background:#fff;color:var(--dim);transition:all .15s;font-weight:500}
 .offer-pill.active{background:var(--navy);color:#fff;border-color:var(--navy)}
 
+
+/* ── EXPANDABLE STATE/COST ROWS ──────────────────── */
+.expand-btn{display:inline-flex;align-items:center;justify-content:center;
+  width:16px;height:16px;border-radius:4px;background:var(--off2);border:1px solid var(--border2);
+  cursor:pointer;font-size:10px;font-weight:700;color:var(--blue);flex-shrink:0;
+  transition:all .15s;user-select:none;line-height:1}
+.expand-btn:hover{background:var(--blue);color:#fff;border-color:var(--blue)}
+.expand-btn.open{background:var(--navy);color:#fff;border-color:var(--navy)}
+.state-name-cell{display:flex;align-items:center;gap:6px}
+.city-sub-row{background:#F8FAFD!important}
+.city-sub-row td{font-size:10px;color:var(--dim);padding:4px 10px}
+.city-sub-row td:first-child{padding-left:36px}
+.city-sub-row:hover{background:#EEF5FF!important}
+.cost-component-row{cursor:pointer}
+.cost-component-row:hover td{background:#F0F7FF}
+.cost-sub-row{background:#F8FAFD!important}
+.cost-sub-row td{font-size:10px;color:var(--dim);padding:4px 10px}
+.cost-sub-row td:first-child{padding-left:36px}
+.cost-sub-row:hover td{background:#EEF5FF!important}
+
 /* ── SPARKBAR ────────────────────────────── */
 .sparkbar{display:flex;align-items:center;gap:5px;font-size:9px;color:var(--dim)}
 .bar-track{flex:1;height:5px;background:var(--off3);border-radius:3px;overflow:hidden}
@@ -221,7 +241,7 @@ td:first-child{text-align:left;font-weight:500;color:var(--navy)}
   </div>
   <div class="filter-div"></div>
   <div class="filter-group"><span class="fl">State</span>
-    <select class="fs" id="fState" onchange="applyFilters()"><option value="">All</option></select>
+    <select class="fs" id="fState" onchange="onStateFilterChange()"><option value="">All</option></select>
   </div>
   <div class="filter-group"><span class="fl">City</span>
     <select class="fs" id="fCity" onchange="applyFilters()"><option value="">All</option></select>
@@ -556,15 +576,17 @@ function processLiveRows(rawRows) {
       date:     date,
       _rawDate: R(r, dateCol, ['installation_date','date']),
       hasRevenue: rev > 0,   // flag — used for financial KPIs only
-      module:   N(r['module']   || ''),
-      inverter: N(r['inverter'] || ''),
-      prefab:   N(r['prefab_mms']||''),
-      cables:   N(r['cables']   || ''),
-      elecbos:  N(r['electrical_bos']||r['electrical_b_o_s']||''),
-      earthing: N(r['earthing_la']||''),
-      conduit:  N(r['conduit_pipe']||''),
-      jbox:     N(r['junction_box']||''),
-      ickit:    N(r['ic_kit']   || ''),
+      module:       N(r['module']   || ''),
+      inverter:     N(r['inverter'] || ''),
+      prefab:       N(r['prefab_mms']||''),
+      cables:       N(r['cables']   || ''),
+      elecbos:      N(r['electrical_bos']||r['electrical_b_o_s']||''),
+      earthing:     N(r['earthing_la']||''),
+      conduit:      N(r['conduit_pipe']||''),
+      jbox:         N(r['junction_box']||''),
+      ickit:        N(r['ic_kit']   || ''),
+      moduleType:   (r['module_item_name']||r['module_item_name_']||'').trim(),
+      inverterType: (r['inverter_item_name']||r['inverter_item_name_']||'').trim(),
     };
   });
 
@@ -687,7 +709,7 @@ function aggregateRows(rows) {
     .sort((a,b) => a.fy < b.fy ? -1 : 1)
     .map(f => ({...f, gm:f.revenue-f.cogs, gm_pct:f.revenue?(f.revenue-f.cogs)/f.revenue*100:0}));
 
-  // ── Cost components (from revenue rows only — COGS only meaningful where revenue exists) ──
+  // ── Cost components (from revenue rows only) ──
   const costItems = ['module','inverter','prefab','cables','elecbos','earthing','conduit','jbox','ickit'];
   const costNames = {module:'Module',inverter:'Inverter',prefab:'Prefab MMS',cables:'Cables',
     elecbos:'Electrical BoS',earthing:'Earthing/LA',conduit:'Conduit Pipe',jbox:'Junction Box',ickit:'IC Kit'};
@@ -696,14 +718,35 @@ function aggregateRows(rows) {
     costTotals[k] = revRows.reduce((s,r) => s + (r[k]||0), 0);
   });
   const totalCostTracked = Object.values(costTotals).reduce((a,b)=>a+b,0)||1;
+
+  // Sub-type breakdowns for Module and Inverter (from item name columns)
+  const moduleTypes = {}, inverterTypes = {};
+  revRows.forEach(r => {
+    const mCost = r.module || 0;
+    const iCost = r.inverter || 0;
+    if (r.moduleType && mCost > 0) {
+      if (!moduleTypes[r.moduleType]) moduleTypes[r.moduleType] = {name:r.moduleType, total:0, count:0};
+      moduleTypes[r.moduleType].total += mCost;
+      moduleTypes[r.moduleType].count += 1;
+    }
+    if (r.inverterType && iCost > 0) {
+      if (!inverterTypes[r.inverterType]) inverterTypes[r.inverterType] = {name:r.inverterType, total:0, count:0};
+      inverterTypes[r.inverterType].total += iCost;
+      inverterTypes[r.inverterType].count += 1;
+    }
+  });
+  const moduleSubTypes  = Object.values(moduleTypes).map(t=>({...t, avg:t.count?Math.round(t.total/t.count):0})).sort((a,b)=>b.total-a.total);
+  const inverterSubTypes = Object.values(inverterTypes).map(t=>({...t, avg:t.count?Math.round(t.total/t.count):0})).sort((a,b)=>b.total-a.total);
+
   const costs = costItems
     .filter(k => costTotals[k] > 0)
     .map(k => ({
-      item:  costNames[k],
-      key:   k,
-      total: costTotals[k],
-      avg:   Math.round(costTotals[k] / (totRevProj||1)),
-      share: costTotals[k] / totalCostTracked * 100,
+      item:     costNames[k],
+      key:      k,
+      total:    costTotals[k],
+      avg:      Math.round(costTotals[k] / (totRevProj||1)),
+      share:    costTotals[k] / totalCostTracked * 100,
+      subTypes: k==='module' ? moduleSubTypes : k==='inverter' ? inverterSubTypes : [],
     }))
     .sort((a,b) => b.total - a.total);
 
@@ -845,6 +888,8 @@ function clearAllFilters() {
   ['fFY','fState','fCity','fOffer','fPhase','fDateFrom','fDateTo']
     .forEach(id => { document.getElementById(id).value = ''; });
   ACTIVE_QTR = '';
+  STATE_EXPANDED.clear();
+  COST_EXPANDED.clear();
   document.querySelectorAll('.qtr-pill').forEach(p => p.classList.remove('active'));
   const allPill = document.querySelector('.qtr-pill[data-qtr=""]');
   if (allPill) allPill.classList.add('active');
@@ -857,18 +902,33 @@ function clearAllFilters() {
 // ════════════════════════════════════════════════════
 // POPULATE FILTER DROPDOWNS
 // ════════════════════════════════════════════════════
-function populateFilters() {
+function populateFilters(selectedState) {
   const states = [...new Set(LIVE_ROWS.map(r=>r.state).filter(Boolean))].sort();
-  const cities = [...new Set(LIVE_ROWS.map(r=>r.city).filter(Boolean))].sort();
   const offers = [...new Set(LIVE_ROWS.map(r=>r.offer).filter(Boolean))].sort();
 
-  const fState = document.getElementById('fState');
-  const fCity  = document.getElementById('fCity');
-  const fOffer = document.getElementById('fOffer');
+  const fStateEl = document.getElementById('fState');
+  const fCityEl  = document.getElementById('fCity');
+  const fOfferEl = document.getElementById('fOffer');
 
-  fState.innerHTML = '<option value="">All</option>' + states.map(s=>`<option>${s}</option>`).join('');
-  fCity.innerHTML  = '<option value="">All</option>' + cities.map(c=>`<option>${c}</option>`).join('');
-  fOffer.innerHTML = '<option value="">All</option>' + offers.map(o=>`<option>${o}</option>`).join('');
+  fStateEl.innerHTML = '<option value="">All</option>' + states.map(s=>`<option>${s}</option>`).join('');
+  fOfferEl.innerHTML = '<option value="">All</option>' + offers.map(o=>`<option>${o}</option>`).join('');
+
+  // City dropdown: filter by selected state if any
+  const activeState = selectedState || document.getElementById('fState').value || '';
+  const cityRows = activeState ? LIVE_ROWS.filter(r=>r.state===activeState) : LIVE_ROWS;
+  const cities = [...new Set(cityRows.map(r=>r.city).filter(Boolean))].sort();
+  fCityEl.innerHTML = '<option value="">All</option>' + cities.map(c=>`<option>${c}</option>`).join('');
+
+  // Re-apply state selection
+  if (selectedState) fStateEl.value = selectedState;
+}
+
+function onStateFilterChange() {
+  const selectedState = document.getElementById('fState').value;
+  // Reset city when state changes
+  document.getElementById('fCity').value = '';
+  populateFilters(selectedState);
+  applyFilters();
 }
 
 // ════════════════════════════════════════════════════
@@ -1071,21 +1131,75 @@ function drawOfferDonut() {
 }
 
 let STATE_SORT = 'revenue';
+let STATE_EXPANDED = new Set();
+
 function sortStateTable(col, el) {
   STATE_SORT = col;
   document.querySelectorAll('.tbl-tab').forEach(t=>t.classList.remove('active'));
   el.classList.add('active');
   buildStateTable(col);
 }
+
+function toggleStateExpand(stateName) {
+  if (STATE_EXPANDED.has(stateName)) STATE_EXPANDED.delete(stateName);
+  else STATE_EXPANDED.add(stateName);
+  buildStateTable(STATE_SORT);
+}
+
 function buildStateTable(sortCol) {
   const states = [...FILTERED.states].sort((a,b)=>b[sortCol]-a[sortCol]);
   const totalRev = states.reduce((s,r)=>s+r.revenue,0)||1;
   const maxRev   = states[0]?.revenue||1;
-  document.getElementById('stateBody').innerHTML = states.map((s,i) => {
-    const share = s.revenue/totalRev*100;
-    return `<tr>
+
+  // Build city lookup: state → sorted cities
+  const stateCities = {};
+  FILTERED.cities.forEach(c => {
+    // find which state this city belongs to using LIVE_ROWS
+  });
+  // Build state→cities map from FILTERED rows
+  const cityByState = {};
+  LIVE_ROWS.forEach(r => {
+    if (!r.state || !r.city) return;
+    if (!cityByState[r.state]) cityByState[r.state] = {};
+    const k = r.city;
+    if (!cityByState[r.state][k]) cityByState[r.state][k] = {city:k,state:r.state,revenue:0,cogs:0,installs:0,kw:0,projects:0};
+  });
+  // Use FILTERED rows (not LIVE_ROWS) for city numbers under each state
+  const filteredRows = LIVE_ROWS.filter(r => {
+    // Re-apply current filter to get correct city data
+    const fState = document.getElementById('fState').value;
+    const fCity  = document.getElementById('fCity').value;
+    if (fState && r.state !== fState) return false;
+    if (fCity  && r.city  !== fCity)  return false;
+    return true;
+  });
+
+  const cityStateMap = {};
+  filteredRows.forEach(r => {
+    if (!r.state || !r.city) return;
+    const key = r.state + '||' + r.city;
+    if (!cityStateMap[key]) cityStateMap[key] = {city:r.city, state:r.state, revenue:0, cogs:0, installs:0, kw:0, projects:0};
+    cityStateMap[key].installs += 1;
+    cityStateMap[key].kw      += r.kw;
+    if (r.hasRevenue) {
+      cityStateMap[key].revenue  += r.revenue;
+      cityStateMap[key].cogs     += r.cogs;
+      cityStateMap[key].projects += 1;
+    }
+  });
+
+  let rows = '';
+  states.forEach((s, i) => {
+    const share    = s.revenue / totalRev * 100;
+    const isOpen   = STATE_EXPANDED.has(s.state);
+    const stateName = s.state || '—';
+
+    rows += `<tr style="cursor:pointer" onclick="toggleStateExpand('${stateName.replace(/'/g,"\'")}')">
       <td class="td-rank">${i+1}</td>
-      <td style="font-weight:600;color:var(--navy)">${s.state||'—'}</td>
+      <td><div class="state-name-cell">
+        <span class="expand-btn ${isOpen?'open':''}">${isOpen?'−':'+'}</span>
+        <span style="font-weight:700;color:var(--navy)">${stateName}</span>
+      </div></td>
       <td>${s.projects.toLocaleString()}</td>
       <td class="b">${cr2(s.revenue)}</td>
       <td>${cr2(s.cogs)}</td>
@@ -1095,7 +1209,43 @@ function buildStateTable(sortCol) {
       <td>${s.aos.toFixed(2)} kW</td>
       <td><div class="sparkbar"><div class="bar-track"><div class="bar-fill" style="width:${(s.revenue/maxRev*100).toFixed(0)}%;background:var(--blue)"></div></div><span>${share.toFixed(1)}%</span></div></td>
     </tr>`;
-  }).join('') + `<tr class="total-row">
+
+    if (isOpen) {
+      // Get cities for this state, sorted by revenue
+      const cities = Object.values(cityStateMap)
+        .filter(c => c.state === s.state)
+        .map(c => ({...c,
+          gm: c.revenue - c.cogs,
+          gm_pct: c.revenue ? (c.revenue-c.cogs)/c.revenue*100 : 0,
+          aov: c.projects ? c.revenue/c.projects : 0,
+          aos: c.installs ? c.kw/c.installs : 0,
+        }))
+        .sort((a,b) => b.revenue - a.revenue);
+
+      if (cities.length === 0) {
+        rows += `<tr class="city-sub-row"><td colspan="10" style="padding-left:36px;color:var(--muted);font-style:italic">No city data available</td></tr>`;
+      } else {
+        cities.forEach(c => {
+          const cityShare = s.revenue > 0 ? c.revenue/s.revenue*100 : 0;
+          rows += `<tr class="city-sub-row">
+            <td></td>
+            <td style="padding-left:30px;font-weight:600;color:var(--blue)">↳ ${c.city}</td>
+            <td>${c.projects.toLocaleString()}</td>
+            <td class="b">${cr2(c.revenue)}</td>
+            <td>${cr2(c.cogs)}</td>
+            <td class="g">${cr2(c.gm)}</td>
+            <td class="${gClass(c.gm_pct)}">${pct(c.gm_pct)}</td>
+            <td>${lakh(c.aov)}</td>
+            <td>${c.aos.toFixed(2)} kW</td>
+            <td><div class="sparkbar"><div class="bar-track"><div class="bar-fill" style="width:${cityShare.toFixed(0)}%;background:var(--teal)"></div></div><span>${cityShare.toFixed(1)}%</span></div></td>
+          </tr>`;
+        });
+      }
+    }
+  });
+
+  // Total row
+  rows += `<tr class="total-row">
     <td>—</td><td>TOTAL</td>
     <td>${states.reduce((s,r)=>s+r.projects,0).toLocaleString()}</td>
     <td>${cr2(totalRev)}</td>
@@ -1104,6 +1254,8 @@ function buildStateTable(sortCol) {
     <td>${pct((totalRev-states.reduce((s,r)=>s+r.cogs,0))/totalRev*100)}</td>
     <td>—</td><td>—</td><td>100%</td>
   </tr>`;
+
+  document.getElementById('stateBody').innerHTML = rows;
 }
 
 // ════════════════════════════════════════════════════
@@ -1414,9 +1566,17 @@ function drawCostDonut(costs) {
   });
 }
 
+let COST_EXPANDED = new Set();
+
+function toggleCostExpand(key) {
+  if (COST_EXPANDED.has(key)) COST_EXPANDED.delete(key);
+  else COST_EXPANDED.add(key);
+  buildCostTable(COST_SORT, FILTERED.costs);
+}
+
 function buildCostTable(sortCol, costs) {
   if (!costs || !costs.length) {
-    document.getElementById('costBody').innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:20px">No cost component data available (columns Module, Inverter, etc. needed)</td></tr>';
+    document.getElementById('costBody').innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:20px">No cost component data available</td></tr>';
     return;
   }
   const totalCOGS = FILTERED.kpis.total_cogs || 1;
@@ -1425,21 +1585,46 @@ function buildCostTable(sortCol, costs) {
   if (sortCol==='total') sorted.sort((a,b)=>b.total-a.total);
   if (sortCol==='avg')   sorted.sort((a,b)=>b.avg-a.avg);
 
-  document.getElementById('costBody').innerHTML = sorted.map((c,i) => {
-    const cogsShare = c.total/totalCOGS*100;
-    const spark = `<div style="display:flex;gap:2px;align-items:flex-end">
-      ${[0.7,0.8,0.9,1.0].map(f=>`<div style="width:8px;height:${Math.round(f*18)+2}px;background:${f===1.0?'var(--blue)':'var(--border2)'};border-radius:1px"></div>`).join('')}
-    </div>`;
-    return `<tr>
+  let rows = '';
+  sorted.forEach((c, i) => {
+    const cogsShare = c.total / totalCOGS * 100;
+    const hasTypes  = c.subTypes && c.subTypes.length > 0;
+    const isOpen    = COST_EXPANDED.has(c.key);
+
+    rows += `<tr class="cost-component-row" onclick="${hasTypes ? `toggleCostExpand('${c.key}')` : ''}">
       <td class="td-rank">${i+1}</td>
-      <td style="font-weight:600;color:var(--navy)">${c.item}</td>
+      <td><div class="state-name-cell">
+        ${hasTypes
+          ? `<span class="expand-btn ${isOpen?'open':''}">${isOpen?'−':'+'}</span>`
+          : `<span style="width:16px;display:inline-block"></span>`}
+        <span style="font-weight:700;color:var(--navy)">${c.item}</span>
+        ${hasTypes ? `<span style="font-size:9px;color:var(--muted);margin-left:4px">${c.subTypes.length} types</span>` : ''}
+      </div></td>
       <td class="b">${cr2(c.total)}</td>
       <td class="${c.share>30?'a':c.share>10?'b':'dim-cell'}">${c.share.toFixed(1)}%</td>
-      <td>₹${c.avg.toLocaleString()}</td>
+      <td style="font-family:'DM Mono',monospace">₹${c.avg.toLocaleString()}</td>
       <td>${cogsShare.toFixed(1)}%</td>
-      <td>${spark}</td>
+      <td><div class="sparkbar" style="min-width:80px"><div class="bar-track"><div class="bar-fill" style="width:${cogsShare.toFixed(0)}%;background:var(--red)"></div></div></div></td>
     </tr>`;
-  }).join('');
+
+    if (isOpen && hasTypes) {
+      const maxSubTotal = c.subTypes[0]?.total || 1;
+      c.subTypes.forEach(t => {
+        const typeShare = c.total > 0 ? t.total / c.total * 100 : 0;
+        rows += `<tr class="cost-sub-row">
+          <td></td>
+          <td style="padding-left:30px;font-weight:600;color:var(--blue);font-size:10px">↳ ${t.name||'Unknown'}</td>
+          <td style="font-size:10px;color:var(--dim)">${cr2(t.total)}</td>
+          <td style="font-size:10px;color:var(--dim)">${typeShare.toFixed(1)}% of ${c.item}</td>
+          <td style="font-size:10px;color:var(--dim);font-family:'DM Mono',monospace">₹${t.avg.toLocaleString()}</td>
+          <td style="font-size:10px;color:var(--muted)">${t.count} projects</td>
+          <td><div class="sparkbar" style="min-width:80px"><div class="bar-track"><div class="bar-fill" style="width:${(t.total/maxSubTotal*100).toFixed(0)}%;background:var(--teal)"></div></div></div></td>
+        </tr>`;
+      });
+    }
+  });
+
+  document.getElementById('costBody').innerHTML = rows;
 }
 
 // ════════════════════════════════════════════════════
