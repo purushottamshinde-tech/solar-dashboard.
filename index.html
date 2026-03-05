@@ -260,21 +260,6 @@ td:first-child{text-align:left;font-weight:500;color:var(--navy)}
 .cdm-factor{padding:7px 10px;border-radius:7px;font-size:10px;line-height:1.5;display:flex;align-items:flex-start;gap:7px;margin-bottom:5px}
 .cdm-factor-icon{font-size:14px;line-height:1;flex-shrink:0;margin-top:1px}
 
-/* ── CHART CALLOUTS ───────────────────────── */
-.chart-callout{
-  background:var(--navy);color:#fff;border-radius:5px;padding:3px 8px;
-  font-size:8px;font-family:'DM Mono',monospace;display:inline-block;
-}
-
-/* ── VISUAL GUIDE ────────────────────────── */
-.visual-guide{
-  display:flex;gap:12px;flex-wrap:wrap;margin-top:4px;padding:5px 8px;
-  background:var(--off);border-radius:6px;border:1px solid var(--border);
-  align-items:center;flex-shrink:0;
-}
-.vg-item{display:flex;align-items:center;gap:4px;font-size:8.5px;color:var(--dim)}
-.vg-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
-
 /* ── INSIGHT CARDS ───────────────────────── */
 .insight-strip{
   display:flex;gap:6px;flex-wrap:wrap;flex-shrink:0;
@@ -291,6 +276,57 @@ td:first-child{text-align:left;font-weight:500;color:var(--navy)}
 .mom-up{background:var(--red-bg);color:var(--red)}
 .mom-down{background:var(--green-bg);color:var(--green)}
 .mom-flat{background:var(--off2);color:var(--muted)}
+
+/* ── ID SEARCH VIEW ────────────────────────── */
+.id-search-wrap{display:flex;flex-direction:column;gap:8px;height:100%;min-height:0}
+.id-search-bar{display:flex;gap:8px;align-items:center;flex-shrink:0}
+.id-search-input{
+  flex:1;border:1.5px solid var(--border);border-radius:8px;padding:7px 14px;
+  font-size:12px;font-family:'DM Mono',monospace;outline:none;color:var(--text);
+  background:#fff;transition:border-color .2s;
+}
+.id-search-input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,168,0.1)}
+.id-search-input::placeholder{color:var(--muted);font-family:'DM Sans',sans-serif}
+.id-search-btn{
+  padding:7px 20px;border-radius:8px;background:var(--navy);color:#fff;
+  border:none;cursor:pointer;font-size:11px;font-weight:700;font-family:'DM Sans',sans-serif;
+  transition:all .2s;white-space:nowrap;
+}
+.id-search-btn:hover{background:var(--blue2)}
+.id-search-btn:active{transform:scale(.97)}
+.id-results-area{flex:1;min-height:0;overflow-y:auto}
+.id-results-area::-webkit-scrollbar{width:4px}
+.id-results-area::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+
+/* ID result card */
+.id-result-card{
+  background:#fff;border:1px solid var(--border);border-radius:10px;
+  overflow:hidden;box-shadow:var(--shadow);margin-bottom:10px;
+}
+.id-result-header{
+  background:var(--navy);padding:10px 16px;display:flex;align-items:center;
+  justify-content:space-between;gap:12px;
+}
+.id-result-id{font-family:'Syne',sans-serif;font-size:13px;font-weight:800;color:#fff}
+.id-result-meta{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.id-tag{font-size:8.5px;padding:2px 8px;border-radius:8px;font-family:'DM Mono',monospace;font-weight:600;background:rgba(255,255,255,0.15);color:#fff}
+.id-result-body{padding:12px 16px}
+.id-metric-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:10px}
+.id-metric-box{background:var(--off);border:1px solid var(--border);border-radius:7px;padding:7px 10px}
+.id-metric-lbl{font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;font-family:'DM Mono',monospace;margin-bottom:2px}
+.id-metric-val{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--navy)}
+.id-metric-sub{font-size:8px;color:var(--dim);font-family:'DM Mono',monospace;margin-top:1px}
+.id-compare-section{border-top:1px solid var(--off3);padding-top:10px;margin-top:8px}
+.id-compare-title{font-size:9px;text-transform:uppercase;letter-spacing:.7px;font-family:'DM Mono',monospace;color:var(--muted);margin-bottom:7px}
+.id-compare-row{display:flex;align-items:center;gap:10px;margin-bottom:6px;font-size:10px}
+.id-compare-label{min-width:90px;color:var(--dim);font-size:9px}
+.id-compare-bar-wrap{flex:1;height:10px;background:var(--off3);border-radius:5px;overflow:visible;position:relative}
+.id-compare-bar{height:100%;border-radius:5px;transition:width .5s;position:relative}
+.id-compare-marker{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--navy);border-radius:2px}
+.id-compare-val{min-width:65px;text-align:right;font-family:'DM Mono',monospace;font-size:9px;font-weight:700}
+.id-no-results{text-align:center;padding:40px 20px;color:var(--muted);font-size:11px}
+.id-no-results-icon{font-size:32px;margin-bottom:8px}
+.id-results-count{font-size:9px;color:var(--muted);font-family:'DM Mono',monospace;padding:4px 0;flex-shrink:0}
 </style>
 </head>
 <body>
@@ -310,6 +346,9 @@ td:first-child{text-align:left;font-weight:500;color:var(--navy)}
     <div class="tab" onclick="switchView('city',this)">City Analysis</div>
     <div class="tab" onclick="switchView('product',this)">Product Mix</div>
     <div class="tab" onclick="switchView('costs',this)">Cost Breakdown</div>
+    <div class="tab" onclick="switchView('idsearch',this)" style="display:flex;align-items:center;gap:4px">
+      <span style="font-size:10px">🔍</span> ID Lookup
+    </div>
   </div>
   <div class="topbar-right">
     <div class="live-badge"><span class="live-dot"></span><span id="lastUpdated">Loading…</span></div>
@@ -632,14 +671,14 @@ function processLiveRows(rawRows){
       inverterQty:N(r['inverter_qty']||r['inverter_qty_']||0),
     };
   });
-  // Exclude Surat + blank IDs
   return rows.filter(r=>r.id!==''&&!EXCLUDED_CITIES.has(r.city));
 }
 
 // ════════════════════════════════════════════════════
 // AGGREGATE ROWS
 // ════════════════════════════════════════════════════
-function aggregateRows(rows){
+function aggregateRows(rows, filterCtx){
+  filterCtx = filterCtx || {};
   if(!rows.length)return buildEmptyData();
   const allRows=rows;
   const revRows=rows.filter(r=>r.hasRevenue);
@@ -734,8 +773,19 @@ function aggregateRows(rows){
     insightPrev={year:prevYear,month:prevMonth,label:prevLbl,fromLive:!prevInFiltered};
   }
 
+  function applyNonDateFilters(sourceRows){
+    return sourceRows.filter(r=>{
+      if(filterCtx.fCity  && r.city !==filterCtx.fCity)  return false;
+      if(filterCtx.fState && r.state!==filterCtx.fState) return false;
+      if(filterCtx.fPhase && r.phase!==filterCtx.fPhase) return false;
+      if(filterCtx.fOffer && r.offer!==filterCtx.fOffer) return false;
+      return true;
+    });
+  }
+  const liveForMoM = applyNonDateFilters(LIVE_ROWS);
+
   const iRowsNow=insightNow?allRows.filter(r=>r.date&&r.date.getFullYear()===insightNow.year&&r.date.getMonth()===insightNow.month&&r.hasRevenue):[];
-  const iRowsPrev=insightPrev?(insightPrev.fromLive?LIVE_ROWS:allRows).filter(r=>r.date&&r.date.getFullYear()===insightPrev.year&&r.date.getMonth()===insightPrev.month&&r.hasRevenue):[];
+  const iRowsPrev=insightPrev?liveForMoM.filter(r=>r.date&&r.date.getFullYear()===insightPrev.year&&r.date.getMonth()===insightPrev.month&&r.hasRevenue):[];
 
   const totalWp=revRows.reduce((s,r)=>{const wp=extractWp(r.moduleType);return s+(wp>0&&r.moduleQty>0?wp*r.moduleQty:0);},0)||1;
 
@@ -934,7 +984,8 @@ function applyFilters(){
     document.getElementById('statusTxt').textContent='⚠ No data matches this filter combination';
     FILTERED=buildEmptyData();renderAll();return;
   }
-  FILTERED=aggregateRows(filtered);
+  const filterCtx={fOffer,fPhase,fState,fCity};
+  FILTERED=aggregateRows(filtered,filterCtx);
   renderAll();
 }
 
@@ -944,7 +995,7 @@ function clearAllFilters(){
   document.querySelectorAll('.qtr-pill').forEach(p=>p.classList.remove('active'));
   const allPill=document.querySelector('.qtr-pill[data-qtr=""]');
   if(allPill)allPill.classList.add('active');
-  FILTERED=aggregateRows(LIVE_ROWS);
+  FILTERED=aggregateRows(LIVE_ROWS,{});
   document.getElementById('filterStatus').textContent='No filters active';
   document.getElementById('rowInfo').textContent=`${LIVE_ROWS.length.toLocaleString()} installs`;
   renderAll();
@@ -1177,6 +1228,7 @@ function renderContent(){
   else if(CURRENT_VIEW==='city')renderCityView();
   else if(CURRENT_VIEW==='product')renderProductView();
   else if(CURRENT_VIEW==='costs')renderCostsView();
+  else if(CURRENT_VIEW==='idsearch')renderIdSearch();
 }
 function destroyCharts(){Object.values(CHARTS).forEach(c=>{try{c.destroy()}catch(e){}});CHARTS={};}
 
@@ -1262,9 +1314,6 @@ function drawTrendChart(){
               return `  GM%: ${ctx.parsed.y.toFixed(1)}%`;
             }
           }
-        },
-        annotation:{
-          annotations:{target:{type:'line',yMin:48,yMax:48,borderColor:'rgba(22,163,74,0.3)',borderWidth:1,borderDash:[6,3],yScaleID:'y2'}}
         }
       },
       scales:{
@@ -1437,6 +1486,9 @@ function openCityDrill(cityName){
   const modal=document.getElementById('cityDrillModal');
   const overlay=document.getElementById('cityDrillOverlay');
 
+  const lblNow  = m ? m.lblNow  : '—';
+  const lblPrev = m ? m.lblPrev : '—';
+
   const gmUp=m&&m.gmChg>=0;
   const headlineBg=gmUp?'#DCFCE7':'#FEE2E2';
   const headlineColor=gmUp?'#16A34A':'#DC2626';
@@ -1445,28 +1497,25 @@ function openCityDrill(cityName){
   let headline='';
   if(m&&m.gmPctPrev>0){
     const diff=Math.abs(m.gmChg).toFixed(1);
-    headline=`GM% ${gmUp?'improved':'dropped'} from <strong>${m.gmPctPrev.toFixed(1)}%</strong> in ${m.lblPrev} to <strong>${m.gmPctNow.toFixed(1)}%</strong> this month — a <strong>${diff}% ${gmUp?'improvement':'drop'}</strong>.`;
+    headline=`GM% ${gmUp?'improved':'dropped'} from <strong>${m.gmPctPrev.toFixed(1)}%</strong> in ${lblPrev} to <strong>${m.gmPctNow.toFixed(1)}%</strong> in ${lblNow} — a <strong>${diff}% ${gmUp?'improvement':'drop'}</strong>.`;
   }else{
-    headline=`No month-over-month comparison available. Current GM%: <strong>${cityData?pct(cityData.gm_pct):'—'}</strong>`;
+    headline=`No month-over-month comparison available for the current filter period. Current GM%: <strong>${cityData?pct(cityData.gm_pct):'—'}</strong>`;
   }
 
-  // Build "why" factors
   let factorsHtml='';
   if(m&&m.gmPctPrev>0){
     const factors=[];
 
-    // Revenue change
     if(m.revChg!==null){
       const revUp=m.revChg>=0;
       factors.push({
         icon:revUp?'📈':'📉',
         bg:revUp?'#F0FDF4':'#FFF8F8',
         border:revUp?'#BBF7D0':'#FECACA',
-        text:`Revenue was <strong>${revUp?'up':'down'} ${Math.abs(m.revChg).toFixed(0)}%</strong> vs ${m.lblPrev} — from ${cr2(m.revPrev)} to ${cr2(m.revNow)}.`,
+        text:`Revenue was <strong>${revUp?'up':'down'} ${Math.abs(m.revChg).toFixed(0)}%</strong> vs ${lblPrev} — from ${cr2(m.revPrev)} to ${cr2(m.revNow)}.`,
       });
     }
 
-    // COGS change — if revenue up but margin down → costs rose faster
     if(m.revChg!==null&&m.revNow>0&&m.revPrev>0&&m.cogNow>0&&m.cogPrev>0){
       const cogsChg=(m.cogNow-m.cogPrev)/m.cogPrev*100;
       const cogsUp=cogsChg>0;
@@ -1481,7 +1530,6 @@ function openCityDrill(cityName){
       }
     }
 
-    // AOS change
     if(m.aosChg!==null&&Math.abs(m.aosChg)>3){
       const aosUp=m.aosChg>0;
       factors.push({
@@ -1492,7 +1540,6 @@ function openCityDrill(cityName){
       });
     }
 
-    // Volume
     const volChg=m.cntPrev>0?((m.cntNow-m.cntPrev)/m.cntPrev*100):null;
     if(volChg!==null&&Math.abs(volChg)>10){
       const volUp=volChg>0;
@@ -1504,7 +1551,6 @@ function openCityDrill(cityName){
       });
     }
 
-    // If no factors found
     if(!factors.length){
       factors.push({icon:'ℹ️',bg:'#EFF6FF',border:'#BFDBFE',text:`The GM% change of ${Math.abs(m.gmChg).toFixed(1)}% is relatively small. No single dominant driver identified.`});
     }
@@ -1520,7 +1566,7 @@ function openCityDrill(cityName){
     <div class="cdm-header">
       <div>
         <div class="cdm-title">📍 ${cityName}</div>
-        <div class="cdm-sub">Month-over-Month Performance Analysis${m?` · ${m.lblPrev} → ${m.lblNow}`:''}</div>
+        <div class="cdm-sub">Month-over-Month Analysis${m&&m.gmPctPrev>0?` · ${lblPrev} → ${lblNow}`:' · (apply date filter to set range)'}</div>
       </div>
       <div class="cdm-close" onclick="closeCityDrill()">✕</div>
     </div>
@@ -1531,7 +1577,7 @@ function openCityDrill(cityName){
 
     ${m&&m.gmPctPrev>0?`
     <div class="cdm-section">
-      <div class="cdm-section-title">Key Metrics Comparison</div>
+      <div class="cdm-section-title">Key Metrics: ${lblPrev} → ${lblNow}</div>
       ${[
         {label:'Gross Margin %',prev:m.gmPctPrev.toFixed(1)+'%',now:m.gmPctNow.toFixed(1)+'%',delta:m.gmChg,suffix:'%',isGood:m.gmChg>=0},
         {label:'Revenue',prev:cr2(m.revPrev||0),now:cr2(m.revNow||0),delta:m.revChg,suffix:'%',isGood:(m.revChg||0)>=0},
@@ -1553,7 +1599,7 @@ function openCityDrill(cityName){
     </div>
 
     <div class="cdm-section">
-      <div class="cdm-section-title">Why did margin ${m.gmChg>=0?'improve':'drop'}?</div>
+      <div class="cdm-section-title">Why did margin ${m.gmChg>=0?'improve':'drop'} vs ${lblPrev}?</div>
       ${factorsHtml}
     </div>
     `:cityData?`
@@ -1575,11 +1621,131 @@ function closeCityDrill(event){
 }
 
 // ════════════════════════════════════════════════════
+// BUILD CITY INSIGHTS — plain-language MoM strip
+// ════════════════════════════════════════════════════
+function buildCityInsights(cityMoM, cities){
+  if(!cityMoM||!Object.keys(cityMoM).length) return '';
+
+  const entries = Object.entries(cityMoM)
+    .filter(([,m]) => m.gmPctPrev > 0 && m.cntNow > 0)
+    .sort((a,b) => Math.abs(b[1].gmChg) - Math.abs(a[1].gmChg));
+
+  if(!entries.length) return '';
+
+  const lblNow  = entries[0][1].lblNow;
+  const lblPrev = entries[0][1].lblPrev;
+
+  // Top improver and top decliner
+  const improvers = entries.filter(([,m]) => m.gmChg > 0).slice(0, 2);
+  const decliners = entries.filter(([,m]) => m.gmChg < 0).slice(0, 2);
+
+  // Overall portfolio MoM
+  const allNow  = entries.filter(([,m])=>m.cntNow>0);
+  const allPrev = entries.filter(([,m])=>m.cntPrev>0);
+  const totalRevNow  = allNow.reduce((s,[,m])=>s+m.revNow, 0);
+  const totalRevPrev = allPrev.reduce((s,[,m])=>s+m.revPrev, 0);
+  const totalCogNow  = allNow.reduce((s,[,m])=>s+m.cogNow, 0);
+  const totalCogPrev = allPrev.reduce((s,[,m])=>s+m.cogPrev, 0);
+  const portGMNow  = totalRevNow  > 0 ? (totalRevNow  - totalCogNow)  / totalRevNow  * 100 : 0;
+  const portGMPrev = totalRevPrev > 0 ? (totalRevPrev - totalCogPrev) / totalRevPrev * 100 : 0;
+  const portChg = portGMNow - portGMPrev;
+
+  const cards = [];
+
+  // Card 1 — portfolio MoM summary
+  if(Math.abs(portChg) > 0.05){
+    const up = portChg >= 0;
+    cards.push(`
+      <div class="ins-card" style="border-color:${up?'#86EFAC':'#FCA5A5'};background:${up?'#F0FDF4':'#FFF8F8'}">
+        <span class="ins-icon">${up?'📈':'📉'}</span>
+        <div>
+          <strong>Portfolio GM% ${up?'up':'down'} ${Math.abs(portChg).toFixed(1)}% MoM</strong><br>
+          <span style="color:var(--dim)">
+            ${lblPrev} → ${lblNow} · was ${portGMPrev.toFixed(1)}%, now ${portGMNow.toFixed(1)}%.
+            ${up?'Margin is improving across the city mix.':'Margin is under pressure — check cost and pricing drivers.'}
+          </span>
+        </div>
+      </div>`);
+  }
+
+  // Card 2 — top improver
+  if(improvers.length){
+    const [city, m] = improvers[0];
+    const chg = Math.abs(m.gmChg).toFixed(1);
+    const driver = m.revChg > 5 ? 'revenue growth' :
+                   m.aosChg > 5 ? 'larger system sizes' :
+                   m.cntNow > m.cntPrev ? 'higher volume' : 'cost improvement';
+    cards.push(`
+      <div class="ins-card" style="border-color:#86EFAC;background:#F0FDF4">
+        <span class="ins-icon">🏆</span>
+        <div>
+          <strong>${city}</strong> improved GM% by <strong>+${chg}%</strong> (${m.gmPctPrev.toFixed(1)}% → ${m.gmPctNow.toFixed(1)}%)<br>
+          <span style="color:var(--dim)">Driven by ${driver}. ${m.cntNow} installs in ${lblNow} vs ${m.cntPrev} in ${lblPrev}. Click city row for full breakdown.</span>
+        </div>
+      </div>`);
+  }
+
+  // Card 3 — top decliner
+  if(decliners.length){
+    const [city, m] = decliners[0];
+    const chg = Math.abs(m.gmChg).toFixed(1);
+    const cogsChg = m.cogPrev > 0 ? (m.cogNow - m.cogPrev) / m.cogPrev * 100 : 0;
+    const driver = (!m.gmChg && m.revChg !== null && m.revChg < -5) ? 'revenue decline' :
+                   cogsChg > 5 ? 'rising costs' :
+                   m.aosChg !== null && m.aosChg < -5 ? 'smaller system sizes' :
+                   m.cntNow < m.cntPrev ? 'lower volume' : 'margin pressure';
+    cards.push(`
+      <div class="ins-card" style="border-color:#FCA5A5;background:#FFF8F8">
+        <span class="ins-icon">⚠️</span>
+        <div>
+          <strong>${city}</strong> GM% dropped by <strong>−${chg}%</strong> (${m.gmPctPrev.toFixed(1)}% → ${m.gmPctNow.toFixed(1)}%)<br>
+          <span style="color:var(--dim)">Primary driver: ${driver}. ${m.cntNow} installs in ${lblNow} vs ${m.cntPrev} in ${lblPrev}. Click city row for full analysis.</span>
+        </div>
+      </div>`);
+  }
+
+  // Card 4 — volume shifts
+  const bigVolume = entries
+    .filter(([,m])=>m.cntPrev>0&&Math.abs((m.cntNow-m.cntPrev)/m.cntPrev*100)>20&&m.cntNow+m.cntPrev>3)
+    .sort((a,b)=>Math.abs((b[1].cntNow-b[1].cntPrev)/b[1].cntPrev)-Math.abs((a[1].cntNow-a[1].cntPrev)/a[1].cntPrev))
+    .slice(0,2);
+
+  if(bigVolume.length){
+    const parts = bigVolume.map(([city,m])=>{
+      const vchg = ((m.cntNow-m.cntPrev)/m.cntPrev*100).toFixed(0);
+      return `<strong>${city}</strong> ${m.cntNow>m.cntPrev?`+${vchg}%`:`${vchg}%`} (${m.cntPrev}→${m.cntNow})`;
+    }).join(' · ');
+    cards.push(`
+      <div class="ins-card" style="border-color:var(--border2)">
+        <span class="ins-icon">📦</span>
+        <div>
+          <strong>Notable volume shifts in ${lblNow}</strong><br>
+          <span style="color:var(--dim)">${parts}. Volume changes can shift portfolio GM% even if per-unit margin is stable.</span>
+        </div>
+      </div>`);
+  }
+
+  if(!cards.length) return '';
+
+  return `
+    <div style="flex-shrink:0;background:#fff;border:1px solid var(--border);border-radius:8px;padding:8px 12px;box-shadow:var(--shadow)">
+      <div style="font-family:'Syne',sans-serif;font-size:10px;font-weight:700;color:var(--navy);margin-bottom:6px;display:flex;align-items:center;gap:6px">
+        💡 City MoM Insights
+        <span style="font-size:8px;color:var(--muted);font-weight:400;font-family:'DM Mono',monospace">${lblPrev} → ${lblNow} · auto-generated · filter-aware</span>
+      </div>
+      <div class="insight-strip">${cards.join('')}</div>
+    </div>`;
+}
+
+// ════════════════════════════════════════════════════
 // CITY VIEW
 // ════════════════════════════════════════════════════
 function renderCityView(){
   const d=FILTERED;
+  const insightsHtml = buildCityInsights(d.cityMoM, d.cities);
+
   document.getElementById('mainContent').innerHTML=`
+    ${insightsHtml}
     <div class="charts-row1" style="height:210px">
       <div class="card">
         <div class="card-title">
@@ -1636,7 +1802,6 @@ function drawCityCharts(){
   const cities=FILTERED.cities.slice(0,12);
   const totalRev=cities.reduce((s,c)=>s+c.revenue,0)||1;
 
-  // Chart 1: Revenue (bars, stacked with COGS) + GM% line
   CHARTS.cityRev=new Chart(document.getElementById('cCityRev'),{
     type:'bar',
     data:{
@@ -1679,7 +1844,6 @@ function drawCityCharts(){
     }
   });
 
-  // Chart 2: GM% horizontal bar with color zones
   const sortedGM=[...FILTERED.cities].sort((a,b)=>b.gm_pct-a.gm_pct).slice(0,10);
   CHARTS.cityGM=new Chart(document.getElementById('cCityGM'),{
     type:'bar',
@@ -1714,7 +1878,6 @@ function drawCityCharts(){
     }
   });
 
-  // Chart 3: AOV bar
   CHARTS.cityAOV=new Chart(document.getElementById('cCityAOV'),{
     type:'bar',
     data:{
@@ -1925,7 +2088,7 @@ function buildProdTable(){
 }
 
 // ════════════════════════════════════════════════════
-// COST BREAKDOWN VIEW
+// COST BREAKDOWN VIEW — GM Decomp Panel
 // ════════════════════════════════════════════════════
 function buildGMDecompPanel(d){
   if(!d)return'';
@@ -2168,6 +2331,241 @@ function buildCostTable(costs){
 }
 
 // ════════════════════════════════════════════════════
+// ID SEARCH VIEW
+// ════════════════════════════════════════════════════
+let ID_SEARCH_TERM = '';
+
+function renderIdSearch(){
+  document.getElementById('mainContent').innerHTML=`
+    <div class="id-search-wrap">
+      <div style="background:#fff;border:1px solid var(--border);border-radius:8px;padding:12px 14px;flex-shrink:0;box-shadow:var(--shadow)">
+        <div style="font-family:'Syne',sans-serif;font-size:12px;font-weight:800;color:var(--navy);margin-bottom:8px">
+          🔍 SSE ID Lookup
+          <span style="font-size:9px;color:var(--muted);font-weight:400;font-family:'DM Mono',monospace;margin-left:6px">Search by full or partial SSE ID · ${LIVE_ROWS.length.toLocaleString()} total installs</span>
+        </div>
+        <div class="id-search-bar">
+          <input class="id-search-input" id="idSearchInput" type="text"
+            placeholder="Type SSE ID (e.g. SSE-2024-001 or partial match)…"
+            value="${ID_SEARCH_TERM}"
+            onkeydown="if(event.key==='Enter')doIdSearch()"
+          />
+          <button class="id-search-btn" onclick="doIdSearch()">Search</button>
+          <button class="id-search-btn" style="background:var(--dim)" onclick="clearIdSearch()">Clear</button>
+        </div>
+        <div style="margin-top:6px;font-size:8.5px;color:var(--muted);font-family:'DM Mono',monospace">
+          Tip: Partial matches work — type a few characters of the ID to see all matching installs
+        </div>
+      </div>
+      <div class="id-results-count" id="idResultsCount"></div>
+      <div class="id-results-area" id="idResultsArea">
+        <div class="id-no-results">
+          <div class="id-no-results-icon">🔎</div>
+          <div style="font-weight:600;color:var(--navy);margin-bottom:4px">Enter an SSE ID to look up</div>
+          <div>Find full install details, financials, and how this project compares to city averages</div>
+        </div>
+      </div>
+    </div>`;
+  if(ID_SEARCH_TERM.trim()){
+    setTimeout(()=>doIdSearch(),30);
+  }
+}
+
+function clearIdSearch(){
+  ID_SEARCH_TERM='';
+  const inp=document.getElementById('idSearchInput');
+  if(inp)inp.value='';
+  const area=document.getElementById('idResultsArea');
+  const cnt=document.getElementById('idResultsCount');
+  if(area)area.innerHTML=`<div class="id-no-results"><div class="id-no-results-icon">🔎</div><div style="font-weight:600;color:var(--navy);margin-bottom:4px">Enter an SSE ID to look up</div><div>Find full install details, financials, and how this project compares to city averages</div></div>`;
+  if(cnt)cnt.textContent='';
+}
+
+function doIdSearch(){
+  const inp=document.getElementById('idSearchInput');
+  if(!inp)return;
+  const term=inp.value.trim().toLowerCase();
+  ID_SEARCH_TERM=term;
+  const area=document.getElementById('idResultsArea');
+  const cnt=document.getElementById('idResultsCount');
+  if(!area)return;
+
+  if(!term){clearIdSearch();return;}
+  if(!LIVE_ROWS.length){
+    area.innerHTML=`<div class="id-no-results"><div class="id-no-results-icon">⚠️</div><div>No data loaded yet. Click Refresh to load data from Google Sheets.</div></div>`;
+    return;
+  }
+
+  const matches=LIVE_ROWS.filter(r=>r.id.toLowerCase().includes(term)).slice(0,20);
+
+  if(!matches.length){
+    area.innerHTML=`<div class="id-no-results"><div class="id-no-results-icon">😶</div><div style="font-weight:600;color:var(--navy);margin-bottom:4px">No installs found for "${term}"</div><div>Try a shorter or different ID fragment</div></div>`;
+    cnt.textContent='';
+    return;
+  }
+
+  cnt.textContent=`${matches.length} result${matches.length>1?'s':''} for "${term}"${matches.length===20?' (showing first 20)':''}`;
+
+  const cityAvgMap={};
+  LIVE_ROWS.filter(r=>r.hasRevenue).forEach(r=>{
+    if(!r.city)return;
+    if(!cityAvgMap[r.city])cityAvgMap[r.city]={rev:0,cogs:0,kw:0,count:0,gm:0};
+    const c=cityAvgMap[r.city];
+    c.rev+=r.revenue;c.cogs+=r.cogs;c.kw+=r.kw;c.count+=1;c.gm+=(r.revenue-r.cogs);
+  });
+  Object.values(cityAvgMap).forEach(c=>{
+    c.avgAOV=c.count?c.rev/c.count:0;
+    c.avgGMPct=c.rev?(c.rev-c.cogs)/c.rev*100:0;
+    c.avgCOGS=c.count?c.cogs/c.count:0;
+    c.avgKW=c.count?c.kw/c.count:0;
+  });
+
+  area.innerHTML=matches.map(r=>buildIdCard(r,cityAvgMap)).join('');
+}
+
+function buildIdCard(r, cityAvgMap){
+  const gm=r.revenue-r.cogs;
+  const gmPct=r.revenue>0?gm/r.revenue*100:0;
+  const city=r.city||'—';
+  const cityAvg=cityAvgMap[city]||null;
+  const dateStr=r.date?r.date.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}):'No date';
+  const freezeWinEnd=r.date?new Date(r.date.getFullYear(),r.date.getMonth()+2,7):null;
+  const today=new Date();
+  const isFrozen=freezeWinEnd&&today>freezeWinEnd;
+  const freezeLabel=isFrozen
+    ?`<span class="id-tag" style="background:rgba(22,163,74,0.3);color:#86EFAC">COGS FROZEN</span>`
+    :`<span class="id-tag" style="background:rgba(245,158,11,0.3);color:#FCD34D">COGS LIVE</span>`;
+
+  const gmColor=gmPct>=50?'var(--green)':gmPct>=42?'var(--amber)':'var(--red)';
+
+  let compareHtml='';
+  if(cityAvg&&cityAvg.count>1){
+    const metrics=[
+      {label:'GM%',idVal:gmPct,cityVal:cityAvg.avgGMPct,fmt:v=>v.toFixed(1)+'%',color:gmColor,good:gmPct>=cityAvg.avgGMPct},
+      {label:'AOV',idVal:r.revenue,cityVal:cityAvg.avgAOV,fmt:v=>lakh(v),color:'var(--blue)',good:r.revenue>=cityAvg.avgAOV},
+      {label:'COGS/proj',idVal:r.cogs,cityVal:cityAvg.avgCOGS,fmt:v=>lakh(v),color:'var(--red)',good:r.cogs<=cityAvg.avgCOGS},
+      {label:'System kW',idVal:r.kw,cityVal:cityAvg.avgKW,fmt:v=>v.toFixed(2)+' kW',color:'var(--purple)',good:r.kw>=cityAvg.avgKW},
+    ];
+    const maxVal=(m)=>Math.max(m.idVal,m.cityVal)*1.1||1;
+    compareHtml=`
+      <div class="id-compare-section">
+        <div class="id-compare-title">This install vs ${city} city average (${cityAvg.count} installs)</div>
+        ${metrics.map(m=>{
+          const max=maxVal(m);
+          const idW=(m.idVal/max*100).toFixed(0);
+          const cityW=(m.cityVal/max*100).toFixed(0);
+          const diff=m.idVal-m.cityVal;
+          const diffPct=m.cityVal?((diff/m.cityVal)*100):0;
+          const diffColor=m.good?'var(--green)':'var(--red)';
+          const diffStr=diffPct>=0?`+${diffPct.toFixed(0)}%`:`${diffPct.toFixed(0)}%`;
+          return `<div class="id-compare-row">
+            <div class="id-compare-label">${m.label}</div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:2px">
+              <div style="display:flex;align-items:center;gap:4px">
+                <span style="font-size:8px;color:var(--navy);min-width:28px;font-family:'DM Mono',monospace;font-weight:700">This</span>
+                <div class="id-compare-bar-wrap"><div class="id-compare-bar" style="width:${idW}%;background:${m.color};opacity:.85"></div></div>
+                <span class="id-compare-val" style="color:var(--navy)">${m.fmt(m.idVal)}</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:4px">
+                <span style="font-size:8px;color:var(--muted);min-width:28px;font-family:'DM Mono',monospace">Avg</span>
+                <div class="id-compare-bar-wrap"><div class="id-compare-bar" style="width:${cityW}%;background:var(--muted);opacity:.5"></div></div>
+                <span class="id-compare-val" style="color:var(--muted)">${m.fmt(m.cityVal)}</span>
+              </div>
+            </div>
+            <span style="font-size:9px;font-weight:700;color:${diffColor};min-width:40px;text-align:right;font-family:'DM Mono',monospace">${diffStr}</span>
+          </div>`;
+        }).join('')}
+      </div>`;
+  }
+
+  const costFields=[
+    {key:'module',label:'Module'},{key:'inverter',label:'Inverter'},
+    {key:'prefab',label:'Prefab MMS'},{key:'cables',label:'Cables'},
+    {key:'elecbos',label:'Elec. BoS'},{key:'earthing',label:'Earthing/LA'},
+    {key:'conduit',label:'Conduit'},{key:'jbox',label:'Junction Box'},{key:'ickit',label:'IC Kit'},
+  ].filter(f=>r[f.key]>0);
+  const totalTracked=costFields.reduce((s,f)=>s+(r[f.key]||0),0)||1;
+
+  let costHtml='';
+  if(costFields.length){
+    costHtml=`
+      <div class="id-compare-section">
+        <div class="id-compare-title">COGS Breakdown for this install</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:5px">
+          ${costFields.map(f=>`
+            <div style="background:var(--off);border:1px solid var(--border);border-radius:6px;padding:5px 8px">
+              <div style="font-size:8px;color:var(--muted);font-family:'DM Mono',monospace">${f.label}</div>
+              <div style="font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:var(--navy)">₹${(r[f.key]/1000).toFixed(1)}K</div>
+              <div style="font-size:8px;color:var(--dim);font-family:'DM Mono',monospace">${(r[f.key]/totalTracked*100).toFixed(1)}% of COGS</div>
+            </div>`).join('')}
+        </div>
+      </div>`;
+  }
+
+  return `
+    <div class="id-result-card">
+      <div class="id-result-header">
+        <div>
+          <div class="id-result-id">${r.id}</div>
+          <div style="font-size:8.5px;color:rgba(255,255,255,0.55);font-family:'DM Mono',monospace;margin-top:2px">${dateStr}</div>
+        </div>
+        <div class="id-result-meta">
+          <span class="id-tag">${r.city||'—'}</span>
+          <span class="id-tag">${r.state||'—'}</span>
+          ${r.offer?`<span class="id-tag">${r.offer}</span>`:''}
+          ${r.phase?`<span class="id-tag">${r.phase}</span>`:''}
+          ${freezeLabel}
+        </div>
+      </div>
+      <div class="id-result-body">
+        <div class="id-metric-grid">
+          <div class="id-metric-box">
+            <div class="id-metric-lbl">System Size</div>
+            <div class="id-metric-val">${r.kw.toFixed(2)} kW</div>
+            <div class="id-metric-sub">${r.moduleType||'—'}</div>
+          </div>
+          <div class="id-metric-box">
+            <div class="id-metric-lbl">Revenue (ex-GST)</div>
+            <div class="id-metric-val" style="color:var(--sun)">${r.hasRevenue?lakh(r.revenue):'No revenue'}</div>
+            <div class="id-metric-sub">${r.phase||'—'}</div>
+          </div>
+          <div class="id-metric-box">
+            <div class="id-metric-lbl">IC COGS</div>
+            <div class="id-metric-val">${r.cogs>0?lakh(r.cogs):'—'}</div>
+            <div class="id-metric-sub">${isFrozen?'Frozen value':'Live (editable)'}</div>
+          </div>
+          <div class="id-metric-box">
+            <div class="id-metric-lbl">Gross Margin ₹</div>
+            <div class="id-metric-val" style="color:${gm>=0?'var(--green)':'var(--red)'}">${r.hasRevenue?lakh(gm):'—'}</div>
+            <div class="id-metric-sub">Revenue − COGS</div>
+          </div>
+          <div class="id-metric-box">
+            <div class="id-metric-lbl">GM %</div>
+            <div class="id-metric-val" style="color:${gmColor}">${r.hasRevenue?gmPct.toFixed(1)+'%':'—'}</div>
+            <div class="id-metric-sub">${gmPct>=48?'✅ Above 48% target':gmPct>0?'⚠️ Below target':'No revenue data'}</div>
+          </div>
+          <div class="id-metric-box">
+            <div class="id-metric-lbl">₹ / Watt</div>
+            <div class="id-metric-val" style="color:var(--purple)">${r.kw>0&&r.cogs>0?'₹'+(r.cogs/(r.kw*1000)).toFixed(2):'—'}</div>
+            <div class="id-metric-sub">COGS per Watt</div>
+          </div>
+          <div class="id-metric-box">
+            <div class="id-metric-lbl">Install Date</div>
+            <div class="id-metric-val" style="font-size:11px">${dateStr}</div>
+            <div class="id-metric-sub">COGS freeze: ${freezeWinEnd?freezeWinEnd.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}):'—'}</div>
+          </div>
+          ${r.inverterType?`<div class="id-metric-box">
+            <div class="id-metric-lbl">Inverter</div>
+            <div class="id-metric-val" style="font-size:10px">${r.inverterType}</div>
+            <div class="id-metric-sub">Qty: ${r.inverterQty||'—'}</div>
+          </div>`:''}
+        </div>
+        ${compareHtml}
+        ${costHtml}
+      </div>
+    </div>`;
+}
+
+// ════════════════════════════════════════════════════
 // LIVE REFRESH
 // ════════════════════════════════════════════════════
 function setRefreshUI(state, msg){
@@ -2242,8 +2640,8 @@ async function refreshFromSheet(){
   try{
     LIVE_ROWS=processLiveRows(rawRows);
     if(!LIVE_ROWS.length)throw new Error('0 valid rows after processing');
-    DATA=aggregateRows(LIVE_ROWS);
-    FILTERED=aggregateRows(LIVE_ROWS);
+    DATA=aggregateRows(LIVE_ROWS,{});
+    FILTERED=aggregateRows(LIVE_ROWS,{});
     populateFilters();
     ['fFY','fState','fCity','fOffer','fPhase','fDateFrom','fDateTo'].forEach(id=>{document.getElementById(id).value='';});
     ACTIVE_QTR='';
