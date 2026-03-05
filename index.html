@@ -728,6 +728,30 @@ function aggregateRows(rows) {
     return m ? parseInt(m[1]) : 0;
   }
 
+  // ── Determine the two months to compare for ALL MoM analysis ─────────────
+  // Must be defined EARLY — used by buildSubTypeMoM, momData, gmDecomp, cityMoM
+  // Strategy: "now" = last month in filtered data
+  //           "prev" = calendar month before "now", from LIVE_ROWS if not in filtered
+  // This means single-month filters (e.g. Feb only) still get a comparison vs Jan
+  const getWpR = r => { const wp=extractWp(r.moduleType); return (wp>0&&r.moduleQty>0)?wp*r.moduleQty:r.kw*1000; };
+
+  let insightNow = null, insightPrev = null;
+  if (monthly.length >= 1) {
+    insightNow = monthly[monthly.length-1];
+    const prevYear  = insightNow.month === 0 ? insightNow.year-1 : insightNow.year;
+    const prevMonth = insightNow.month === 0 ? 11 : insightNow.month-1;
+    const prevLbl   = new Date(prevYear, prevMonth, 1)
+                        .toLocaleString('en',{month:'short'}) + ' ' + String(prevYear).slice(2);
+    const prevInFiltered = allRows.some(r => r.date && r.date.getFullYear()===prevYear && r.date.getMonth()===prevMonth);
+    insightPrev = { year: prevYear, month: prevMonth, label: prevLbl, fromLive: !prevInFiltered };
+  }
+
+  // rows for "now" and "prev" — used everywhere below
+  const iRowsNow  = insightNow  ? allRows.filter(r => r.date &&
+    r.date.getFullYear()===insightNow.year  && r.date.getMonth()===insightNow.month  && r.hasRevenue) : [];
+  const iRowsPrev = insightPrev ? (insightPrev.fromLive ? LIVE_ROWS : allRows).filter(r => r.date &&
+    r.date.getFullYear()===insightPrev.year && r.date.getMonth()===insightPrev.month && r.hasRevenue) : [];
+
   // ── Total Wp installed (module_qty × Wp per panel) across all rev rows ──
   const totalWp = revRows.reduce((s,r) => {
     const wp = extractWp(r.moduleType);
@@ -755,37 +779,27 @@ function aggregateRows(rows) {
     }
   });
 
-  // ── Per sub-type MoM: compute last 2 months for each module/inverter type ──
-  function buildSubTypeMoM(typeKey, costField, isModule) {
-    if (monthly.length < 2) return {};
-    const mLast = monthly[monthly.length-1];
-    const mPrev = monthly[monthly.length-2];
-
-    const rL = allRows.filter(r => r.date &&
-      r.date.getFullYear()===mLast.year && r.date.getMonth()===mLast.month && r.hasRevenue);
-    const rP = allRows.filter(r => r.date &&
-      r.date.getFullYear()===mPrev.year && r.date.getMonth()===mPrev.month && r.hasRevenue);
+  // ── Per sub-type MoM: use same insightNow/insightPrev months ──
+  function buildSubTypeMoM(typeKey, costField) {
+    if (!insightNow || !insightPrev) return {};
+    const rL = iRowsNow;
+    const rP = iRowsPrev;
+    if (!rL.length || !rP.length) return {};
 
     const mom = {};
-    // collect per-type data for both months
-    [['now', rL, mLast.label], ['prev', rP, mPrev.label]].forEach(([tag, rows, lbl]) => {
+    [['now', rL], ['prev', rP]].forEach(([tag, rows]) => {
       rows.forEach(r => {
         const typeName = r[typeKey];
         if (!typeName || !(r[costField] > 0)) return;
-        if (!mom[typeName]) mom[typeName] = {now:{cost:0,size:0,count:0}, prev:{cost:0,size:0,count:0}, lblNow:mLast.label, lblPrev:mPrev.label};
+        if (!mom[typeName]) mom[typeName] = {now:{cost:0,size:0,count:0}, prev:{cost:0,size:0,count:0}};
         const bucket = mom[typeName][tag];
         bucket.cost  += r[costField];
         bucket.count += 1;
-        if (isModule) {
-          const wp = extractWp(typeName);
-          bucket.size += (wp > 0 && r.moduleQty > 0 ? wp * r.moduleQty : r.kw * 1000);
-        } else {
-          bucket.size += r.kw;
-        }
+        const wp = extractWp(r.moduleType);
+        bucket.size += (wp > 0 && r.moduleQty > 0 ? wp * r.moduleQty : r.kw * 1000);
       });
     });
 
-    // compute norm rate for each type in each month
     const result = {};
     Object.entries(mom).forEach(([name, d]) => {
       const avgCostNow  = d.now.count  ? d.now.cost  / d.now.count  : 0;
@@ -795,23 +809,20 @@ function aggregateRows(rows) {
       const normNow  = avgSizeNow  > 0 ? avgCostNow  / avgSizeNow  : 0;
       const normPrev = avgSizePrev > 0 ? avgCostPrev / avgSizePrev : 0;
       const normChg  = normPrev > 0 ? (normNow - normPrev) / normPrev * 100 : 0;
-      const scale    = isModule ? 1 : 1000;  // ₹/Wp stays; W→kW multiply
       result[name] = {
-        normNow:  normNow  * scale,
-        normPrev: normPrev * scale,
-        normChg,
+        normNow, normPrev, normChg,
         isGenuine: Math.abs(normChg) > 0 && normPrev > 0,
-        unit: isModule ? '₹/Wp' : '₹/kW',
-        lblNow:  d.lblNow,
-        lblPrev: d.lblPrev,
+        unit: '₹/Wp',
+        lblNow:  insightNow.label,
+        lblPrev: insightPrev.label,
         hasData: d.now.count > 0 && d.prev.count > 0,
       };
     });
     return result;
   }
 
-  const moduleMoM   = buildSubTypeMoM('moduleType',   'module',   true);
-  const inverterMoM = buildSubTypeMoM('inverterType', 'inverter', false);
+  const moduleMoM   = buildSubTypeMoM('moduleType',   'module');
+  const inverterMoM = buildSubTypeMoM('inverterType', 'inverter');
 
   const moduleSubTypes = Object.values(moduleTypes).map(t => ({
     ...t,
@@ -824,115 +835,136 @@ function aggregateRows(rows) {
   const inverterSubTypes = Object.values(inverterTypes).map(t => ({
     ...t,
     avg:  t.count ? Math.round(t.total / t.count) : 0,
-    unit: '₹/kW',
-    rpw:  t.kw > 0 ? t.total / t.kw : 0,
+    unit: '₹/Wp',
+    rpw:  t.kw > 0 ? t.total / (t.kw * 1000) : 0,   // ₹/Wp = cost / (kW × 1000)
     mom:  inverterMoM[t.name] || null,
   })).sort((a,b) => b.total - a.total);
 
-  // ── MoM genuine rate analysis ─────────────────────────────────────────────
-  // Genuine rate = avg cost per project adjusted for avg system size (AOS)
-  //   norm_rate = (avg_cost_this_month / avg_kw_this_month)
-  //             vs (avg_cost_last_month / avg_kw_last_month)
-  // If norm_rate moved → genuine procurement rate change (show flag)
-  // If norm_rate flat but total moved → just AOS / volume change (show SIZE)
-  // For module: use ₹/Wp (module_qty × Wp) instead of ₹/kW
+  // ── MoM genuine rate analysis — uses same insightNow/insightPrev ─────────
   const momData = {};
-  if (monthly.length >= 2) {
-    const mLast = monthly[monthly.length-1];
-    const mPrev = monthly[monthly.length-2];
+  if (insightNow && insightPrev && iRowsNow.length && iRowsPrev.length) {
     costItems.forEach(k => {
-      const rL = allRows.filter(r => r.date &&
-        r.date.getFullYear()===mLast.year && r.date.getMonth()===mLast.month && r.hasRevenue);
-      const rP = allRows.filter(r => r.date &&
-        r.date.getFullYear()===mPrev.year && r.date.getMonth()===mPrev.month && r.hasRevenue);
-
+      const rL = iRowsNow, rP = iRowsPrev;
       const cntL = rL.length || 1,  cntP = rP.length || 1;
 
-      // For module: size unit = Wp;  for all others: size unit = kW
-      let sizeL, sizeP;
-      if (k === 'module') {
-        sizeL = rL.reduce((s,r) => { const wp=extractWp(r.moduleType); return s+(wp>0&&r.moduleQty>0?wp*r.moduleQty:r.kw*1000); }, 0);
-        sizeP = rP.reduce((s,r) => { const wp=extractWp(r.moduleType); return s+(wp>0&&r.moduleQty>0?wp*r.moduleQty:r.kw*1000); }, 0);
-      } else {
-        sizeL = rL.reduce((s,r)=>s+r.kw,0) * 1000;  // convert to W for consistency
-        sizeP = rP.reduce((s,r)=>s+r.kw,0) * 1000;
-      }
+      const getWp = r => { const wp=extractWp(r.moduleType); return (wp>0&&r.moduleQty>0)?wp*r.moduleQty:r.kw*1000; };
+      const sizeL = rL.reduce((s,r)=>s+getWp(r),0);
+      const sizeP = rP.reduce((s,r)=>s+getWp(r),0);
 
       const costL = rL.reduce((s,r)=>s+(r[k]||0),0);
       const costP = rP.reduce((s,r)=>s+(r[k]||0),0);
 
-      // Avg per project
       const avgCostL = costL / cntL,  avgCostP = costP / cntP;
-      // Avg size per project (Wp or W)
       const avgSizeL = sizeL / cntL,  avgSizeP = sizeP / cntP;
 
-      // Normalised rate: avg_cost_per_project / avg_size_per_project = ₹/Wp or ₹/W
       const normL = avgSizeL > 0 ? avgCostL / avgSizeL : 0;
       const normP = avgSizeP > 0 ? avgCostP / avgSizeP : 0;
-
-      // Raw unit rate (total / total size)
       const rawL  = sizeL > 0 ? costL / sizeL : 0;
       const rawP  = sizeP > 0 ? costP / sizeP : 0;
 
-      // AOS change % (system size)
       const kwL   = rL.reduce((s,r)=>s+r.kw,0) / cntL;
       const kwP   = rP.reduce((s,r)=>s+r.kw,0) / cntP;
       const aosChg = kwP > 0 ? (kwL-kwP)/kwP*100 : 0;
 
-      // Genuine rate change = normalised rate movement (size-adjusted)
       const normChg = normP > 0 ? (normL-normP)/normP*100 : 0;
       const rawChg  = rawP  > 0 ? (rawL-rawP)/rawP*100   : 0;
 
-      // Is the rate change genuine? → normChg tells us
-      // Direction of normChg: up = cost per unit increased = bad = red
-      const isGenuine = Math.abs(normChg) > 0;
-      const unit = k === 'module' ? '₹/Wp' : '₹/kW';
-
-      // Scale raw values for display
-      const dispScale = k === 'module' ? 1 : 1000; // ₹/Wp stays as is; ₹/W → ₹/kW multiply by 1000
       momData[k] = {
-        rawNow:   rawL  * dispScale,
-        rawPrev:  rawP  * dispScale,
-        normNow:  normL * dispScale,
-        normPrev: normP * dispScale,
-        normChg,   // size-adjusted rate change %
-        rawChg,    // raw change % (includes size effect)
-        aosChg,
-        aosNow: kwL,
-        aosPrev: kwP,
-        isGenuine,
-        unit,
-        lblNow:  mLast.label,
-        lblPrev: mPrev.label,
+        rawNow: rawL, rawPrev: rawP,
+        normNow: normL, normPrev: normP,
+        normChg, rawChg, aosChg,
+        aosNow: kwL, aosPrev: kwP,
+        isGenuine: Math.abs(normChg) > 0,
+        unit: '₹/Wp',
+        lblNow:  insightNow.label,
+        lblPrev: insightPrev.label,
       };
     });
   }
 
-  // Overall ₹/Wp for module, ₹/kW for others
+  // All components in ₹/Wp — consistent unit across the board
+  // totalWp = sum of (module_qty × Wp rating) per project
   const costs = costItems
     .filter(k => costTotals[k] > 0)
-    .map(k => {
-      let unitRate = 0, unitLabel = '';
-      if (k === 'module') {
-        unitRate  = totalWp > 0 ? costTotals[k] / totalWp : 0;
-        unitLabel = '₹/Wp';
-      } else {
-        unitRate  = revKW > 0 ? costTotals[k] / revKW : 0;
-        unitLabel = '₹/kW';
-      }
-      return {
-        item:      costNames[k],
-        key:       k,
-        total:     costTotals[k],
-        avg:       Math.round(costTotals[k] / (totRevProj||1)),
-        share:     costTotals[k] / totalCostTracked * 100,
-        unitRate,
-        unitLabel,
-        mom:       momData[k] || null,
-        subTypes:  k==='module' ? moduleSubTypes : k==='inverter' ? inverterSubTypes : [],
-      };
-    })
+    .map(k => ({
+      item:      costNames[k],
+      key:       k,
+      total:     costTotals[k],
+      avg:       Math.round(costTotals[k] / (totRevProj||1)),
+      share:     costTotals[k] / totalCostTracked * 100,
+      unitRate:  totalWp > 0 ? costTotals[k] / totalWp : 0,  // ₹/Wp for ALL items
+      unitLabel: '₹/Wp',
+      mom:       momData[k] || null,
+      subTypes:  k==='module' ? moduleSubTypes : k==='inverter' ? inverterSubTypes : [],
+    }))
     .sort((a,b) => b.total - a.total);
+
+  // ── GM% decomposition: why did overall GM% change vs prev month? ──────────
+  let gmDecomp = null;
+  if (iRowsNow.length && iRowsPrev.length) {
+    const rL = iRowsNow, rP = iRowsPrev;
+    const wpL = rL.reduce((s,r)=>s+getWpR(r),0)||1;
+    const wpP = rP.reduce((s,r)=>s+getWpR(r),0)||1;
+
+    const revL = rL.reduce((s,r)=>s+r.revenue,0), revP = rP.reduce((s,r)=>s+r.revenue,0);
+    const cogL = rL.reduce((s,r)=>s+r.cogs,0),    cogP = rP.reduce((s,r)=>s+r.cogs,0);
+    const gmPctL = revL>0?(revL-cogL)/revL*100:0;
+    const gmPctP = revP>0?(revP-cogP)/revP*100:0;
+    const gmChg  = gmPctL - gmPctP;
+
+    const revWpL = revL/wpL, revWpP = revP/wpP;
+    const cogWpL = cogL/wpL, cogWpP = cogP/wpP;
+
+    const priceEffect = revWpP > 0 ? (revWpL - revWpP) / revWpL * 100 * (revL>0?1:0) : 0;
+
+    const costEffects = [];
+    costItems.forEach(k => {
+      const cL = rL.reduce((s,r)=>s+(r[k]||0),0);
+      const cP = rP.reduce((s,r)=>s+(r[k]||0),0);
+      const rateL = cL/wpL, rateP = cP/wpP;
+      const rateDiff = rateL - rateP;
+      const gmImpact = revWpL > 0 ? -(rateDiff / revWpL) * 100 : 0;
+      if (Math.abs(gmImpact) > 0.05) {
+        costEffects.push({ name: costNames[k], key: k, rateL, rateP, rateDiff, gmImpact });
+      }
+    });
+    costEffects.sort((a,b) => a.gmImpact - b.gmImpact);
+
+    const cityMixEffect = gmChg - priceEffect - costEffects.reduce((s,e)=>s+e.gmImpact,0);
+
+    gmDecomp = {
+      gmPctNow: gmPctL, gmPctPrev: gmPctP, gmChg,
+      lblNow: insightNow.label, lblPrev: insightPrev.label,
+      priceEffect, costEffects,
+      cityMixEffect: isNaN(cityMixEffect) ? 0 : cityMixEffect,
+      revWpNow: revWpL, revWpPrev: revWpP,
+      cogWpNow: cogWpL, cogWpPrev: cogWpP,
+    };
+  }
+
+  // ── City-level MoM for insight generation ────────────────────────────────
+  const cityMoM = {};
+  if (iRowsNow.length && iRowsPrev.length && insightNow && insightPrev) {
+    const rL = iRowsNow, rP = iRowsPrev;
+    const allCities = [...new Set([...rL.map(r=>r.city), ...rP.map(r=>r.city)].filter(Boolean))];
+    allCities.forEach(city => {
+      const cL = rL.filter(r=>r.city===city), cP = rP.filter(r=>r.city===city);
+      if (!cL.length && !cP.length) return;
+      const revL=cL.reduce((s,r)=>s+r.revenue,0), revP=cP.reduce((s,r)=>s+r.revenue,0);
+      const cogL=cL.reduce((s,r)=>s+r.cogs,0),    cogP=cP.reduce((s,r)=>s+r.cogs,0);
+      const gmPctL=revL>0?(revL-cogL)/revL*100:0, gmPctP=revP>0?(revP-cogP)/revP*100:0;
+      const kwL=cL.reduce((s,r)=>s+r.kw,0), kwP=cP.reduce((s,r)=>s+r.kw,0);
+      const aosL=cL.length?kwL/cL.length:0, aosP=cP.length?kwP/cP.length:0;
+      cityMoM[city] = {
+        revNow:revL, revPrev:revP, revChg: revP>0?(revL-revP)/revP*100:null,
+        gmPctNow:gmPctL, gmPctPrev:gmPctP, gmChg:gmPctL-gmPctP,
+        cogNow:cogL, cogPrev:cogP,
+        aosNow:aosL, aosPrev:aosP, aosChg:aosP>0?(aosL-aosP)/aosP*100:null,
+        cntNow:cL.length, cntPrev:cP.length,
+        lblNow:insightNow.label, lblPrev:insightPrev.label,
+      };
+    });
+  }
 
   return {
     kpis: {
@@ -953,7 +985,7 @@ function aggregateRows(rows) {
     states:  mapDim(agg(allRows, r=>r.state), 'state'),
     offers:  mapDim(agg(allRows, r=>r.offer), 'offer'),
     phases:  mapDim(agg(allRows, r=>r.phase), 'phase'),
-    costs,
+    costs, gmDecomp, cityMoM,
   };
 }
 
@@ -1335,41 +1367,31 @@ function buildStateTable(sortCol) {
   const totalRev = states.reduce((s,r)=>s+r.revenue,0)||1;
   const maxRev   = states[0]?.revenue||1;
 
-  // Build city lookup: state → sorted cities
-  const stateCities = {};
-  FILTERED.cities.forEach(c => {
-    // find which state this city belongs to using LIVE_ROWS
-  });
-  // Build state→cities map from FILTERED rows
-  const cityByState = {};
-  LIVE_ROWS.forEach(r => {
-    if (!r.state || !r.city) return;
-    if (!cityByState[r.state]) cityByState[r.state] = {};
-    const k = r.city;
-    if (!cityByState[r.state][k]) cityByState[r.state][k] = {city:k,state:r.state,revenue:0,cogs:0,installs:0,kw:0,projects:0};
-  });
-  // Use FILTERED rows (not LIVE_ROWS) for city numbers under each state
-  const filteredRows = LIVE_ROWS.filter(r => {
-    // Re-apply current filter to get correct city data
-    const fState = document.getElementById('fState').value;
-    const fCity  = document.getElementById('fCity').value;
-    if (fState && r.state !== fState) return false;
-    if (fCity  && r.city  !== fCity)  return false;
-    return true;
-  });
+  // ✅ FIX: Build city→state lookup from LIVE_ROWS (just for state name mapping)
+  // but use FILTERED.cities for the actual numbers — they are already correctly
+  // filtered by date range, FY, quarter, phase, offer, state, city filters
+  const c2s = {};
+  LIVE_ROWS.forEach(r => { if (r.city && r.state) c2s[r.city] = r.state; });
 
+  // Build cityStateMap from FILTERED.cities which already have correct filtered numbers
   const cityStateMap = {};
-  filteredRows.forEach(r => {
-    if (!r.state || !r.city) return;
-    const key = r.state + '||' + r.city;
-    if (!cityStateMap[key]) cityStateMap[key] = {city:r.city, state:r.state, revenue:0, cogs:0, installs:0, kw:0, projects:0};
-    cityStateMap[key].installs += 1;
-    cityStateMap[key].kw      += r.kw;
-    if (r.hasRevenue) {
-      cityStateMap[key].revenue  += r.revenue;
-      cityStateMap[key].cogs     += r.cogs;
-      cityStateMap[key].projects += 1;
-    }
+  FILTERED.cities.forEach(c => {
+    const state = c2s[c.city] || '';
+    if (!state) return;
+    const key = state + '||' + c.city;
+    cityStateMap[key] = {
+      city:     c.city,
+      state:    state,
+      revenue:  c.revenue,
+      cogs:     c.cogs,
+      gm:       c.gm,
+      gm_pct:   c.gm_pct,
+      installs: c.projects,
+      projects: c.projects,
+      kw:       c.aos * c.projects,   // aos × count = total kW
+      aov:      c.aov,
+      aos:      c.aos,
+    };
   });
 
   let rows = '';
@@ -1395,26 +1417,20 @@ function buildStateTable(sortCol) {
     </tr>`;
 
     if (isOpen) {
-      // Get cities for this state, sorted by revenue
+      // Cities already have correct filtered numbers from FILTERED.cities
       const cities = Object.values(cityStateMap)
         .filter(c => c.state === s.state)
-        .map(c => ({...c,
-          gm: c.revenue - c.cogs,
-          gm_pct: c.revenue ? (c.revenue-c.cogs)/c.revenue*100 : 0,
-          aov: c.projects ? c.revenue/c.projects : 0,
-          aos: c.installs ? c.kw/c.installs : 0,
-        }))
         .sort((a,b) => b.revenue - a.revenue);
 
       if (cities.length === 0) {
-        rows += `<tr class="city-sub-row"><td colspan="10" style="padding-left:36px;color:var(--muted);font-style:italic">No city data available</td></tr>`;
+        rows += `<tr class="city-sub-row"><td colspan="10" style="padding-left:36px;color:var(--muted);font-style:italic">No city data for current filters</td></tr>`;
       } else {
         cities.forEach(c => {
           const cityShare = s.revenue > 0 ? c.revenue/s.revenue*100 : 0;
           rows += `<tr class="city-sub-row">
             <td></td>
             <td style="padding-left:30px;font-weight:600;color:var(--blue)">↳ ${c.city}</td>
-            <td>${c.projects.toLocaleString()}</td>
+            <td>${c.installs.toLocaleString()}</td>
             <td class="b">${cr2(c.revenue)}</td>
             <td>${cr2(c.cogs)}</td>
             <td class="g">${cr2(c.gm)}</td>
@@ -1445,10 +1461,108 @@ function buildStateTable(sortCol) {
 // ════════════════════════════════════════════════════
 // CITY VIEW
 // ════════════════════════════════════════════════════
+function buildCityInsights() {
+  const cityMoM = FILTERED.cityMoM || {};
+  const cities  = FILTERED.cities;
+  if (!Object.keys(cityMoM).length || !cities.length) return '';
+
+  const insights = [];
+  const totalRev = cities.reduce((s,c)=>s+c.revenue,0)||1;
+  const mLabel   = Object.values(cityMoM)[0]?.lblPrev || 'last month';
+
+  // 1. GM% biggest movers — plain sentence per city
+  const gmMovers = Object.entries(cityMoM)
+    .filter(([,m]) => m.cntNow>=5 && m.gmPctPrev>0)
+    .map(([city,m]) => ({city, ...m}))
+    .sort((a,b) => Math.abs(b.gmChg) - Math.abs(a.gmChg))
+    .slice(0,3);
+
+  gmMovers.forEach(m => {
+    const up   = m.gmChg > 0;
+    const diff = Math.abs(m.gmChg).toFixed(1);
+    const isCostDriven = !up && m.revChg !== null && m.revChg >= 0;
+    const isRevDriven  = !up && m.revChg !== null && m.revChg < 0;
+    const why = isCostDriven
+      ? `Revenue was actually up ${m.revChg.toFixed(0)}% — so costs went up faster than revenue`
+      : isRevDriven
+      ? `Revenue dropped ${Math.abs(m.revChg).toFixed(0)}% which pulled the margin down`
+      : up && m.revChg !== null && m.revChg > 0
+      ? `Revenue grew ${m.revChg.toFixed(0)}% and margin improved together`
+      : '';
+    insights.push({
+      type: up ? 'good' : 'bad',
+      icon: up ? '📈' : '📉',
+      text: `<strong>${m.city}</strong> — Margin was <strong>${m.gmPctPrev.toFixed(1)}%</strong> in ${mLabel}, now <strong>${m.gmPctNow.toFixed(1)}%</strong>. That's a <strong>${diff}% ${up?'improvement':'drop'}</strong>${why ? '. '+why : ''}.`,
+    });
+  });
+
+  // 2. Volume growing but margin falling — the "growth trap"
+  const growthMarginTrap = Object.entries(cityMoM)
+    .filter(([,m]) => m.cntNow>=5 && m.revChg>5 && m.gmChg < -1)
+    .map(([city,m]) => ({city,...m}))
+    .sort((a,b) => b.revChg - a.revChg);
+  if (growthMarginTrap.length) {
+    const c = growthMarginTrap[0];
+    insights.push({
+      type: 'warn',
+      icon: '⚠️',
+      text: `<strong>${c.city}</strong> — Revenue is up <strong>${c.revChg.toFixed(0)}%</strong> vs ${mLabel}, but margin dropped <strong>${Math.abs(c.gmChg).toFixed(1)}%</strong>. More installs but less profit per install — worth investigating costs here.`,
+    });
+  }
+
+  // 3. AOS shift — system size change in plain words
+  const aosMovers = Object.entries(cityMoM)
+    .filter(([,m]) => m.cntNow>=5 && m.aosChg!==null && Math.abs(m.aosChg)>5)
+    .map(([city,m]) => ({city,...m}))
+    .sort((a,b) => Math.abs(b.aosChg) - Math.abs(a.aosChg))
+    .slice(0,2);
+  aosMovers.forEach(m => {
+    const up = m.aosChg > 0;
+    insights.push({
+      type: 'info',
+      icon: '📦',
+      text: `<strong>${m.city}</strong> — Customers are installing <strong>${up?'bigger':'smaller'} systems</strong> this month. Average size went from <strong>${m.aosPrev.toFixed(1)} kW to ${m.aosNow.toFixed(1)} kW</strong> (${up?'+':''}${m.aosChg.toFixed(0)}%). ${up?'Larger orders = higher revenue per project.':'Smaller systems = lower revenue per project.'}`,
+    });
+  });
+
+  // 4. Revenue concentration — how dependent are we on top cities
+  const top3Rev = cities.slice(0,3).reduce((s,c)=>s+c.revenue,0);
+  const top3Pct = (top3Rev/totalRev*100).toFixed(0);
+  const top3Names = cities.slice(0,3).map(c=>c.city).join(', ');
+  insights.push({
+    type: parseInt(top3Pct) > 60 ? 'warn' : 'info',
+    icon: '🏙️',
+    text: parseInt(top3Pct) > 60
+      ? `<strong>${top3Names}</strong> together make up <strong>${top3Pct}%</strong> of all revenue. A slowdown in any one of these cities would significantly impact overall numbers.`
+      : `Revenue is reasonably spread — top 3 cities (<strong>${top3Names}</strong>) account for <strong>${top3Pct}%</strong> of revenue.`,
+  });
+
+  const colors = {
+    good: {bg:'#DCFCE7', border:'#86EFAC'},
+    bad:  {bg:'#FEE2E2', border:'#FCA5A5'},
+    warn: {bg:'#FEF3C7', border:'#FCD34D'},
+    info: {bg:'#EEF2FF', border:'#A5B4FC'},
+  };
+
+  return `<div style="display:flex;flex-direction:column;gap:5px;flex-shrink:0">
+    <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;font-family:'DM Mono',monospace;padding:0 2px">📊 What's happening in your cities</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px">
+      ${insights.map(ins => {
+        const c = colors[ins.type];
+        return `<div style="background:${c.bg};border:1px solid ${c.border};border-radius:7px;padding:7px 11px;font-size:10.5px;color:var(--text);line-height:1.55;flex:1;min-width:270px;max-width:480px">
+          <span style="margin-right:5px">${ins.icon}</span>${ins.text}
+        </div>`;
+      }).join('')}
+    </div>
+  </div>`;
+}
+
 function renderCityView() {
   const d = FILTERED;
+  const insights = buildCityInsights();
   document.getElementById('mainContent').innerHTML = `
-    <div class="charts-row1">
+    ${insights ? `<div style="background:#fff;border:1px solid var(--border);border-radius:8px;padding:8px 12px;flex-shrink:0;box-shadow:var(--shadow)">${insights}</div>` : ''}
+    <div class="charts-row1" style="${insights?'height:170px':''}">
       <div class="card">
         <div class="card-title">Top Cities — Revenue vs GM% <span class="card-badge badge-blue">Top 15</span></div>
         <div class="canvas-wrap"><canvas id="cCityRev"></canvas></div>
@@ -1477,8 +1591,9 @@ function renderCityView() {
       <div class="tbl-wrap">
         <table><thead><tr>
           <th>#</th><th style="text-align:left">City</th><th style="text-align:left">State</th>
-          <th>Installs (All SSE IDs)</th><th>Revenue (ex-GST)</th><th>COGS (IC Total)</th>
+          <th>Installs</th><th>Revenue (ex-GST)</th><th>COGS</th>
           <th>GM ₹</th><th>GM %</th><th>Avg AOV</th><th>Avg AOS</th>
+          <th>GM% vs Prev Mo</th>
         </tr></thead><tbody id="cityBody"></tbody></table>
       </div>
     </div>`;
@@ -1527,21 +1642,41 @@ function sortCityTable(col,el) {
 }
 
 function buildCityTable(sortCol) {
-  const cities = [...FILTERED.cities].sort((a,b)=>b[sortCol]-a[sortCol]);
+  const cities  = [...FILTERED.cities].sort((a,b)=>b[sortCol]-a[sortCol]);
+  const cityMoM = FILTERED.cityMoM || {};
   const c2s = {};
   LIVE_ROWS.forEach(r => { if(r.city && r.state) c2s[r.city] = r.state; });
-  document.getElementById('cityBody').innerHTML = cities.map((c,i) => `<tr>
-    <td class="td-rank">${i+1}</td>
-    <td style="font-weight:600">${c.city||'—'}</td>
-    <td class="dim-cell">${c2s[c.city]||'—'}</td>
-    <td>${c.projects.toLocaleString()}</td>
-    <td class="b">${cr2(c.revenue)}</td>
-    <td>${cr2(c.cogs)}</td>
-    <td class="g">${cr2(c.gm)}</td>
-    <td class="${gClass(c.gm_pct)}">${pct(c.gm_pct)}</td>
-    <td class="a">${lakh(c.aov)}</td>
-    <td>${c.aos.toFixed(2)} kW</td>
-  </tr>`).join('');
+  document.getElementById('cityBody').innerHTML = cities.map((c,i) => {
+    const m = cityMoM[c.city];
+    let momCell = '<td style="color:var(--muted);font-size:9px;text-align:center">—</td>';
+    if (m && m.gmPctPrev > 0) {
+      const up  = m.gmChg >= 0;
+      const cls = up ? 'g' : 'r';
+      const revTrend = m.revChg !== null
+        ? `<span style="font-size:8px;color:var(--muted);display:block">Revenue ${m.revChg>=0?'up':'down'} ${Math.abs(m.revChg).toFixed(0)}% vs ${m.lblPrev}</span>`
+        : '';
+      momCell = `<td>
+        <span class="${cls}" style="font-weight:700;font-family:'DM Mono',monospace;font-size:10px">
+          ${up?'▲':'▼'}${Math.abs(m.gmChg).toFixed(1)}%
+        </span>
+        <span style="font-size:8px;color:var(--muted);margin-left:3px">${m.gmPctPrev.toFixed(1)}%→${m.gmPctNow.toFixed(1)}%</span>
+        ${revTrend}
+      </td>`;
+    }
+    return `<tr>
+      <td class="td-rank">${i+1}</td>
+      <td style="font-weight:600">${c.city||'—'}</td>
+      <td class="dim-cell">${c2s[c.city]||'—'}</td>
+      <td>${c.projects.toLocaleString()}</td>
+      <td class="b">${cr2(c.revenue)}</td>
+      <td>${cr2(c.cogs)}</td>
+      <td class="g">${cr2(c.gm)}</td>
+      <td class="${gClass(c.gm_pct)}">${pct(c.gm_pct)}</td>
+      <td class="a">${lakh(c.aov)}</td>
+      <td>${c.aos.toFixed(2)} kW</td>
+      ${momCell}
+    </tr>`;
+  }).join('');
 }
 
 // ════════════════════════════════════════════════════
@@ -1648,28 +1783,80 @@ function buildProdTable() {
 // ════════════════════════════════════════════════════
 // COST BREAKDOWN VIEW
 // ════════════════════════════════════════════════════
+function buildGMDecompPanel(d) {
+  if (!d) return '';
+  const gmUp   = d.gmChg >= 0;
+  const gmDiff = Math.abs(d.gmChg).toFixed(1);
+  const headlineCls = gmUp ? '#16A34A' : '#DC2626';
+  const headlineBg  = gmUp ? '#DCFCE7' : '#FEE2E2';
+  const headlineBorder = gmUp ? '#86EFAC' : '#FCA5A5';
+
+  const headlineText = gmUp
+    ? `Margin improved — from <strong>${d.gmPctPrev.toFixed(1)}%</strong> in ${d.lblPrev} to <strong>${d.gmPctNow.toFixed(1)}%</strong> this month. Up <strong>${gmDiff}%</strong>.`
+    : `Margin dropped — was <strong>${d.gmPctPrev.toFixed(1)}%</strong> in ${d.lblPrev}, now <strong>${d.gmPctNow.toFixed(1)}%</strong>. Down <strong>${gmDiff}%</strong>.`;
+
+  // Revenue per Wp row
+  const revUp   = d.priceEffect >= 0;
+  const revText = revUp
+    ? `Selling price per Wp went up (₹${d.revWpPrev.toFixed(2)} → ₹${d.revWpNow.toFixed(2)}) — this <strong>helped</strong> margin`
+    : `Selling price per Wp came down (₹${d.revWpPrev.toFixed(2)} → ₹${d.revWpNow.toFixed(2)}) — this <strong>hurt</strong> margin`;
+
+  // Cost component rows — plain language
+  const costRows = d.costEffects.map(e => {
+    const costUp  = e.gmImpact < 0;  // cost up = bad = hurts margin
+    const bg      = costUp ? '#FEF9F9' : '#F0FDF4';
+    const dotClr  = costUp ? '#DC2626' : '#16A34A';
+    const impact  = Math.abs(e.gmImpact).toFixed(1);
+    const rateChg = Math.abs(((e.rateL - e.rateP) / (e.rateP||1)) * 100).toFixed(1);
+    const action  = costUp
+      ? `Cost went up ${rateChg}% (₹${e.rateP.toFixed(3)}→₹${e.rateL.toFixed(3)}/Wp) — <strong>reduced margin by ${impact}%</strong>`
+      : `Cost came down ${rateChg}% (₹${e.rateP.toFixed(3)}→₹${e.rateL.toFixed(3)}/Wp) — <strong>added ${impact}% to margin</strong>`;
+    return `<div style="background:${bg};border-radius:5px;padding:4px 8px;display:flex;align-items:flex-start;gap:7px;font-size:10.5px;line-height:1.4">
+      <span style="color:${dotClr};font-size:13px;line-height:1;margin-top:1px">${costUp?'↑':'↓'}</span>
+      <span><strong>${e.name}:</strong> ${action}</span>
+    </div>`;
+  }).join('');
+
+  // City mix row
+  const mixRow = Math.abs(d.cityMixEffect) > 0.05 ? (() => {
+    const mixUp = d.cityMixEffect >= 0;
+    const bg    = mixUp ? '#F0FDF4' : '#FEF9F9';
+    const dotC  = mixUp ? '#16A34A' : '#DC2626';
+    const mixTxt = mixUp
+      ? `More installs came from high-margin cities this month — <strong>added ${Math.abs(d.cityMixEffect).toFixed(1)}% to margin</strong>`
+      : `More installs came from lower-margin cities this month — <strong>reduced margin by ${Math.abs(d.cityMixEffect).toFixed(1)}%</strong>`;
+    return `<div style="background:${bg};border-radius:5px;padding:4px 8px;display:flex;align-items:flex-start;gap:7px;font-size:10.5px;line-height:1.4">
+      <span style="color:${dotC};font-size:13px;line-height:1;margin-top:1px">${mixUp?'↑':'↓'}</span>
+      <span><strong>City Mix:</strong> ${mixTxt}</span>
+    </div>`;
+  })() : '';
+
+  return `
+    <div style="background:#fff;border:1px solid var(--border);border-radius:8px;padding:10px 14px;flex-shrink:0;box-shadow:var(--shadow)">
+      <!-- Headline -->
+      <div style="background:${headlineBg};border:1px solid ${headlineBorder};border-radius:6px;padding:6px 10px;margin-bottom:8px;font-size:11px;color:${headlineCls};line-height:1.5">
+        📊 ${headlineText}
+      </div>
+      <!-- Revenue line -->
+      <div style="background:#F8FAFF;border-radius:5px;padding:4px 8px;display:flex;align-items:flex-start;gap:7px;font-size:10.5px;line-height:1.4;margin-bottom:4px">
+        <span style="color:${revUp?'#16A34A':'#DC2626'};font-size:13px;line-height:1;margin-top:1px">${revUp?'↑':'↓'}</span>
+        <span><strong>Revenue per Wp:</strong> ${revText}</span>
+      </div>
+      <!-- Cost rows -->
+      <div style="display:flex;flex-direction:column;gap:3px">
+        ${costRows}
+        ${mixRow}
+      </div>
+    </div>`;
+}
+
 function renderCostsView() {
   const costs   = FILTERED.costs;
   const monthly = FILTERED.monthly;
-
-  let insightHtml = '';
-  if (monthly.length >= 2) {
-    const lat  = monthly[monthly.length-1];
-    const prev = monthly[monthly.length-2];
-    const dPct = prev.cogs>0 ? (lat.cogs-prev.cogs)/prev.cogs*100 : 0;
-    insightHtml = `
-    <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <div class="insight-badge ${dPct>=0?'insight-up':'insight-down'}">
-        Total COGS MoM: <strong>${dPct>=0?'+':''}${dPct.toFixed(1)}%</strong> vs ${prev.label}
-      </div>
-      <div class="insight-badge insight-flat">Latest: ${lat.label} · ₹${(lat.cogs/1e7).toFixed(2)} Cr COGS · GM ${lat.gm_pct.toFixed(1)}%</div>
-      ${costs.length>0?`<div class="insight-badge" style="background:#FEF3C7;color:#D97706">
-        Top COGS item: ${costs[0].item} (${costs[0].share.toFixed(1)}% of tracked costs)</div>`:''}
-    </div>`;
-  }
+  const decomp  = buildGMDecompPanel(FILTERED.gmDecomp);
 
   document.getElementById('mainContent').innerHTML = `
-    ${insightHtml?`<div style="background:#fff;border:1px solid var(--border);border-radius:8px;padding:8px 12px;flex-shrink:0;box-shadow:var(--shadow)">${insightHtml}</div>`:''}
+    ${decomp}
     <div class="charts-row1" style="height:190px">
       <div class="card" style="grid-column:span 2">
         <div class="card-title">MoM Cost Trend <span class="card-badge badge-amber">COGS · Last 12 months · ₹ Lakhs</span></div>
