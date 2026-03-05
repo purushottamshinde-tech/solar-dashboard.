@@ -22,31 +22,35 @@
   --shadow2: 0 4px 16px rgba(26,44,78,0.13);
 }
 *{margin:0;padding:0;box-sizing:border-box}
-html,body{height:100%;font-family:'DM Sans',sans-serif;background:#E4EDF7;color:var(--text);overflow:hidden;font-size:12px}
-.app{display:flex;flex-direction:column;height:100vh;overflow:hidden}
+html,body{
+  height:100%;width:100%;
+  font-family:'DM Sans',sans-serif;background:#E4EDF7;
+  color:var(--text);overflow:hidden;font-size:12px;
+}
+.app{display:flex;flex-direction:column;height:100vh;width:100vw;overflow:hidden}
 
 /* ── TOP BAR ─────────────────────────────── */
 .topbar{
-  height:50px;background:var(--navy);display:flex;align-items:center;
-  justify-content:space-between;padding:0 18px;flex-shrink:0;
+  height:44px;background:var(--navy);display:flex;align-items:center;
+  justify-content:space-between;padding:0 14px;flex-shrink:0;
   box-shadow:0 2px 8px rgba(0,0,0,0.25);
 }
-.brand{display:flex;align-items:center;gap:10px}
-.brand-sun{width:32px;height:32px;background:linear-gradient(135deg,#F59E0B,#F97316);border-radius:8px;
-  display:flex;align-items:center;justify-content:center;font-size:17px;box-shadow:0 0 12px rgba(245,158,11,0.4)}
-.brand-name{color:#fff;font-family:'Syne',sans-serif;font-size:15px;font-weight:800;letter-spacing:-.3px}
-.brand-sub{color:rgba(255,255,255,0.45);font-size:9px;letter-spacing:1.2px;text-transform:uppercase;font-family:'DM Mono',monospace}
+.brand{display:flex;align-items:center;gap:8px}
+.brand-sun{width:28px;height:28px;background:linear-gradient(135deg,#F59E0B,#F97316);border-radius:7px;
+  display:flex;align-items:center;justify-content:center;font-size:14px;box-shadow:0 0 10px rgba(245,158,11,0.4)}
+.brand-name{color:#fff;font-family:'Syne',sans-serif;font-size:14px;font-weight:800;letter-spacing:-.3px}
+.brand-sub{color:rgba(255,255,255,0.45);font-size:8px;letter-spacing:1px;text-transform:uppercase;font-family:'DM Mono',monospace}
 
-.tab-bar{display:flex;background:rgba(255,255,255,0.08);border-radius:20px;padding:3px;gap:2px}
-.tab{padding:5px 20px;border-radius:16px;color:rgba(255,255,255,0.55);cursor:pointer;font-size:11px;font-weight:500;transition:all .2s;white-space:nowrap}
+.tab-bar{display:flex;background:rgba(255,255,255,0.08);border-radius:18px;padding:3px;gap:2px}
+.tab{padding:4px 16px;border-radius:14px;color:rgba(255,255,255,0.55);cursor:pointer;font-size:10.5px;font-weight:500;transition:all .2s;white-space:nowrap}
 .tab.active{background:#fff;color:var(--navy);font-weight:700}
 .tab:hover:not(.active){color:#fff;background:rgba(255,255,255,0.12)}
 
-.topbar-right{display:flex;align-items:center;gap:8px}
-.live-badge{display:flex;align-items:center;gap:5px;font-size:9px;color:rgba(255,255,255,0.5);font-family:'DM Mono',monospace;padding:3px 8px;background:rgba(255,255,255,0.07);border-radius:10px}
-.live-dot{width:5px;height:5px;border-radius:50%;background:#22C55E;animation:pulse 2s infinite}
+.topbar-right{display:flex;align-items:center;gap:7px}
+.live-badge{display:flex;align-items:center;gap:4px;font-size:8.5px;color:rgba(255,255,255,0.5);font-family:'DM Mono',monospace;padding:3px 7px;background:rgba(255,255,255,0.07);border-radius:9px}
+.live-dot{width:5px;height:5px;border-radius:50%;background:#22C55E;animation:pulse 2s infinite;flex-shrink:0}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-.btn-refresh{padding:7px 16px;border-radius:22px;border:1.5px solid rgba(255,255,255,.6);background:rgba(255,255,255,.12);color:#fff;cursor:pointer;font-size:11px;font-weight:600;font-family:'DM Sans',sans-serif;transition:all .2s;white-space:nowrap}
+.btn-refresh{padding:5px 13px;border-radius:18px;border:1.5px solid rgba(255,255,255,.6);background:rgba(255,255,255,.12);color:#fff;cursor:pointer;font-size:10px;font-weight:600;font-family:'DM Sans',sans-serif;transition:all .2s;white-space:nowrap}
 .btn-refresh:hover:not(:disabled){background:rgba(255,255,255,.24);border-color:#fff}
 .btn-refresh:disabled{opacity:.55;cursor:not-allowed}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -54,138 +58,239 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:#E4EDF7;color:
 /* ── FILTER BAR ──────────────────────────── */
 .filterbar{
   background:#fff;border-bottom:1px solid var(--border);
-  display:flex;align-items:center;padding:0 18px;gap:14px;flex-shrink:0;
-  box-shadow:var(--shadow);flex-wrap:wrap;min-height:38px;
+  display:flex;align-items:center;padding:0 14px;gap:10px;flex-shrink:0;
+  box-shadow:var(--shadow);flex-wrap:wrap;min-height:34px;
 }
-.filter-group{display:flex;align-items:center;gap:5px}
-.fl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;font-family:'DM Mono',monospace;white-space:nowrap}
+.filter-group{display:flex;align-items:center;gap:4px}
+.fl{font-size:8.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;font-family:'DM Mono',monospace;white-space:nowrap}
 .fs{
   border:1px solid var(--border);border-radius:5px;background:#fff;
-  color:var(--text);font-size:10px;padding:2px 18px 2px 6px;outline:none;
+  color:var(--text);font-size:9.5px;padding:2px 16px 2px 5px;outline:none;
   appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='7' height='7' viewBox='0 0 7 7'%3E%3Cpath d='M0 2l3.5 3.5L7 2z' fill='%235A7A96'/%3E%3C/svg%3E");
-  background-repeat:no-repeat;background-position:right 4px center;min-width:75px;cursor:pointer;
+  background-repeat:no-repeat;background-position:right 4px center;min-width:68px;cursor:pointer;
 }
 .fs:focus{border-color:var(--blue)}
-.filter-div{width:1px;height:20px;background:var(--border);flex-shrink:0}
-.btn-clear-filter{padding:3px 10px;border-radius:10px;border:1px solid var(--border2);background:var(--off2);color:var(--dim);cursor:pointer;font-size:10px;font-family:'DM Sans',sans-serif;transition:all .2s}
+.filter-div{width:1px;height:18px;background:var(--border);flex-shrink:0}
+.btn-clear-filter{padding:2px 9px;border-radius:9px;border:1px solid var(--border2);background:var(--off2);color:var(--dim);cursor:pointer;font-size:9px;font-family:'DM Sans',sans-serif;transition:all .2s}
 .btn-clear-filter:hover{border-color:var(--red);color:var(--red);background:var(--red-bg)}
 
 /* ── KPI STRIP ───────────────────────────── */
 .kpi-strip{
   display:flex;background:#fff;border-bottom:2px solid var(--border);
-  flex-shrink:0;height:56px;padding:0 18px;align-items:center;gap:0;
+  flex-shrink:0;height:50px;padding:0 14px;align-items:stretch;gap:0;
   box-shadow:var(--shadow);
 }
-.kpi-item{display:flex;flex-direction:column;justify-content:center;padding:0 16px;border-right:1px solid var(--border);height:100%;flex:1;min-width:0}
+.kpi-item{
+  display:flex;flex-direction:column;justify-content:center;padding:0 12px;
+  border-right:1px solid var(--border);flex:1;min-width:0;
+  cursor:pointer;transition:background .15s;position:relative;
+}
 .kpi-item:last-child{border-right:none}
-.kpi-lbl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;font-family:'DM Mono',monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.kpi-val{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;color:var(--navy);white-space:nowrap;line-height:1.2}
+.kpi-item:hover{background:var(--off2)}
+.kpi-item.clickable-kpi:hover{background:#EBF5FF}
+.kpi-item.clickable-kpi::after{
+  content:'▼';position:absolute;bottom:3px;right:6px;
+  font-size:7px;color:var(--blue);opacity:0;transition:opacity .2s;
+}
+.kpi-item.clickable-kpi:hover::after{opacity:1}
+.kpi-lbl{font-size:8.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;font-family:'DM Mono',monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kpi-val{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--navy);white-space:nowrap;line-height:1.2}
 .kpi-val.g{color:var(--green)} .kpi-val.a{color:var(--amber)} .kpi-val.r{color:var(--red)} .kpi-val.t{color:var(--teal)} .kpi-val.p{color:var(--purple)}
-.kpi-delta{font-size:9px;color:var(--muted);font-family:'DM Mono',monospace}
+.kpi-delta{font-size:8px;color:var(--muted);font-family:'DM Mono',monospace}
 .kpi-delta.up{color:var(--green)} .kpi-delta.down{color:var(--red)}
 
-/* ── MAIN CONTENT ────────────────────────── */
-.content{flex:1;overflow:hidden;display:flex;flex-direction:column;padding:10px 12px 6px;gap:8px}
+/* ── KPI DRILL PANEL ─────────────────────── */
+.kpi-drill-panel{
+  background:#fff;border-bottom:2px solid var(--blue);
+  flex-shrink:0;overflow:hidden;transition:max-height .35s cubic-bezier(.4,0,.2,1),opacity .25s;
+  max-height:0;opacity:0;box-shadow:0 4px 16px rgba(26,44,78,0.1);
+}
+.kpi-drill-panel.open{max-height:240px;opacity:1}
+.drill-inner{padding:10px 16px;display:flex;gap:12px;flex-wrap:wrap;align-items:flex-start}
+.drill-title{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;color:var(--navy);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.drill-close{padding:2px 8px;border-radius:8px;background:var(--off2);border:1px solid var(--border2);color:var(--dim);cursor:pointer;font-size:9px;margin-left:auto}
+.drill-close:hover{background:var(--red-bg);color:var(--red);border-color:var(--red)}
+.drill-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;flex:1}
+.drill-card{background:var(--off);border:1px solid var(--border);border-radius:7px;padding:7px 10px}
+.drill-card-label{font-size:8.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;font-family:'DM Mono',monospace;margin-bottom:3px}
+.drill-card-val{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--navy)}
+.drill-card-sub{font-size:8.5px;color:var(--dim);font-family:'DM Mono',monospace;margin-top:1px}
+.drill-insight{background:linear-gradient(135deg,#EBF5FF,#F0FDF4);border:1px solid var(--border2);border-radius:7px;padding:8px 12px;font-size:10.5px;line-height:1.55;color:var(--text);min-width:240px;max-width:400px}
+.drill-bar-row{display:flex;align-items:center;gap:8px;padding:3px 0;font-size:10px}
+.drill-bar-label{min-width:80px;color:var(--dim);font-size:9px}
+.drill-bar-wrap{flex:1;height:8px;background:var(--off3);border-radius:4px;overflow:hidden}
+.drill-bar-fill{height:100%;border-radius:4px;transition:width .5s}
+.drill-bar-val{min-width:55px;text-align:right;font-family:'DM Mono',monospace;font-size:9px;color:var(--text);font-weight:600}
 
-/* ── ROW 1: 4 Mini Charts ───────────────── */
-.charts-row1{display:grid;grid-template-columns:2fr 1.3fr 1.3fr;gap:8px;height:200px;flex-shrink:0}
+/* ── MAIN CONTENT ────────────────────────── */
+.content{flex:1;overflow:hidden;display:flex;flex-direction:column;padding:8px 10px 5px;gap:7px;min-height:0}
+
+/* ── ROW 1: Charts ───────────────────────── */
+.charts-row1{display:grid;grid-template-columns:2fr 1.3fr 1.3fr;gap:7px;flex-shrink:0}
 
 /* ── ROW 2: Table ───────────────────────── */
 .table-section{flex:1;background:#fff;border:1px solid var(--border);border-radius:8px;display:flex;flex-direction:column;min-height:0;overflow:hidden;box-shadow:var(--shadow)}
 
 /* ── CARDS ───────────────────────────────── */
-.card{background:#fff;border:1px solid var(--border);border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;overflow:hidden;box-shadow:var(--shadow)}
-.card-title{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;color:var(--text);margin-bottom:6px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
-.card-badge{font-size:8px;padding:2px 6px;border-radius:8px;font-family:'DM Mono',monospace;font-weight:500}
+.card{background:#fff;border:1px solid var(--border);border-radius:8px;padding:9px 11px;display:flex;flex-direction:column;overflow:hidden;box-shadow:var(--shadow)}
+.card-title{font-family:'Syne',sans-serif;font-size:10.5px;font-weight:700;color:var(--text);margin-bottom:4px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;gap:6px}
+.card-badge{font-size:7.5px;padding:2px 6px;border-radius:7px;font-family:'DM Mono',monospace;font-weight:500;white-space:nowrap}
 .badge-green{background:var(--green-bg);color:var(--green)} .badge-amber{background:var(--amber-bg);color:var(--amber)}
 .badge-blue{background:#DBEAFE;color:var(--blue2)} .badge-navy{background:var(--off2);color:var(--navy)}
 .canvas-wrap{flex:1;position:relative;min-height:0}
-.legend-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:4px;flex-shrink:0}
+.chart-label{font-size:9px;color:var(--muted);text-align:center;margin-top:3px;font-family:'DM Mono',monospace}
+
+/* Chart legend */
+.legend-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:4px;flex-shrink:0;align-items:center}
 .leg{display:flex;align-items:center;gap:4px;font-size:9px;color:var(--dim)}
-.leg-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-.leg-line{width:12px;height:2px;flex-shrink:0}
+.leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.leg-line{width:14px;height:3px;border-radius:2px;flex-shrink:0}
+.leg-sq{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+.leg-label{font-weight:500}
+
+/* Chart annotation */
+.chart-annotation{
+  background:rgba(26,44,78,0.06);border-radius:5px;padding:3px 8px;
+  font-size:8.5px;color:var(--dim);font-family:'DM Mono',monospace;
+  display:inline-block;margin-bottom:4px;flex-shrink:0
+}
 
 /* ── TABLE STYLES ────────────────────────── */
-.tbl-header{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--off)}
-.tbl-title{font-family:'Syne',sans-serif;font-size:12px;font-weight:800;color:var(--navy);display:flex;align-items:center;gap:8px}
-.tbl-tabs{display:flex;gap:4px}
-.tbl-tab{padding:3px 10px;border-radius:10px;font-size:10px;cursor:pointer;border:1px solid var(--border);background:#fff;color:var(--dim);transition:all .15s;white-space:nowrap}
+.tbl-header{display:flex;align-items:center;justify-content:space-between;padding:7px 12px;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--off);gap:8px}
+.tbl-title{font-family:'Syne',sans-serif;font-size:11.5px;font-weight:800;color:var(--navy);display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.tbl-tabs{display:flex;gap:3px}
+.tbl-tab{padding:3px 9px;border-radius:9px;font-size:9.5px;cursor:pointer;border:1px solid var(--border);background:#fff;color:var(--dim);transition:all .15s;white-space:nowrap}
 .tbl-tab.active{background:var(--navy);color:#fff;border-color:var(--navy)}
 .tbl-tab:hover:not(.active){border-color:var(--blue);color:var(--blue)}
 .tbl-wrap{flex:1;overflow:auto}
 .tbl-wrap::-webkit-scrollbar{width:4px;height:4px}
 .tbl-wrap::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
 
-table{width:100%;border-collapse:collapse;font-size:11px}
+table{width:100%;border-collapse:collapse;font-size:10.5px}
 thead{position:sticky;top:0;z-index:10}
-thead tr th{background:var(--navy);color:#fff;padding:6px 10px;text-align:right;font-weight:600;font-size:9px;letter-spacing:.5px;text-transform:uppercase;border-right:1px solid rgba(255,255,255,0.1);white-space:nowrap}
-thead tr th:first-child{text-align:left;min-width:110px}
+thead tr th{background:var(--navy);color:#fff;padding:5px 9px;text-align:right;font-weight:600;font-size:8.5px;letter-spacing:.4px;text-transform:uppercase;border-right:1px solid rgba(255,255,255,0.1);white-space:nowrap}
+thead tr th:first-child{text-align:left;min-width:90px}
 thead tr th.center{text-align:center}
 tbody tr{border-bottom:1px solid var(--off2);transition:background .12s}
 tbody tr:hover{background:#F0F7FF}
 tbody tr.total-row{background:var(--navy);font-weight:700}
-tbody tr.total-row td{color:#fff!important;font-family:'Syne',sans-serif;font-size:11px}
-td{padding:5px 10px;text-align:right;color:var(--text);white-space:nowrap;border-right:1px solid var(--off2)}
+tbody tr.total-row td{color:#fff!important;font-family:'Syne',sans-serif;font-size:10.5px}
+td{padding:4px 9px;text-align:right;color:var(--text);white-space:nowrap;border-right:1px solid var(--off2)}
 td:first-child{text-align:left;font-weight:500;color:var(--navy)}
-.td-rank{color:var(--muted);font-family:'DM Mono',monospace;font-size:9px;width:20px;text-align:center}
+.td-rank{color:var(--muted);font-family:'DM Mono',monospace;font-size:8.5px;width:18px;text-align:center}
 .g{color:var(--green);font-weight:600} .r{color:var(--red)} .a{color:var(--amber);font-weight:600} .b{color:var(--blue);font-weight:600} .dim-cell{color:var(--muted)}
 
 /* ── STATUS BAR ──────────────────────────── */
-.statusbar{height:20px;background:var(--navy3);display:flex;align-items:center;justify-content:space-between;padding:0 14px;flex-shrink:0}
-.stxt{font-size:9px;color:rgba(255,255,255,0.4);font-family:'DM Mono',monospace}
-
-/* ── OFFER PILLS ─────────────────────────── */
-.offer-pills{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:6px;flex-shrink:0}
-.offer-pill{padding:2px 9px;border-radius:10px;font-size:9px;cursor:pointer;border:1px solid var(--border);background:#fff;color:var(--dim);transition:all .15s;font-weight:500}
-.offer-pill.active{background:var(--navy);color:#fff;border-color:var(--navy)}
-
+.statusbar{height:18px;background:var(--navy3);display:flex;align-items:center;justify-content:space-between;padding:0 12px;flex-shrink:0}
+.stxt{font-size:8px;color:rgba(255,255,255,0.4);font-family:'DM Mono',monospace}
 
 /* ── EXPANDABLE STATE/COST ROWS ──────────────────── */
 .expand-btn{display:inline-flex;align-items:center;justify-content:center;
-  width:16px;height:16px;border-radius:4px;background:var(--off2);border:1px solid var(--border2);
-  cursor:pointer;font-size:10px;font-weight:700;color:var(--blue);flex-shrink:0;
+  width:15px;height:15px;border-radius:3px;background:var(--off2);border:1px solid var(--border2);
+  cursor:pointer;font-size:9px;font-weight:700;color:var(--blue);flex-shrink:0;
   transition:all .15s;user-select:none;line-height:1}
 .expand-btn:hover{background:var(--blue);color:#fff;border-color:var(--blue)}
 .expand-btn.open{background:var(--navy);color:#fff;border-color:var(--navy)}
-.state-name-cell{display:flex;align-items:center;gap:6px}
+.state-name-cell{display:flex;align-items:center;gap:5px}
 .city-sub-row{background:#F8FAFD!important}
-.city-sub-row td{font-size:10px;color:var(--dim);padding:4px 10px}
-.city-sub-row td:first-child{padding-left:36px}
+.city-sub-row td{font-size:9.5px;color:var(--dim);padding:3px 9px}
+.city-sub-row td:first-child{padding-left:32px}
 .city-sub-row:hover{background:#EEF5FF!important}
 .cost-component-row{cursor:pointer}
 .cost-component-row:hover td{background:#F0F7FF}
 .cost-sub-row{background:#F8FAFD!important}
-.cost-sub-row td{font-size:10px;color:var(--dim);padding:4px 10px}
-.cost-sub-row td:first-child{padding-left:36px}
+.cost-sub-row td{font-size:9.5px;color:var(--dim);padding:3px 9px}
+.cost-sub-row td:first-child{padding-left:32px}
 .cost-sub-row:hover td{background:#EEF5FF!important}
 
 /* ── SPARKBAR ────────────────────────────── */
-.sparkbar{display:flex;align-items:center;gap:5px;font-size:9px;color:var(--dim)}
+.sparkbar{display:flex;align-items:center;gap:5px;font-size:8.5px;color:var(--dim)}
 .bar-track{flex:1;height:5px;background:var(--off3);border-radius:3px;overflow:hidden}
 .bar-fill{height:100%;border-radius:3px;transition:width .4s}
 
 /* ── QUARTER FILTER PILLS ─────────────────── */
-.qtr-pills{display:flex;gap:4px;align-items:center}
-.qtr-pill{padding:2px 8px;border-radius:10px;font-size:9px;cursor:pointer;border:1px solid var(--border);background:#fff;color:var(--dim);transition:all .15s;font-family:'DM Mono',monospace;font-weight:500}
+.qtr-pills{display:flex;gap:3px;align-items:center}
+.qtr-pill{padding:2px 7px;border-radius:9px;font-size:8.5px;cursor:pointer;border:1px solid var(--border);background:#fff;color:var(--dim);transition:all .15s;font-family:'DM Mono',monospace;font-weight:500}
 .qtr-pill.active{background:var(--blue2);color:#fff;border-color:var(--blue2)}
 .qtr-pill:hover:not(.active){border-color:var(--blue);color:var(--blue)}
 
 /* ── DATE RANGE INPUTS ────────────────────── */
-.date-input{border:1px solid var(--border);border-radius:5px;background:#fff;color:var(--text);font-size:10px;padding:2px 5px;outline:none;cursor:pointer;font-family:'DM Mono',monospace}
+.date-input{border:1px solid var(--border);border-radius:5px;background:#fff;color:var(--text);font-size:9.5px;padding:2px 5px;outline:none;cursor:pointer;font-family:'DM Mono',monospace}
 .date-input:focus{border-color:var(--blue)}
 
-/* ── COST ANALYSIS GRID ───────────────────── */
-.cost-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.insight-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:8px;font-size:9px;font-family:'DM Mono',monospace}
-.insight-up{background:#FEE2E2;color:#DC2626}
-.insight-down{background:#DCFCE7;color:#16A34A}
-.insight-flat{background:#F0F7FF;color:#2563A8}
-.mom-row{display:flex;align-items:center;justify-content:space-between;padding:5px 10px;border-bottom:1px solid var(--off2);font-size:11px}
-.mom-row:last-child{border-bottom:none}
-.mom-bar-wrap{display:flex;align-items:center;gap:6px;flex:1;margin:0 10px}
-.mom-component{font-weight:600;color:var(--navy);min-width:100px;font-size:10px}
-.mom-val{font-family:'DM Mono',monospace;font-size:10px;min-width:70px;text-align:right}
-.mom-delta{min-width:55px;text-align:right;font-family:'DM Mono',monospace;font-size:9px}
+/* ── CITY CHANGE ALERT BADGE ───────────────── */
+.change-alert{
+  display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:10px;
+  font-size:8.5px;font-family:'DM Mono',monospace;font-weight:700;cursor:pointer;
+  transition:all .15s;border:1.5px solid transparent;
+}
+.change-alert.good{background:var(--green-bg);color:var(--green);border-color:#86EFAC}
+.change-alert.bad{background:var(--red-bg);color:var(--red);border-color:#FCA5A5}
+.change-alert.warn{background:var(--amber-bg);color:var(--amber);border-color:#FCD34D}
+.change-alert:hover{transform:scale(1.05);box-shadow:0 2px 8px rgba(0,0,0,.1)}
+
+/* ── CITY DRILL MODAL ────────────────────── */
+.city-drill-overlay{
+  display:none;position:fixed;inset:0;background:rgba(10,20,40,0.55);z-index:1000;
+  align-items:center;justify-content:center;backdrop-filter:blur(2px);
+}
+.city-drill-overlay.open{display:flex}
+.city-drill-modal{
+  background:#fff;border-radius:12px;padding:20px 24px;max-width:560px;width:90%;
+  box-shadow:0 20px 60px rgba(10,20,40,0.3);max-height:80vh;overflow-y:auto;
+}
+.city-drill-modal::-webkit-scrollbar{width:4px}
+.city-drill-modal::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+.cdm-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px}
+.cdm-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:800;color:var(--navy)}
+.cdm-sub{font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:1px}
+.cdm-close{width:28px;height:28px;border-radius:50%;background:var(--off2);border:1px solid var(--border2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--dim);flex-shrink:0;transition:all .15s}
+.cdm-close:hover{background:var(--red-bg);color:var(--red);border-color:var(--red)}
+.cdm-headline{border-radius:8px;padding:10px 14px;font-size:12px;line-height:1.6;margin-bottom:12px;font-weight:500}
+.cdm-section{margin-bottom:12px}
+.cdm-section-title{font-size:9px;text-transform:uppercase;letter-spacing:.8px;font-family:'DM Mono',monospace;color:var(--muted);margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid var(--off3)}
+.cdm-metric-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--off2);font-size:10.5px}
+.cdm-metric-row:last-child{border-bottom:none}
+.cdm-metric-label{color:var(--dim)}
+.cdm-metric-vals{display:flex;align-items:center;gap:10px;font-family:'DM Mono',monospace}
+.cdm-prev{color:var(--muted);font-size:9.5px}
+.cdm-arrow{color:var(--muted);font-size:10px}
+.cdm-now{font-weight:700;font-size:11px}
+.cdm-delta{font-size:9px;padding:1px 6px;border-radius:6px}
+.cdm-factor{padding:7px 10px;border-radius:7px;font-size:10px;line-height:1.5;display:flex;align-items:flex-start;gap:7px;margin-bottom:5px}
+.cdm-factor-icon{font-size:14px;line-height:1;flex-shrink:0;margin-top:1px}
+
+/* ── CHART CALLOUTS ───────────────────────── */
+.chart-callout{
+  background:var(--navy);color:#fff;border-radius:5px;padding:3px 8px;
+  font-size:8px;font-family:'DM Mono',monospace;display:inline-block;
+}
+
+/* ── VISUAL GUIDE ────────────────────────── */
+.visual-guide{
+  display:flex;gap:12px;flex-wrap:wrap;margin-top:4px;padding:5px 8px;
+  background:var(--off);border-radius:6px;border:1px solid var(--border);
+  align-items:center;flex-shrink:0;
+}
+.vg-item{display:flex;align-items:center;gap:4px;font-size:8.5px;color:var(--dim)}
+.vg-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+
+/* ── INSIGHT CARDS ───────────────────────── */
+.insight-strip{
+  display:flex;gap:6px;flex-wrap:wrap;flex-shrink:0;
+}
+.ins-card{
+  background:#fff;border:1px solid var(--border);border-radius:7px;padding:7px 11px;
+  font-size:10px;color:var(--text);line-height:1.5;flex:1;min-width:220px;max-width:380px;
+  display:flex;align-items:flex-start;gap:6px;
+}
+.ins-icon{font-size:14px;flex-shrink:0;margin-top:1px}
+
+/* MoM badge */
+.mom-badge{display:inline-flex;align-items:center;gap:3px;padding:1px 6px;border-radius:8px;font-size:8px;font-family:'DM Mono',monospace;font-weight:700}
+.mom-up{background:var(--red-bg);color:var(--red)}
+.mom-down{background:var(--green-bg);color:var(--green)}
+.mom-flat{background:var(--off2);color:var(--muted)}
 </style>
 </head>
 <body>
@@ -208,12 +313,12 @@ td:first-child{text-align:left;font-weight:500;color:var(--navy)}
   </div>
   <div class="topbar-right">
     <div class="live-badge"><span class="live-dot"></span><span id="lastUpdated">Loading…</span></div>
-    <button class="btn-refresh" id="btnRefresh" onclick="refreshFromSheet()">⟳ Refresh from GSheet</button>
+    <button class="btn-refresh" id="btnRefresh" onclick="refreshFromSheet()">⟳ Refresh</button>
   </div>
 </div>
 
 <!-- FILTER BAR -->
-<div class="filterbar" style="height:auto;min-height:38px;flex-wrap:wrap;padding:5px 18px;gap:7px;align-items:center">
+<div class="filterbar" style="padding:4px 14px;gap:8px">
   <div class="filter-group"><span class="fl">From</span>
     <input type="date" class="date-input" id="fDateFrom" onchange="applyFilters()" />
   </div>
@@ -221,7 +326,7 @@ td:first-child{text-align:left;font-weight:500;color:var(--navy)}
     <input type="date" class="date-input" id="fDateTo" onchange="applyFilters()" />
   </div>
   <div class="filter-div"></div>
-  <div class="filter-group" style="align-items:center"><span class="fl" style="margin-right:4px">Qtr</span>
+  <div class="filter-group" style="align-items:center"><span class="fl" style="margin-right:3px">Qtr</span>
     <div class="qtr-pills">
       <span class="qtr-pill active" data-qtr="" onclick="setQtrFilter('',this)">All</span>
       <span class="qtr-pill" data-qtr="Q1" onclick="setQtrFilter('Q1',this)">Q1 Apr–Jun</span>
@@ -259,73 +364,82 @@ td:first-child{text-align:left;font-weight:500;color:var(--navy)}
     </select>
   </div>
   <div class="filter-div"></div>
-  <button class="btn-clear-filter" onclick="clearAllFilters()">✕ Clear All</button>
-  <span style="margin-left:auto;font-size:9px;color:var(--muted);font-family:'DM Mono',monospace" id="rowInfo">—</span>
+  <button class="btn-clear-filter" onclick="clearAllFilters()">✕ Clear</button>
+  <span style="margin-left:auto;font-size:8.5px;color:var(--muted);font-family:'DM Mono',monospace" id="rowInfo">—</span>
 </div>
 
 <!-- KPI STRIP -->
 <div class="kpi-strip" id="kpiStrip">
-  <div class="kpi-item">
+  <div class="kpi-item clickable-kpi" onclick="toggleKpiDrill('installs')">
     <div class="kpi-lbl">Total Installs</div>
     <div class="kpi-val" id="kProj">—</div>
     <div class="kpi-delta" id="kProjD">count of SSE IDs</div>
   </div>
-  <div class="kpi-item">
+  <div class="kpi-item clickable-kpi" onclick="toggleKpiDrill('revenue')">
     <div class="kpi-lbl">Revenue (ex-GST)</div>
     <div class="kpi-val" style="color:var(--sun)" id="kRev">—</div>
     <div class="kpi-delta" id="kRevD">total</div>
   </div>
-  <div class="kpi-item">
+  <div class="kpi-item clickable-kpi" onclick="toggleKpiDrill('cogs')">
     <div class="kpi-lbl">IC COGS</div>
     <div class="kpi-val" id="kCOGS">—</div>
     <div class="kpi-delta" id="kCOGSD">total</div>
   </div>
-  <div class="kpi-item">
+  <div class="kpi-item clickable-kpi" onclick="toggleKpiDrill('gm')">
     <div class="kpi-lbl">Gross Margin ₹</div>
     <div class="kpi-val g" id="kGM">—</div>
     <div class="kpi-delta" id="kGMD">Revenue − COGS</div>
   </div>
-  <div class="kpi-item">
+  <div class="kpi-item clickable-kpi" onclick="toggleKpiDrill('gmpct')">
     <div class="kpi-lbl" id="kGMlbl">GM %</div>
     <div class="kpi-val g" id="kGMpct">—</div>
     <div class="kpi-delta" id="kGMpctD">—</div>
   </div>
-  <div class="kpi-item" style="border-left:2px solid var(--blue);padding-left:14px">
+  <div class="kpi-item clickable-kpi" style="border-left:2px solid var(--blue)" onclick="toggleKpiDrill('aov')">
     <div class="kpi-lbl" id="kAOVlbl">Avg AOV</div>
     <div class="kpi-val" style="color:var(--teal)" id="kAOV">—</div>
     <div class="kpi-delta" id="kAOVD">per project</div>
   </div>
-  <div class="kpi-item">
+  <div class="kpi-item clickable-kpi" onclick="toggleKpiDrill('aos')">
     <div class="kpi-lbl" id="kAOSlbl">Avg AOS</div>
     <div class="kpi-val" style="color:var(--purple)" id="kAOS">—</div>
     <div class="kpi-delta" id="kAOSD">kW per install</div>
   </div>
-  <div class="kpi-item">
+  <div class="kpi-item clickable-kpi" onclick="toggleKpiDrill('gmwatt')">
     <div class="kpi-lbl" id="kGMperKWlbl">GM / Watt</div>
     <div class="kpi-val" style="color:var(--green)" id="kGMperKW">—</div>
-    <div class="kpi-delta" id="kGMperKWD">₹ per Watt installed</div>
+    <div class="kpi-delta" id="kGMperKWD">₹ per Watt</div>
   </div>
-  <div class="kpi-item">
+  <div class="kpi-item" onclick="toggleKpiDrill('cogswatt')">
     <div class="kpi-lbl" id="kCOGSperKWlbl">COGS / Watt</div>
     <div class="kpi-val" id="kCOGSperKW">—</div>
-    <div class="kpi-delta" id="kCOGSperKWD">IC cost per Watt</div>
+    <div class="kpi-delta" id="kCOGSperKWD">IC cost/Watt</div>
   </div>
-  <div class="kpi-item">
+  <div class="kpi-item" onclick="toggleKpiDrill('onm')">
     <div class="kpi-lbl">ONM & QHSE est.</div>
     <div class="kpi-val" style="color:var(--dim)" id="kONM">—</div>
     <div class="kpi-delta">~3.4% of COGS</div>
   </div>
 </div>
 
-<!-- MAIN CONTENT -->
-<div class="content" id="mainContent">
+<!-- KPI DRILL PANEL -->
+<div class="kpi-drill-panel" id="kpiDrillPanel">
+  <div class="drill-inner" id="drillInner"></div>
 </div>
+
+<!-- MAIN CONTENT -->
+<div class="content" id="mainContent"></div>
 
 <!-- STATUS BAR -->
 <div class="statusbar">
   <span class="stxt"><span class="live-dot" style="display:inline-block;margin-right:4px"></span><span id="statusTxt">Initializing…</span></span>
   <span class="stxt" id="dataSourceLbl">Solar Square · B2C GM Analytics · Loading…</span>
   <span class="stxt" id="filterStatus">No filters active</span>
+</div>
+
+<!-- CITY DRILL MODAL -->
+<div class="city-drill-overlay" id="cityDrillOverlay" onclick="closeCityDrill(event)">
+  <div class="city-drill-modal" id="cityDrillModal"></div>
 </div>
 
 </div>
@@ -343,43 +457,33 @@ const SHEET_TABS = [
   { name:'OMS',         gid:'0'          },
 ];
 
+// Cities to exclude
+const EXCLUDED_CITIES = new Set(['Surat']);
+
 const COL = {
-  id:      'sse_id',
-  date:    'installation_completion_date',
-  cell:    'cell_name',
-  city:    'city',
-  state:   'state',
-  kw:      'project_size_kw',
-  offer:   'offer_type',
-  phase:   'phase_connection',
-  revenue: 'final_revenue_excl_gst',
-  cogs:    'ic_total',
-  module:  'module',
-  inverter:'inverter',
-  prefab:  'prefab_mms',
-  cables:  'cables',
-  elecbos: 'electrical_bos',
-  earthing:'earthing_la',
-  conduit: 'conduit_pipe',
-  jbox:    'junction_box',
-  ickit:   'ic_kit',
+  id:'sse_id', date:'installation_completion_date', cell:'cell_name', city:'city',
+  state:'state', kw:'project_size_kw', offer:'offer_type', phase:'phase_connection',
+  revenue:'final_revenue_excl_gst', cogs:'ic_total',
+  module:'module', inverter:'inverter', prefab:'prefab_mms', cables:'cables',
+  elecbos:'electrical_bos', earthing:'earthing_la', conduit:'conduit_pipe',
+  jbox:'junction_box', ickit:'ic_kit',
 };
 
-let LIVE_ROWS    = [];   // ALL rows — no revenue filter applied here
+let LIVE_ROWS    = [];
 let DATA         = buildEmptyData();
 let FILTERED     = buildEmptyData();
 let CHARTS       = {};
 let CURRENT_VIEW = 'overview';
 let ACTIVE_QTR   = '';
 let IS_REFRESHING= false;
+let ACTIVE_KPI_DRILL = null;
 
 function buildEmptyData() {
   return {
-    kpis:    { total_installs:0, revenue_projects:0, total_revenue:0, total_cogs:0, total_gm:0,
-               avg_gm_pct:0, avg_aov:0, avg_aos:0, total_kw:0, ic_cogs:0, onm_qhse:0 },
-    monthly: [], quarterly: [], fy: [],
-    cities:  [], states:    [], offers: [], phases: [],
-    costs:   [],
+    kpis: { total_installs:0, revenue_projects:0, total_revenue:0, total_cogs:0, total_gm:0,
+            avg_gm_pct:0, avg_aov:0, avg_aos:0, total_kw:0, ic_cogs:0, onm_qhse:0 },
+    monthly:[], quarterly:[], fy:[],
+    cities:[], states:[], offers:[], phases:[], costs:[], gmDecomp:null, cityMoM:{},
   };
 }
 
@@ -395,35 +499,33 @@ const gClass = (v,hi=50,lo=42) => v>=hi?'g':v>=lo?'a':'r';
 // ════════════════════════════════════════════════════
 // QUARTER HELPERS
 // ════════════════════════════════════════════════════
-function getQtrMonths(qtr) {
-  if (qtr==='Q1') return [3,4,5];
-  if (qtr==='Q2') return [6,7,8];
-  if (qtr==='Q3') return [9,10,11];
-  if (qtr==='Q4') return [0,1,2];
+function getQtrMonths(qtr){
+  if(qtr==='Q1') return [3,4,5];
+  if(qtr==='Q2') return [6,7,8];
+  if(qtr==='Q3') return [9,10,11];
+  if(qtr==='Q4') return [0,1,2];
   return null;
 }
-function monthToQtr(m) {
-  if ([3,4,5].includes(m))  return 'Q1';
-  if ([6,7,8].includes(m))  return 'Q2';
-  if ([9,10,11].includes(m))return 'Q3';
+function monthToQtr(m){
+  if([3,4,5].includes(m)) return 'Q1';
+  if([6,7,8].includes(m)) return 'Q2';
+  if([9,10,11].includes(m)) return 'Q3';
   return 'Q4';
 }
-function fyOfDate(d) {
-  if (!d) return null;
-  const m = d.getMonth(), y = d.getFullYear();
-  const fyStart = m >= 3 ? y : y - 1;
+function fyOfDate(d){
+  if(!d) return null;
+  const m=d.getMonth(), y=d.getFullYear();
+  const fyStart = m>=3?y:y-1;
   return `FY ${String(fyStart).slice(2)}-${String(fyStart+1).slice(2)}`;
 }
-function qtrLabel(d) {
-  if (!d) return null;
-  const q = monthToQtr(d.getMonth());
-  const fy = fyOfDate(d);
+function qtrLabel(d){
+  if(!d) return null;
+  const q=monthToQtr(d.getMonth()), fy=fyOfDate(d);
   return `${q} ${fy}`;
 }
-
-function setQtrFilter(qtr, el) {
-  ACTIVE_QTR = qtr;
-  document.querySelectorAll('.qtr-pill').forEach(p => p.classList.remove('active'));
+function setQtrFilter(qtr, el){
+  ACTIVE_QTR=qtr;
+  document.querySelectorAll('.qtr-pill').forEach(p=>p.classList.remove('active'));
   el.classList.add('active');
   applyFilters();
 }
@@ -431,718 +533,441 @@ function setQtrFilter(qtr, el) {
 // ════════════════════════════════════════════════════
 // DATE PARSER
 // ════════════════════════════════════════════════════
-const MON_MAP = {jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11};
-function parseDate(v) {
-  if (!v || typeof v !== 'string') return null;
-  v = v.trim();
-  if (!v) return null;
-
-  // "12-Feb-2026" or "12-Feb-26"
-  const m1 = v.match(/^(\d{1,2})[\-\/]([A-Za-z]{3})[\-\/](\d{2,4})$/);
-  if (m1) {
-    const day = +m1[1], mon = MON_MAP[m1[2].toLowerCase()], yr = m1[3].length===2?2000+parseInt(m1[3]):+m1[3];
-    if (mon !== undefined) return new Date(yr, mon, day);
-  }
-
-  // "2026-01-31" (YYYY-MM-DD)
-  const m2 = v.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-  if (m2) return new Date(+m2[1], +m2[2]-1, +m2[3]);
-
-  // "31/01/2026" (DD/MM/YYYY) — Indian standard
-  const m3 = v.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-  if (m3) {
-    const d = +m3[1], mo = +m3[2]-1, yr = +m3[3];
-    if (d >= 1 && d <= 31 && mo >= 0 && mo <= 11) return new Date(yr, mo, d);
-  }
-
-  // "01-31-2026" or "31-01-2026" (with dashes, no month name)
-  const m4 = v.match(/^(\d{1,2})-(\d{1,2})-(\d{4})$/);
-  if (m4) {
-    const a = +m4[1], b = +m4[2], yr = +m4[3];
-    // if first part > 12, must be DD-MM-YYYY
-    if (a > 12) return new Date(yr, b-1, a);
-    // else assume DD-MM-YYYY (Indian)
-    return new Date(yr, b-1, a);
-  }
-
-  // "2026/01/31" (YYYY/MM/DD)
-  const m5 = v.match(/^(\d{4})\/(\d{2})\/(\d{2})$/);
-  if (m5) return new Date(+m5[1], +m5[2]-1, +m5[3]);
-
-  // Fallback: let JS try — log failures
-  const d = new Date(v);
-  if (!isNaN(d.getTime())) return d;
-
-  console.warn(`parseDate failed for: "${v}"`);
+const MON_MAP={jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11};
+function parseDate(v){
+  if(!v||typeof v!=='string') return null;
+  v=v.trim(); if(!v) return null;
+  const m1=v.match(/^(\d{1,2})[\-\/]([A-Za-z]{3})[\-\/](\d{2,4})$/);
+  if(m1){const day=+m1[1],mon=MON_MAP[m1[2].toLowerCase()],yr=m1[3].length===2?2000+parseInt(m1[3]):+m1[3];if(mon!==undefined)return new Date(yr,mon,day);}
+  const m2=v.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if(m2)return new Date(+m2[1],+m2[2]-1,+m2[3]);
+  const m3=v.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if(m3){const d=+m3[1],mo=+m3[2]-1,yr=+m3[3];if(d>=1&&d<=31&&mo>=0&&mo<=11)return new Date(yr,mo,d);}
+  const m4=v.match(/^(\d{1,2})-(\d{1,2})-(\d{4})$/);
+  if(m4){const a=+m4[1],b=+m4[2],yr=+m4[3];if(a>12)return new Date(yr,b-1,a);return new Date(yr,b-1,a);}
+  const m5=v.match(/^(\d{4})\/(\d{2})\/(\d{2})$/);
+  if(m5)return new Date(+m5[1],+m5[2]-1,+m5[3]);
+  const d=new Date(v);
+  if(!isNaN(d.getTime()))return d;
   return null;
 }
 
 // ════════════════════════════════════════════════════
 // CSV PARSER
 // ════════════════════════════════════════════════════
-function normHeader(h) {
-  return h.toLowerCase()
-    .replace(/\(|\)|\/|\./g, ' ')
-    .trim()
-    .replace(/\s+/g, '_')
-    .replace(/[^a-z0-9_]/g, '')
-    .replace(/_+/g, '_')
-    .replace(/^_|_$/g, '');
-}
-function parseCSV(text) {
-  const lines = text.replace(/\r\n/g,'\n').replace(/\r/g,'\n').trim().split('\n');
-  if (lines.length < 2) return [];
-  const hdrs = parseCSVRow(lines[0]).map(normHeader);
-  const rows = [];
-  for (let i = 1; i < lines.length; i++) {
-    if (!lines[i].trim()) continue;
-    const vals = parseCSVRow(lines[i]);
-    const obj = {};
-    hdrs.forEach((h,j) => obj[h] = (vals[j]||'').trim());
+function normHeader(h){return h.toLowerCase().replace(/\(|\)|\/|\./g,' ').trim().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'').replace(/_+/g,'_').replace(/^_|_$/g,'');}
+function parseCSV(text){
+  const lines=text.replace(/\r\n/g,'\n').replace(/\r/g,'\n').trim().split('\n');
+  if(lines.length<2)return [];
+  const hdrs=parseCSVRow(lines[0]).map(normHeader);
+  const rows=[];
+  for(let i=1;i<lines.length;i++){
+    if(!lines[i].trim())continue;
+    const vals=parseCSVRow(lines[i]);
+    const obj={};
+    hdrs.forEach((h,j)=>obj[h]=(vals[j]||'').trim());
     rows.push(obj);
   }
   return rows;
 }
-function parseCSVRow(line) {
-  const r=[]; let cur='', inQ=false;
-  for (let i=0;i<line.length;i++) {
+function parseCSVRow(line){
+  const r=[];let cur='',inQ=false;
+  for(let i=0;i<line.length;i++){
     const c=line[i];
     if(c==='"'){inQ=!inQ;continue;}
     if(c===','&&!inQ){r.push(cur);cur='';continue;}
     cur+=c;
   }
-  r.push(cur); return r;
+  r.push(cur);return r;
 }
 
 // ════════════════════════════════════════════════════
 // COLUMN RESOLVER
 // ════════════════════════════════════════════════════
-function makeResolver(allKeys) {
-  return (row, exactKey, fallbacks=[]) => {
-    if (row[exactKey] !== undefined) return row[exactKey];
-    for (const fb of fallbacks) {
-      if (row[fb] !== undefined) return row[fb];
-    }
-    const found = allKeys.find(k => k.includes(exactKey) || exactKey.includes(k));
-    return (found && row[found] !== undefined) ? row[found] : '';
+function makeResolver(allKeys){
+  return (row, exactKey, fallbacks=[])=>{
+    if(row[exactKey]!==undefined)return row[exactKey];
+    for(const fb of fallbacks){if(row[fb]!==undefined)return row[fb];}
+    const found=allKeys.find(k=>k.includes(exactKey)||exactKey.includes(k));
+    return (found&&row[found]!==undefined)?row[found]:'';
   };
 }
 
 // ════════════════════════════════════════════════════
-// PROCESS LIVE CSV ROWS
-// ⚠ KEY FIX: NO revenue filter here — ALL rows kept so
-//   total_installs = true count of SSE IDs
+// PROCESS LIVE CSV ROWS  (Surat excluded)
 // ════════════════════════════════════════════════════
-function processLiveRows(rawRows) {
-  if (!rawRows.length) return [];
-  const allKeys = Object.keys(rawRows[0]);
-  const R = makeResolver(allKeys);
-  const N = v => parseFloat(String(v).replace(/[^0-9.-]/g,'')) || 0;
-
-  console.log('GSheet columns detected:', allKeys.slice(0,25).join(' | '));
-
-  const revCol  = allKeys.find(k => k.includes('final_revenue_excl'))
-               || allKeys.find(k => k.includes('revenue_excl'))
-               || allKeys.find(k => k.includes('final_revenue'))
-               || 'final_revenue_excl_gst';
-  const cogsCol = allKeys.find(k => k === 'ic_total')
-               || allKeys.find(k => k.includes('ic_total'))
-               || 'ic_total';
-  const kwCol   = allKeys.find(k => k.includes('project_size'))
-               || 'project_size_kw';
-  const dateCol = allKeys.find(k => k.includes('installation_completion'))
-               || allKeys.find(k => k.includes('completion_date'))
-               || 'installation_completion_date';
-
-  console.log(`Using: rev=${revCol}, cogs=${cogsCol}, kw=${kwCol}, date=${dateCol}`);
-
-  // ✅ FIX: Map ALL rows — no filter on revenue
-  const rows = rawRows.map(r => {
-    const rev  = N(r[revCol]  || R(r, COL.revenue,  ['final_revenue_excl_gst','final_revenue_excl__gst']));
-    const cogs = N(r[cogsCol] || R(r, COL.cogs,     ['ic_total','total_amount']));
-    const kw   = N(r[kwCol]   || R(r, COL.kw,       ['project_size_kw','project_size']));
-    const date = parseDate(R(r, dateCol, ['installation_date','date']));
-    const offer= (r[COL.offer] || R(r,'offer_type',['offer'])||'').trim();
+function processLiveRows(rawRows){
+  if(!rawRows.length)return [];
+  const allKeys=Object.keys(rawRows[0]);
+  const R=makeResolver(allKeys);
+  const N=v=>parseFloat(String(v).replace(/[^0-9.-]/g,''))||0;
+  const revCol=allKeys.find(k=>k.includes('final_revenue_excl'))||allKeys.find(k=>k.includes('revenue_excl'))||allKeys.find(k=>k.includes('final_revenue'))||'final_revenue_excl_gst';
+  const cogsCol=allKeys.find(k=>k==='ic_total')||allKeys.find(k=>k.includes('ic_total'))||'ic_total';
+  const kwCol=allKeys.find(k=>k.includes('project_size'))||'project_size_kw';
+  const dateCol=allKeys.find(k=>k.includes('installation_completion'))||allKeys.find(k=>k.includes('completion_date'))||'installation_completion_date';
+  const rows=rawRows.map(r=>{
+    const rev=N(r[revCol]||R(r,COL.revenue,['final_revenue_excl_gst','final_revenue_excl__gst']));
+    const cogs=N(r[cogsCol]||R(r,COL.cogs,['ic_total','total_amount']));
+    const kw=N(r[kwCol]||R(r,COL.kw,['project_size_kw','project_size']));
+    const date=parseDate(R(r,dateCol,['installation_date','date']));
+    const offer=(r[COL.offer]||R(r,'offer_type',['offer'])||'').trim();
+    const city=(r[COL.city]||R(r,'city')||'').trim();
     return {
-      id:       r[COL.id]    || R(r,'sse_id') || '',
-      city:     (r[COL.city] || R(r,'city')||'').trim(),
-      state:    (r[COL.state]|| R(r,'state')||'').trim(),
-      offer:    offer === 'GoodZero+' ? 'GoodZero' : offer,
-      phase:    (r[COL.phase]|| R(r,'phase_connection',['phase'])||'').trim(),
-      revenue:  rev,
-      cogs:     cogs,
-      kw:       kw,
-      gm:       rev - cogs,
-      date:     date,
-      _rawDate: R(r, dateCol, ['installation_date','date']),
-      hasRevenue: rev > 0,   // flag — used for financial KPIs only
-      module:       N(r['module']   || ''),
-      inverter:     N(r['inverter'] || ''),
-      prefab:       N(r['prefab_mms']||''),
-      cables:       N(r['cables']   || ''),
-      elecbos:      N(r['electrical_bos']||r['electrical_b_o_s']||''),
-      earthing:     N(r['earthing_la']||''),
-      conduit:      N(r['conduit_pipe']||''),
-      jbox:         N(r['junction_box']||''),
-      ickit:        N(r['ic_kit']   || ''),
-      moduleType:   (r['module_item_name']||r['module_item_name_']||'').trim(),
-      inverterType: (r['inverter_item_name']||r['inverter_item_name_']||'').trim(),
-      moduleQty:    N(r['module_qty']||r['module_qty_']||0),
-      inverterQty:  N(r['inverter_qty']||r['inverter_qty_']||0),
+      id:r[COL.id]||R(r,'sse_id')||'',
+      city,
+      state:(r[COL.state]||R(r,'state')||'').trim(),
+      offer:offer==='GoodZero+'?'GoodZero':offer,
+      phase:(r[COL.phase]||R(r,'phase_connection',['phase'])||'').trim(),
+      revenue:rev, cogs, kw, gm:rev-cogs, date,
+      _rawDate:R(r,dateCol,['installation_date','date']),
+      hasRevenue:rev>0,
+      module:N(r['module']||''), inverter:N(r['inverter']||''),
+      prefab:N(r['prefab_mms']||''), cables:N(r['cables']||''),
+      elecbos:N(r['electrical_bos']||r['electrical_b_o_s']||''),
+      earthing:N(r['earthing_la']||''), conduit:N(r['conduit_pipe']||''),
+      jbox:N(r['junction_box']||''), ickit:N(r['ic_kit']||''),
+      moduleType:(r['module_item_name']||r['module_item_name_']||'').trim(),
+      inverterType:(r['inverter_item_name']||r['inverter_item_name_']||'').trim(),
+      moduleQty:N(r['module_qty']||r['module_qty_']||0),
+      inverterQty:N(r['inverter_qty']||r['inverter_qty_']||0),
     };
   });
-
-  // Total Installs = count of SSE IDs, no conditions
-  // Only skip blank CSV lines (no ID at all)
-  const validRows = rows.filter(r => r.id !== '');
-
-  const nullDateRows = validRows.filter(r => !r.date);
-  console.log(`Total installs (SSE ID count): ${validRows.length} / ${rawRows.length}`);
-  console.log(`With revenue > 0: ${validRows.filter(r=>r.hasRevenue).length}`);
-  if (nullDateRows.length) {
-    console.warn(`⚠ ${nullDateRows.length} rows have unparseable dates — sample:`,
-      nullDateRows.slice(0,5).map(r=>r._rawDate||r.id));
-  }
-  return validRows;
+  // Exclude Surat + blank IDs
+  return rows.filter(r=>r.id!==''&&!EXCLUDED_CITIES.has(r.city));
 }
 
 // ════════════════════════════════════════════════════
-// AGGREGATE ROWS  →  DATA object
-// ✅ FIX: total_installs = COUNT of ALL rows (no revenue filter)
-//         Revenue/COGS/GM = only rows where revenue > 0
+// AGGREGATE ROWS
 // ════════════════════════════════════════════════════
-function aggregateRows(rows) {
-  if (!rows.length) return buildEmptyData();
+function aggregateRows(rows){
+  if(!rows.length)return buildEmptyData();
+  const allRows=rows;
+  const revRows=rows.filter(r=>r.hasRevenue);
 
-  // ✅ Split: all rows for install count, revenue rows for financials
-  const allRows = rows;                                 // for install count
-  const revRows = rows.filter(r => r.hasRevenue);       // for revenue/COGS/GM
-
-  function agg(arr, keyFn) {
-    const m = {};
-    arr.forEach(r => {
-      const k = keyFn(r); if (!k) return;
-      if (!m[k]) m[k] = {revenue:0, cogs:0, projects:0, installs:0, kw:0, key:k};
-      m[k].revenue  += r.revenue;
-      m[k].cogs     += r.cogs;
-      m[k].installs += 1;                               // all rows
-      if (r.hasRevenue) m[k].projects += 1;             // revenue rows only
-      m[k].kw       += r.kw;
+  function agg(arr, keyFn){
+    const m={};
+    arr.forEach(r=>{
+      const k=keyFn(r); if(!k)return;
+      if(!m[k])m[k]={revenue:0,cogs:0,projects:0,installs:0,kw:0,key:k};
+      m[k].revenue+=r.revenue; m[k].cogs+=r.cogs; m[k].installs+=1;
+      if(r.hasRevenue)m[k].projects+=1;
+      m[k].kw+=r.kw;
     });
     return m;
   }
 
-  function mapDim(map, nameKey) {
-    return Object.values(map).map(d => ({
-      [nameKey]: d.key,
-      revenue:   d.revenue,
-      cogs:      d.cogs,
-      gm:        d.revenue - d.cogs,
-      projects:  d.installs,                            // show total installs in tables
-      aov:       d.projects ? d.revenue / d.projects : 0,
-      aos:       d.installs ? d.kw      / d.installs : 0,
-      gm_pct:    d.revenue  ? (d.revenue - d.cogs) / d.revenue * 100 : 0,
-    })).sort((a, b) => b.revenue - a.revenue);
+  function mapDim(map, nameKey){
+    return Object.values(map).map(d=>({
+      [nameKey]:d.key, revenue:d.revenue, cogs:d.cogs, gm:d.revenue-d.cogs,
+      projects:d.installs, aov:d.projects?d.revenue/d.projects:0,
+      aos:d.installs?d.kw/d.installs:0,
+      gm_pct:d.revenue?(d.revenue-d.cogs)/d.revenue*100:0,
+    })).sort((a,b)=>b.revenue-a.revenue);
   }
 
-  // ── Totals ──
-  const totInstalls = allRows.length;                   // ✅ ALL rows
-  const totRevProj  = revRows.length;                   // rows with revenue
-  const totRev  = revRows.reduce((s,r) => s + r.revenue, 0);
-  const totCOGS = revRows.reduce((s,r) => s + r.cogs,    0);
-  const totKW   = allRows.reduce((s,r) => s + r.kw,      0);
-  const totGM   = totRev - totCOGS;
+  const totInstalls=allRows.length;
+  const totRevProj=revRows.length;
+  const totRev=revRows.reduce((s,r)=>s+r.revenue,0);
+  const totCOGS=revRows.reduce((s,r)=>s+r.cogs,0);
+  const totKW=allRows.reduce((s,r)=>s+r.kw,0);
+  const totGM=totRev-totCOGS;
 
-  // ── Monthly ── installs by date; rows with no date are counted in totals but not charted
-  const byMonth = {};
-  allRows.forEach(r => {
-    if (!r.date) return;  // no date → counted in totals above, skipped from monthly trend only
-    const y = r.date.getFullYear(), mo = r.date.getMonth();
-    const lbl = r.date.toLocaleString('en',{month:'short'}) + ' ' + String(y).slice(2);
-    if (!byMonth[lbl]) byMonth[lbl] = {revenue:0,cogs:0,installs:0,projects:0,kw:0,year:y,month:mo,label:lbl};
-    byMonth[lbl].installs += 1;
-    byMonth[lbl].kw       += r.kw;
-    if (r.hasRevenue) {
-      byMonth[lbl].revenue  += r.revenue;
-      byMonth[lbl].cogs     += r.cogs;
-      byMonth[lbl].projects += 1;
-    }
+  const byMonth={};
+  allRows.forEach(r=>{
+    if(!r.date)return;
+    const y=r.date.getFullYear(),mo=r.date.getMonth();
+    const lbl=r.date.toLocaleString('en',{month:'short'})+' '+String(y).slice(2);
+    if(!byMonth[lbl])byMonth[lbl]={revenue:0,cogs:0,installs:0,projects:0,kw:0,year:y,month:mo,label:lbl};
+    byMonth[lbl].installs+=1; byMonth[lbl].kw+=r.kw;
+    if(r.hasRevenue){byMonth[lbl].revenue+=r.revenue;byMonth[lbl].cogs+=r.cogs;byMonth[lbl].projects+=1;}
   });
-  const monthly = Object.values(byMonth)
-    .sort((a,b) => a.year!==b.year ? a.year-b.year : a.month-b.month)
-    .map(m => ({...m, gm: m.revenue-m.cogs, gm_pct: m.revenue?(m.revenue-m.cogs)/m.revenue*100:0}));
+  const monthly=Object.values(byMonth)
+    .sort((a,b)=>a.year!==b.year?a.year-b.year:a.month-b.month)
+    .map(m=>({...m,gm:m.revenue-m.cogs,gm_pct:m.revenue?(m.revenue-m.cogs)/m.revenue*100:0}));
 
-  // ── Quarterly ──
-  const byQtr = {};
-  allRows.forEach(r => {
-    if (!r.date) return;
-    const lbl = qtrLabel(r.date);
-    const q   = monthToQtr(r.date.getMonth());
-    const fy  = fyOfDate(r.date);
-    const fyStart = r.date.getMonth()>=3 ? r.date.getFullYear() : r.date.getFullYear()-1;
-    const qNum = {Q1:1,Q2:2,Q3:3,Q4:4}[q];
-    if (!byQtr[lbl]) byQtr[lbl] = {revenue:0,cogs:0,installs:0,projects:0,kw:0,label:lbl,q,fy,fyStart,qNum};
-    byQtr[lbl].installs += 1;
-    byQtr[lbl].kw       += r.kw;
-    if (r.hasRevenue) {
-      byQtr[lbl].revenue  += r.revenue;
-      byQtr[lbl].cogs     += r.cogs;
-      byQtr[lbl].projects += 1;
-    }
+  const byQtr={};
+  allRows.forEach(r=>{
+    if(!r.date)return;
+    const lbl=qtrLabel(r.date), q=monthToQtr(r.date.getMonth()), fy=fyOfDate(r.date);
+    const fyStart=r.date.getMonth()>=3?r.date.getFullYear():r.date.getFullYear()-1;
+    const qNum={Q1:1,Q2:2,Q3:3,Q4:4}[q];
+    if(!byQtr[lbl])byQtr[lbl]={revenue:0,cogs:0,installs:0,projects:0,kw:0,label:lbl,q,fy,fyStart,qNum};
+    byQtr[lbl].installs+=1; byQtr[lbl].kw+=r.kw;
+    if(r.hasRevenue){byQtr[lbl].revenue+=r.revenue;byQtr[lbl].cogs+=r.cogs;byQtr[lbl].projects+=1;}
   });
-  const quarterly = Object.values(byQtr)
-    .sort((a,b) => a.fyStart!==b.fyStart ? a.fyStart-b.fyStart : a.qNum-b.qNum)
-    .map(q => ({...q, gm:q.revenue-q.cogs, gm_pct:q.revenue?(q.revenue-q.cogs)/q.revenue*100:0}));
+  const quarterly=Object.values(byQtr)
+    .sort((a,b)=>a.fyStart!==b.fyStart?a.fyStart-b.fyStart:a.qNum-b.qNum)
+    .map(q=>({...q,gm:q.revenue-q.cogs,gm_pct:q.revenue?(q.revenue-q.cogs)/q.revenue*100:0}));
 
-  // ── FY ──
-  const byFY = {};
-  allRows.forEach(r => {
-    const fy = fyOfDate(r.date); if (!fy) return;
-    if (!byFY[fy]) byFY[fy] = {fy, revenue:0, cogs:0, installs:0, projects:0, kw:0};
-    byFY[fy].installs += 1;
-    byFY[fy].kw       += r.kw;
-    if (r.hasRevenue) {
-      byFY[fy].revenue  += r.revenue;
-      byFY[fy].cogs     += r.cogs;
-      byFY[fy].projects += 1;
-    }
+  const byFY={};
+  allRows.forEach(r=>{
+    const fy=fyOfDate(r.date);if(!fy)return;
+    if(!byFY[fy])byFY[fy]={fy,revenue:0,cogs:0,installs:0,projects:0,kw:0};
+    byFY[fy].installs+=1; byFY[fy].kw+=r.kw;
+    if(r.hasRevenue){byFY[fy].revenue+=r.revenue;byFY[fy].cogs+=r.cogs;byFY[fy].projects+=1;}
   });
-  const fyArr = Object.values(byFY)
-    .sort((a,b) => a.fy < b.fy ? -1 : 1)
-    .map(f => ({...f, gm:f.revenue-f.cogs, gm_pct:f.revenue?(f.revenue-f.cogs)/f.revenue*100:0}));
+  const fyArr=Object.values(byFY).sort((a,b)=>a.fy<b.fy?-1:1)
+    .map(f=>({...f,gm:f.revenue-f.cogs,gm_pct:f.revenue?(f.revenue-f.cogs)/f.revenue*100:0}));
 
-  // ── Cost components (from revenue rows only) ──
-  const costItems = ['module','inverter','prefab','cables','elecbos','earthing','conduit','jbox','ickit'];
-  const costNames = {module:'Module',inverter:'Inverter',prefab:'Prefab MMS',cables:'Cables',
+  const costItems=['module','inverter','prefab','cables','elecbos','earthing','conduit','jbox','ickit'];
+  const costNames={module:'Module',inverter:'Inverter',prefab:'Prefab MMS',cables:'Cables',
     elecbos:'Electrical BoS',earthing:'Earthing/LA',conduit:'Conduit Pipe',jbox:'Junction Box',ickit:'IC Kit'};
+  const costTotals={};
+  costItems.forEach(k=>{costTotals[k]=revRows.reduce((s,r)=>s+(r[k]||0),0);});
+  const totalCostTracked=Object.values(costTotals).reduce((a,b)=>a+b,0)||1;
+  const revKW=revRows.reduce((s,r)=>s+r.kw,0)||1;
 
-  const costTotals = {};
-  costItems.forEach(k => { costTotals[k] = revRows.reduce((s,r) => s+(r[k]||0), 0); });
-  const totalCostTracked = Object.values(costTotals).reduce((a,b)=>a+b,0)||1;
-  const revKW  = revRows.reduce((s,r)=>s+r.kw, 0) || 1;
+  function extractWp(itemName){
+    if(!itemName)return 0;
+    const m=itemName.match(/(\d+)\s*[Ww][Pp]/);
+    return m?parseInt(m[1]):0;
+  }
+  const getWpR=r=>{const wp=extractWp(r.moduleType);return(wp>0&&r.moduleQty>0)?wp*r.moduleQty:r.kw*1000;};
 
-  // ── Extract Wp rating from module item name e.g. "540 Wp Mono Bifacial" → 540 ──
-  function extractWp(itemName) {
-    if (!itemName) return 0;
-    const m = itemName.match(/(\d+)\s*[Ww][Pp]/);
-    return m ? parseInt(m[1]) : 0;
+  let insightNow=null,insightPrev=null;
+  if(monthly.length>=1){
+    insightNow=monthly[monthly.length-1];
+    const prevYear=insightNow.month===0?insightNow.year-1:insightNow.year;
+    const prevMonth=insightNow.month===0?11:insightNow.month-1;
+    const prevLbl=new Date(prevYear,prevMonth,1).toLocaleString('en',{month:'short'})+' '+String(prevYear).slice(2);
+    const prevInFiltered=allRows.some(r=>r.date&&r.date.getFullYear()===prevYear&&r.date.getMonth()===prevMonth);
+    insightPrev={year:prevYear,month:prevMonth,label:prevLbl,fromLive:!prevInFiltered};
   }
 
-  // ── Determine the two months to compare for ALL MoM analysis ─────────────
-  // Must be defined EARLY — used by buildSubTypeMoM, momData, gmDecomp, cityMoM
-  // Strategy: "now" = last month in filtered data
-  //           "prev" = calendar month before "now", from LIVE_ROWS if not in filtered
-  // This means single-month filters (e.g. Feb only) still get a comparison vs Jan
-  const getWpR = r => { const wp=extractWp(r.moduleType); return (wp>0&&r.moduleQty>0)?wp*r.moduleQty:r.kw*1000; };
+  const iRowsNow=insightNow?allRows.filter(r=>r.date&&r.date.getFullYear()===insightNow.year&&r.date.getMonth()===insightNow.month&&r.hasRevenue):[];
+  const iRowsPrev=insightPrev?(insightPrev.fromLive?LIVE_ROWS:allRows).filter(r=>r.date&&r.date.getFullYear()===insightPrev.year&&r.date.getMonth()===insightPrev.month&&r.hasRevenue):[];
 
-  let insightNow = null, insightPrev = null;
-  if (monthly.length >= 1) {
-    insightNow = monthly[monthly.length-1];
-    const prevYear  = insightNow.month === 0 ? insightNow.year-1 : insightNow.year;
-    const prevMonth = insightNow.month === 0 ? 11 : insightNow.month-1;
-    const prevLbl   = new Date(prevYear, prevMonth, 1)
-                        .toLocaleString('en',{month:'short'}) + ' ' + String(prevYear).slice(2);
-    const prevInFiltered = allRows.some(r => r.date && r.date.getFullYear()===prevYear && r.date.getMonth()===prevMonth);
-    insightPrev = { year: prevYear, month: prevMonth, label: prevLbl, fromLive: !prevInFiltered };
-  }
+  const totalWp=revRows.reduce((s,r)=>{const wp=extractWp(r.moduleType);return s+(wp>0&&r.moduleQty>0?wp*r.moduleQty:0);},0)||1;
 
-  // rows for "now" and "prev" — used everywhere below
-  const iRowsNow  = insightNow  ? allRows.filter(r => r.date &&
-    r.date.getFullYear()===insightNow.year  && r.date.getMonth()===insightNow.month  && r.hasRevenue) : [];
-  const iRowsPrev = insightPrev ? (insightPrev.fromLive ? LIVE_ROWS : allRows).filter(r => r.date &&
-    r.date.getFullYear()===insightPrev.year && r.date.getMonth()===insightPrev.month && r.hasRevenue) : [];
-
-  // ── Total Wp installed (module_qty × Wp per panel) across all rev rows ──
-  const totalWp = revRows.reduce((s,r) => {
-    const wp = extractWp(r.moduleType);
-    return s + (wp > 0 && r.moduleQty > 0 ? wp * r.moduleQty : 0);
-  }, 0) || 1;
-
-  // ── Sub-type breakdowns: Module (₹/Wp) and Inverter (₹/kW) ──
-  const moduleTypes = {}, inverterTypes = {};
-  revRows.forEach(r => {
-    if (r.moduleType && (r.module||0) > 0) {
-      if (!moduleTypes[r.moduleType])
-        moduleTypes[r.moduleType] = {name:r.moduleType, total:0, count:0, totalWp:0, kw:0};
-      const wp = extractWp(r.moduleType);
-      moduleTypes[r.moduleType].total   += r.module;
-      moduleTypes[r.moduleType].count   += 1;
-      moduleTypes[r.moduleType].totalWp += (wp > 0 && r.moduleQty > 0 ? wp * r.moduleQty : 0);
-      moduleTypes[r.moduleType].kw      += r.kw;
+  const moduleTypes={},inverterTypes={};
+  revRows.forEach(r=>{
+    if(r.moduleType&&(r.module||0)>0){
+      if(!moduleTypes[r.moduleType])moduleTypes[r.moduleType]={name:r.moduleType,total:0,count:0,totalWp:0,kw:0};
+      const wp=extractWp(r.moduleType);
+      moduleTypes[r.moduleType].total+=r.module;moduleTypes[r.moduleType].count+=1;
+      moduleTypes[r.moduleType].totalWp+=(wp>0&&r.moduleQty>0?wp*r.moduleQty:0);
+      moduleTypes[r.moduleType].kw+=r.kw;
     }
-    if (r.inverterType && (r.inverter||0) > 0) {
-      if (!inverterTypes[r.inverterType])
-        inverterTypes[r.inverterType] = {name:r.inverterType, total:0, count:0, kw:0};
-      inverterTypes[r.inverterType].total += r.inverter;
-      inverterTypes[r.inverterType].count += 1;
-      inverterTypes[r.inverterType].kw    += r.kw;
+    if(r.inverterType&&(r.inverter||0)>0){
+      if(!inverterTypes[r.inverterType])inverterTypes[r.inverterType]={name:r.inverterType,total:0,count:0,kw:0};
+      inverterTypes[r.inverterType].total+=r.inverter;inverterTypes[r.inverterType].count+=1;
+      inverterTypes[r.inverterType].kw+=r.kw;
     }
   });
 
-  // ── Per sub-type MoM: use same insightNow/insightPrev months ──
-  function buildSubTypeMoM(typeKey, costField) {
-    if (!insightNow || !insightPrev) return {};
-    const rL = iRowsNow;
-    const rP = iRowsPrev;
-    if (!rL.length || !rP.length) return {};
-
-    const mom = {};
-    [['now', rL], ['prev', rP]].forEach(([tag, rows]) => {
-      rows.forEach(r => {
-        const typeName = r[typeKey];
-        if (!typeName || !(r[costField] > 0)) return;
-        if (!mom[typeName]) mom[typeName] = {now:{cost:0,size:0,count:0}, prev:{cost:0,size:0,count:0}};
-        const bucket = mom[typeName][tag];
-        bucket.cost  += r[costField];
-        bucket.count += 1;
-        const wp = extractWp(r.moduleType);
-        bucket.size += (wp > 0 && r.moduleQty > 0 ? wp * r.moduleQty : r.kw * 1000);
+  function buildSubTypeMoM(typeKey,costField){
+    if(!insightNow||!insightPrev)return {};
+    const rL=iRowsNow,rP=iRowsPrev;
+    if(!rL.length||!rP.length)return {};
+    const mom={};
+    [['now',rL],['prev',rP]].forEach(([tag,rows])=>{
+      rows.forEach(r=>{
+        const typeName=r[typeKey];
+        if(!typeName||!(r[costField]>0))return;
+        if(!mom[typeName])mom[typeName]={now:{cost:0,size:0,count:0},prev:{cost:0,size:0,count:0}};
+        const bucket=mom[typeName][tag];
+        bucket.cost+=r[costField];bucket.count+=1;
+        const wp=extractWp(r.moduleType);
+        bucket.size+=(wp>0&&r.moduleQty>0?wp*r.moduleQty:r.kw*1000);
       });
     });
-
-    const result = {};
-    Object.entries(mom).forEach(([name, d]) => {
-      const avgCostNow  = d.now.count  ? d.now.cost  / d.now.count  : 0;
-      const avgCostPrev = d.prev.count ? d.prev.cost / d.prev.count : 0;
-      const avgSizeNow  = d.now.count  ? d.now.size  / d.now.count  : 0;
-      const avgSizePrev = d.prev.count ? d.prev.size / d.prev.count : 0;
-      const normNow  = avgSizeNow  > 0 ? avgCostNow  / avgSizeNow  : 0;
-      const normPrev = avgSizePrev > 0 ? avgCostPrev / avgSizePrev : 0;
-      const normChg  = normPrev > 0 ? (normNow - normPrev) / normPrev * 100 : 0;
-      result[name] = {
-        normNow, normPrev, normChg,
-        isGenuine: Math.abs(normChg) > 0 && normPrev > 0,
-        unit: '₹/Wp',
-        lblNow:  insightNow.label,
-        lblPrev: insightPrev.label,
-        hasData: d.now.count > 0 && d.prev.count > 0,
-      };
+    const result={};
+    Object.entries(mom).forEach(([name,d])=>{
+      const avgCostNow=d.now.count?d.now.cost/d.now.count:0;
+      const avgCostPrev=d.prev.count?d.prev.cost/d.prev.count:0;
+      const avgSizeNow=d.now.count?d.now.size/d.now.count:0;
+      const avgSizePrev=d.prev.count?d.prev.size/d.prev.count:0;
+      const normNow=avgSizeNow>0?avgCostNow/avgSizeNow:0;
+      const normPrev=avgSizePrev>0?avgCostPrev/avgSizePrev:0;
+      const normChg=normPrev>0?(normNow-normPrev)/normPrev*100:0;
+      result[name]={normNow,normPrev,normChg,isGenuine:Math.abs(normChg)>0&&normPrev>0,unit:'₹/Wp',
+        lblNow:insightNow.label,lblPrev:insightPrev.label,hasData:d.now.count>0&&d.prev.count>0};
     });
     return result;
   }
 
-  const moduleMoM   = buildSubTypeMoM('moduleType',   'module');
-  const inverterMoM = buildSubTypeMoM('inverterType', 'inverter');
+  const moduleMoM=buildSubTypeMoM('moduleType','module');
+  const inverterMoM=buildSubTypeMoM('inverterType','inverter');
 
-  const moduleSubTypes = Object.values(moduleTypes).map(t => ({
-    ...t,
-    avg:  t.count  ? Math.round(t.total / t.count) : 0,
-    unit: '₹/Wp',
-    rpw:  t.totalWp > 0 ? t.total / t.totalWp : 0,
-    mom:  moduleMoM[t.name] || null,
-  })).sort((a,b) => b.total - a.total);
+  const moduleSubTypes=Object.values(moduleTypes).map(t=>({
+    ...t,avg:t.count?Math.round(t.total/t.count):0,unit:'₹/Wp',
+    rpw:t.totalWp>0?t.total/t.totalWp:0,mom:moduleMoM[t.name]||null,
+  })).sort((a,b)=>b.total-a.total);
 
-  const inverterSubTypes = Object.values(inverterTypes).map(t => ({
-    ...t,
-    avg:  t.count ? Math.round(t.total / t.count) : 0,
-    unit: '₹/Wp',
-    rpw:  t.kw > 0 ? t.total / (t.kw * 1000) : 0,   // ₹/Wp = cost / (kW × 1000)
-    mom:  inverterMoM[t.name] || null,
-  })).sort((a,b) => b.total - a.total);
+  const inverterSubTypes=Object.values(inverterTypes).map(t=>({
+    ...t,avg:t.count?Math.round(t.total/t.count):0,unit:'₹/Wp',
+    rpw:t.kw>0?t.total/(t.kw*1000):0,mom:inverterMoM[t.name]||null,
+  })).sort((a,b)=>b.total-a.total);
 
-  // ── MoM genuine rate analysis — uses same insightNow/insightPrev ─────────
-  const momData = {};
-  if (insightNow && insightPrev && iRowsNow.length && iRowsPrev.length) {
-    costItems.forEach(k => {
-      const rL = iRowsNow, rP = iRowsPrev;
-      const cntL = rL.length || 1,  cntP = rP.length || 1;
-
-      const getWp = r => { const wp=extractWp(r.moduleType); return (wp>0&&r.moduleQty>0)?wp*r.moduleQty:r.kw*1000; };
-      const sizeL = rL.reduce((s,r)=>s+getWp(r),0);
-      const sizeP = rP.reduce((s,r)=>s+getWp(r),0);
-
-      const costL = rL.reduce((s,r)=>s+(r[k]||0),0);
-      const costP = rP.reduce((s,r)=>s+(r[k]||0),0);
-
-      const avgCostL = costL / cntL,  avgCostP = costP / cntP;
-      const avgSizeL = sizeL / cntL,  avgSizeP = sizeP / cntP;
-
-      const normL = avgSizeL > 0 ? avgCostL / avgSizeL : 0;
-      const normP = avgSizeP > 0 ? avgCostP / avgSizeP : 0;
-      const rawL  = sizeL > 0 ? costL / sizeL : 0;
-      const rawP  = sizeP > 0 ? costP / sizeP : 0;
-
-      const kwL   = rL.reduce((s,r)=>s+r.kw,0) / cntL;
-      const kwP   = rP.reduce((s,r)=>s+r.kw,0) / cntP;
-      const aosChg = kwP > 0 ? (kwL-kwP)/kwP*100 : 0;
-
-      const normChg = normP > 0 ? (normL-normP)/normP*100 : 0;
-      const rawChg  = rawP  > 0 ? (rawL-rawP)/rawP*100   : 0;
-
-      momData[k] = {
-        rawNow: rawL, rawPrev: rawP,
-        normNow: normL, normPrev: normP,
-        normChg, rawChg, aosChg,
-        aosNow: kwL, aosPrev: kwP,
-        isGenuine: Math.abs(normChg) > 0,
-        unit: '₹/Wp',
-        lblNow:  insightNow.label,
-        lblPrev: insightPrev.label,
-      };
+  const momData={};
+  if(insightNow&&insightPrev&&iRowsNow.length&&iRowsPrev.length){
+    costItems.forEach(k=>{
+      const rL=iRowsNow,rP=iRowsPrev;
+      const cntL=rL.length||1,cntP=rP.length||1;
+      const getWp=r=>{const wp=extractWp(r.moduleType);return(wp>0&&r.moduleQty>0)?wp*r.moduleQty:r.kw*1000;};
+      const sizeL=rL.reduce((s,r)=>s+getWp(r),0);const sizeP=rP.reduce((s,r)=>s+getWp(r),0);
+      const costL=rL.reduce((s,r)=>s+(r[k]||0),0);const costP=rP.reduce((s,r)=>s+(r[k]||0),0);
+      const avgCostL=costL/cntL,avgCostP=costP/cntP;
+      const avgSizeL=sizeL/cntL,avgSizeP=sizeP/cntP;
+      const normL=avgSizeL>0?avgCostL/avgSizeL:0;const normP=avgSizeP>0?avgCostP/avgSizeP:0;
+      const rawL=sizeL>0?costL/sizeL:0;const rawP=sizeP>0?costP/sizeP:0;
+      const kwL=rL.reduce((s,r)=>s+r.kw,0)/cntL;const kwP=rP.reduce((s,r)=>s+r.kw,0)/cntP;
+      const aosChg=kwP>0?(kwL-kwP)/kwP*100:0;
+      const normChg=normP>0?(normL-normP)/normP*100:0;
+      const rawChg=rawP>0?(rawL-rawP)/rawP*100:0;
+      momData[k]={rawNow:rawL,rawPrev:rawP,normNow:normL,normPrev:normP,normChg,rawChg,aosChg,
+        aosNow:kwL,aosPrev:kwP,isGenuine:Math.abs(normChg)>0,unit:'₹/Wp',
+        lblNow:insightNow.label,lblPrev:insightPrev.label};
     });
   }
 
-  // All components in ₹/Wp — consistent unit across the board
-  // totalWp = sum of (module_qty × Wp rating) per project
-  const costs = costItems
-    .filter(k => costTotals[k] > 0)
-    .map(k => ({
-      item:      costNames[k],
-      key:       k,
-      total:     costTotals[k],
-      avg:       Math.round(costTotals[k] / (totRevProj||1)),
-      share:     costTotals[k] / totalCostTracked * 100,
-      unitRate:  totalWp > 0 ? costTotals[k] / totalWp : 0,  // ₹/Wp for ALL items
-      unitLabel: '₹/Wp',
-      mom:       momData[k] || null,
-      subTypes:  k==='module' ? moduleSubTypes : k==='inverter' ? inverterSubTypes : [],
-    }))
-    .sort((a,b) => b.total - a.total);
+  const costs=costItems.filter(k=>costTotals[k]>0).map(k=>({
+    item:costNames[k],key:k,total:costTotals[k],
+    avg:Math.round(costTotals[k]/(totRevProj||1)),
+    share:costTotals[k]/totalCostTracked*100,
+    unitRate:totalWp>0?costTotals[k]/totalWp:0,
+    unitLabel:'₹/Wp',mom:momData[k]||null,
+    subTypes:k==='module'?moduleSubTypes:k==='inverter'?inverterSubTypes:[],
+  })).sort((a,b)=>b.total-a.total);
 
-  // ── GM% decomposition: why did overall GM% change vs prev month? ──────────
-  let gmDecomp = null;
-  if (iRowsNow.length && iRowsPrev.length) {
-    const rL = iRowsNow, rP = iRowsPrev;
-    const wpL = rL.reduce((s,r)=>s+getWpR(r),0)||1;
-    const wpP = rP.reduce((s,r)=>s+getWpR(r),0)||1;
-
-    const revL = rL.reduce((s,r)=>s+r.revenue,0), revP = rP.reduce((s,r)=>s+r.revenue,0);
-    const cogL = rL.reduce((s,r)=>s+r.cogs,0),    cogP = rP.reduce((s,r)=>s+r.cogs,0);
-    const gmPctL = revL>0?(revL-cogL)/revL*100:0;
-    const gmPctP = revP>0?(revP-cogP)/revP*100:0;
-    const gmChg  = gmPctL - gmPctP;
-
-    const revWpL = revL/wpL, revWpP = revP/wpP;
-    const cogWpL = cogL/wpL, cogWpP = cogP/wpP;
-
-    const priceEffect = revWpP > 0 ? (revWpL - revWpP) / revWpL * 100 * (revL>0?1:0) : 0;
-
-    const costEffects = [];
-    costItems.forEach(k => {
-      const cL = rL.reduce((s,r)=>s+(r[k]||0),0);
-      const cP = rP.reduce((s,r)=>s+(r[k]||0),0);
-      const rateL = cL/wpL, rateP = cP/wpP;
-      const rateDiff = rateL - rateP;
-      const gmImpact = revWpL > 0 ? -(rateDiff / revWpL) * 100 : 0;
-      if (Math.abs(gmImpact) > 0.05) {
-        costEffects.push({ name: costNames[k], key: k, rateL, rateP, rateDiff, gmImpact });
-      }
+  let gmDecomp=null;
+  if(iRowsNow.length&&iRowsPrev.length){
+    const rL=iRowsNow,rP=iRowsPrev;
+    const wpL=rL.reduce((s,r)=>s+getWpR(r),0)||1;
+    const wpP=rP.reduce((s,r)=>s+getWpR(r),0)||1;
+    const revL=rL.reduce((s,r)=>s+r.revenue,0),revP=rP.reduce((s,r)=>s+r.revenue,0);
+    const cogL=rL.reduce((s,r)=>s+r.cogs,0),cogP=rP.reduce((s,r)=>s+r.cogs,0);
+    const gmPctL=revL>0?(revL-cogL)/revL*100:0;
+    const gmPctP=revP>0?(revP-cogP)/revP*100:0;
+    const gmChg=gmPctL-gmPctP;
+    const revWpL=revL/wpL,revWpP=revP/wpP;
+    const cogWpL=cogL/wpL,cogWpP=cogP/wpP;
+    const priceEffect=revWpP>0?(revWpL-revWpP)/revWpL*100*(revL>0?1:0):0;
+    const costEffects=[];
+    costItems.forEach(k=>{
+      const cL=rL.reduce((s,r)=>s+(r[k]||0),0);const cP=rP.reduce((s,r)=>s+(r[k]||0),0);
+      const rateL=cL/wpL,rateP=cP/wpP;const rateDiff=rateL-rateP;
+      const gmImpact=revWpL>0?-(rateDiff/revWpL)*100:0;
+      if(Math.abs(gmImpact)>0.05)costEffects.push({name:costNames[k],key:k,rateL,rateP,rateDiff,gmImpact});
     });
-    costEffects.sort((a,b) => a.gmImpact - b.gmImpact);
-
-    const cityMixEffect = gmChg - priceEffect - costEffects.reduce((s,e)=>s+e.gmImpact,0);
-
-    gmDecomp = {
-      gmPctNow: gmPctL, gmPctPrev: gmPctP, gmChg,
-      lblNow: insightNow.label, lblPrev: insightPrev.label,
-      priceEffect, costEffects,
-      cityMixEffect: isNaN(cityMixEffect) ? 0 : cityMixEffect,
-      revWpNow: revWpL, revWpPrev: revWpP,
-      cogWpNow: cogWpL, cogWpPrev: cogWpP,
-    };
+    costEffects.sort((a,b)=>a.gmImpact-b.gmImpact);
+    const cityMixEffect=gmChg-priceEffect-costEffects.reduce((s,e)=>s+e.gmImpact,0);
+    gmDecomp={gmPctNow:gmPctL,gmPctPrev:gmPctP,gmChg,lblNow:insightNow?insightNow.label:'',
+      lblPrev:insightPrev?insightPrev.label:'',priceEffect,costEffects,
+      cityMixEffect:isNaN(cityMixEffect)?0:cityMixEffect,revWpNow:revWpL,revWpPrev:revWpP,cogWpNow:cogWpL,cogWpPrev:cogWpP};
   }
 
-  // ── City-level MoM for insight generation ────────────────────────────────
-  const cityMoM = {};
-  if (iRowsNow.length && iRowsPrev.length && insightNow && insightPrev) {
-    const rL = iRowsNow, rP = iRowsPrev;
-    const allCities = [...new Set([...rL.map(r=>r.city), ...rP.map(r=>r.city)].filter(Boolean))];
-    allCities.forEach(city => {
-      const cL = rL.filter(r=>r.city===city), cP = rP.filter(r=>r.city===city);
-      if (!cL.length && !cP.length) return;
-      const revL=cL.reduce((s,r)=>s+r.revenue,0), revP=cP.reduce((s,r)=>s+r.revenue,0);
-      const cogL=cL.reduce((s,r)=>s+r.cogs,0),    cogP=cP.reduce((s,r)=>s+r.cogs,0);
-      const gmPctL=revL>0?(revL-cogL)/revL*100:0, gmPctP=revP>0?(revP-cogP)/revP*100:0;
-      const kwL=cL.reduce((s,r)=>s+r.kw,0), kwP=cP.reduce((s,r)=>s+r.kw,0);
-      const aosL=cL.length?kwL/cL.length:0, aosP=cP.length?kwP/cP.length:0;
-      cityMoM[city] = {
-        revNow:revL, revPrev:revP, revChg: revP>0?(revL-revP)/revP*100:null,
-        gmPctNow:gmPctL, gmPctPrev:gmPctP, gmChg:gmPctL-gmPctP,
-        cogNow:cogL, cogPrev:cogP,
-        aosNow:aosL, aosPrev:aosP, aosChg:aosP>0?(aosL-aosP)/aosP*100:null,
-        cntNow:cL.length, cntPrev:cP.length,
-        lblNow:insightNow.label, lblPrev:insightPrev.label,
-      };
+  const cityMoM={};
+  if(iRowsNow.length&&iRowsPrev.length&&insightNow&&insightPrev){
+    const rL=iRowsNow,rP=iRowsPrev;
+    const allCities=[...new Set([...rL.map(r=>r.city),...rP.map(r=>r.city)].filter(Boolean))];
+    allCities.forEach(city=>{
+      const cL=rL.filter(r=>r.city===city),cP=rP.filter(r=>r.city===city);
+      if(!cL.length&&!cP.length)return;
+      const revL=cL.reduce((s,r)=>s+r.revenue,0),revP=cP.reduce((s,r)=>s+r.revenue,0);
+      const cogL=cL.reduce((s,r)=>s+r.cogs,0),cogP=cP.reduce((s,r)=>s+r.cogs,0);
+      const gmPctL=revL>0?(revL-cogL)/revL*100:0,gmPctP=revP>0?(revP-cogP)/revP*100:0;
+      const kwL=cL.reduce((s,r)=>s+r.kw,0),kwP=cP.reduce((s,r)=>s+r.kw,0);
+      const aosL=cL.length?kwL/cL.length:0,aosP=cP.length?kwP/cP.length:0;
+      cityMoM[city]={revNow:revL,revPrev:revP,revChg:revP>0?(revL-revP)/revP*100:null,
+        gmPctNow:gmPctL,gmPctPrev:gmPctP,gmChg:gmPctL-gmPctP,
+        cogNow:cogL,cogPrev:cogP,aosNow:aosL,aosPrev:aosP,
+        aosChg:aosP>0?(aosL-aosP)/aosP*100:null,cntNow:cL.length,cntPrev:cP.length,
+        lblNow:insightNow.label,lblPrev:insightPrev.label};
     });
   }
 
   return {
-    kpis: {
-      total_installs:  totInstalls,    // ✅ ALL SSE ID count
-      revenue_projects: totRevProj,    // rows with revenue > 0
-      total_revenue:   totRev,
-      total_cogs:      totCOGS,
-      total_gm:        totGM,
-      avg_gm_pct:      totRev ? totGM / totRev * 100 : 0,
-      avg_aov:         totRevProj ? totRev  / totRevProj : 0,
-      avg_aos:         totInstalls ? totKW  / totInstalls : 0,
-      total_kw:        totKW,
-      ic_cogs:         totCOGS,
-      onm_qhse:        totCOGS * 0.034,
-    },
-    monthly, quarterly, fy: fyArr,
-    cities:  mapDim(agg(allRows, r=>r.city),  'city').slice(0,30),
-    states:  mapDim(agg(allRows, r=>r.state), 'state'),
-    offers:  mapDim(agg(allRows, r=>r.offer), 'offer'),
-    phases:  mapDim(agg(allRows, r=>r.phase), 'phase'),
-    costs, gmDecomp, cityMoM,
+    kpis:{total_installs:totInstalls,revenue_projects:totRevProj,total_revenue:totRev,
+      total_cogs:totCOGS,total_gm:totGM,avg_gm_pct:totRev?totGM/totRev*100:0,
+      avg_aov:totRevProj?totRev/totRevProj:0,avg_aos:totInstalls?totKW/totInstalls:0,
+      total_kw:totKW,ic_cogs:totCOGS,onm_qhse:totCOGS*0.034},
+    monthly,quarterly,fy:fyArr,
+    cities:mapDim(agg(allRows,r=>r.city),'city').slice(0,30),
+    states:mapDim(agg(allRows,r=>r.state),'state'),
+    offers:mapDim(agg(allRows,r=>r.offer),'offer'),
+    phases:mapDim(agg(allRows,r=>r.phase),'phase'),
+    costs,gmDecomp,cityMoM,
   };
 }
 
 // ════════════════════════════════════════════════════
 // FILTER ENGINE
 // ════════════════════════════════════════════════════
-function applyFilters() {
-  const fFY       = document.getElementById('fFY').value;
-  const fState    = document.getElementById('fState').value;
-  const fCity     = document.getElementById('fCity').value;
-  const fOffer    = document.getElementById('fOffer').value;
-  const fPhase    = document.getElementById('fPhase').value;
-  const fDateFrom = document.getElementById('fDateFrom').value;
-  const fDateTo   = document.getElementById('fDateTo').value;
-  const fQtr      = ACTIVE_QTR;
+function applyFilters(){
+  const fFY=document.getElementById('fFY').value;
+  const fState=document.getElementById('fState').value;
+  const fCity=document.getElementById('fCity').value;
+  const fOffer=document.getElementById('fOffer').value;
+  const fPhase=document.getElementById('fPhase').value;
+  const fDateFrom=document.getElementById('fDateFrom').value;
+  const fDateTo=document.getElementById('fDateTo').value;
+  const fQtr=ACTIVE_QTR;
 
-  // Parse date inputs as LOCAL dates (avoid UTC midnight timezone shift)
-  // e.g. "2026-01-31" → local Jan 31 start-of-day, not UTC midnight
-  function localDate(str) {
-    const [y,m,d] = str.split('-').map(Number);
-    return new Date(y, m-1, d);          // local midnight — no timezone shift
-  }
-  const dateFrom = fDateFrom ? localDate(fDateFrom) : null;
-  const dateTo   = fDateTo   ? (() => { const d = localDate(fDateTo); d.setHours(23,59,59,999); return d; })() : null;
-  const qtrMonths = getQtrMonths(fQtr);
+  function localDate(str){const[y,m,d]=str.split('-').map(Number);return new Date(y,m-1,d);}
+  const dateFrom=fDateFrom?localDate(fDateFrom):null;
+  const dateTo=fDateTo?(()=>{const d=localDate(fDateTo);d.setHours(23,59,59,999);return d;})():null;
+  const qtrMonths=getQtrMonths(fQtr);
 
-  // Filter all rows — no revenue condition anywhere
-  const filtered = LIVE_ROWS.filter(r => {
-    if (fCity  && r.city  !== fCity)   return false;
-    if (fState && r.state !== fState)  return false;
-    if (fPhase && r.phase !== fPhase)  return false;
-    if (fOffer && r.offer !== fOffer)  return false;
-    if (r.date) {
-      if (fFY      && fyOfDate(r.date) !== fFY)                        return false;
-      if (dateFrom && r.date < dateFrom)                               return false;
-      if (dateTo   && r.date > dateTo)                                 return false;
-      if (qtrMonths && !qtrMonths.includes(r.date.getMonth()))         return false;
-    } else {
-      // Row has no parsed date — try raw string match for date range
-      // Keep it if no date filter active; exclude only if date filter is set
-      if (fFY || qtrMonths) return false;
-      if (dateFrom || dateTo) {
-        // Try to match raw date string — keep row rather than lose it
-        // (already logged as parseDate warning in console)
-        return true;  // include in count — don't silently drop
-      }
+  const filtered=LIVE_ROWS.filter(r=>{
+    if(fCity&&r.city!==fCity)return false;
+    if(fState&&r.state!==fState)return false;
+    if(fPhase&&r.phase!==fPhase)return false;
+    if(fOffer&&r.offer!==fOffer)return false;
+    if(r.date){
+      if(fFY&&fyOfDate(r.date)!==fFY)return false;
+      if(dateFrom&&r.date<dateFrom)return false;
+      if(dateTo&&r.date>dateTo)return false;
+      if(qtrMonths&&!qtrMonths.includes(r.date.getMonth()))return false;
+    }else{
+      if(fFY||qtrMonths)return false;
+      if(dateFrom||dateTo)return true;
     }
     return true;
   });
 
-  const active = [fFY, fState, fCity, fOffer, fPhase, fQtr,
-    fDateFrom?`From ${fDateFrom}`:'', fDateTo?`To ${fDateTo}`:''].filter(Boolean);
-  document.getElementById('filterStatus').textContent =
-    active.length ? `Filters: ${active.join(' · ')}` : 'No filters active';
-  document.getElementById('rowInfo').textContent =
-    `${filtered.length.toLocaleString()} of ${LIVE_ROWS.length.toLocaleString()} installs`;
+  const active=[fFY,fState,fCity,fOffer,fPhase,fQtr,fDateFrom?`From ${fDateFrom}`:'',fDateTo?`To ${fDateTo}`:''].filter(Boolean);
+  document.getElementById('filterStatus').textContent=active.length?`Filters: ${active.join(' · ')}`:'No filters active';
+  document.getElementById('rowInfo').textContent=`${filtered.length.toLocaleString()} of ${LIVE_ROWS.length.toLocaleString()} installs`;
 
-  // ✅ Log filter result — confirms correct version is running
-  const activeDesc = [
-    fFY?`FY:${fFY}`:'FY:All',
-    fQtr?`Q:${fQtr}`:'Q:All',
-    fState?`State:${fState}`:'State:All',
-    fCity?`City:${fCity}`:'City:All',
-    fPhase?`Phase:${fPhase}`:'Phase:All',
-    fOffer?`Offer:${fOffer}`:'',
-    fDateFrom?`From:${fDateFrom}`:'',
-    fDateTo?`To:${fDateTo}`:'',
-  ].filter(Boolean).join(' | ');
-  console.log(`✅ Filter result: ${filtered.length} / ${LIVE_ROWS.length} installs | ${activeDesc}`);
-
-  // 🔍 DIAGNOSTIC: when date range is active, show exactly which rows are excluded
-  if (dateFrom && dateTo) {
-    const excluded = LIVE_ROWS.filter(r => {
-      // passes all non-date filters
-      if (fCity  && r.city  !== fCity)  return false;
-      if (fState && r.state !== fState) return false;
-      if (fPhase && r.phase !== fPhase) return false;
-      if (fOffer && r.offer !== fOffer) return false;
-      // has a date — but date falls OUTSIDE range
-      if (r.date && (r.date < dateFrom || r.date > dateTo)) return true;
-      return false;
-    });
-    // Among excluded, find ones whose RAW date string contains the target month
-    const targetYear  = fDateFrom.slice(0,4);   // "2026"
-    const targetMonth = fDateFrom.slice(5,7);   // "01"
-    const suspicious = excluded.filter(r =>
-      r._rawDate && (r._rawDate.includes(`-${targetMonth}-${targetYear}`) ||
-                     r._rawDate.includes(`/${targetMonth}/${targetYear}`) ||
-                     r._rawDate.includes(`${targetYear}-${targetMonth}`))
-    );
-    if (suspicious.length) {
-      console.warn(`⚠ ${suspicious.length} rows have Jan'26 in raw date but parsed to wrong date:`);
-      suspicious.slice(0,10).forEach(r =>
-        console.warn(`  ID:${r.id}  raw:"${r._rawDate}"  parsed:${r.date}`)
-      );
-    }
-    // Also log any rows with no parsed date at all
-    const nullDates = LIVE_ROWS.filter(r => !r.date);
-    if (nullDates.length) {
-      console.warn(`⚠ ${nullDates.length} rows with null date:`,
-        nullDates.slice(0,5).map(r => ({id:r.id, raw:r._rawDate})));
-    }
+  if(!filtered.length){
+    document.getElementById('statusTxt').textContent='⚠ No data matches this filter combination';
+    FILTERED=buildEmptyData();renderAll();return;
   }
-
-  if (!filtered.length) {
-    document.getElementById('statusTxt').textContent = '⚠ No data matches this filter combination';
-    FILTERED = buildEmptyData();
-    renderAll(); return;
-  }
-
-  FILTERED = aggregateRows(filtered);
+  FILTERED=aggregateRows(filtered);
   renderAll();
 }
 
-function clearAllFilters() {
-  ['fFY','fState','fCity','fOffer','fPhase','fDateFrom','fDateTo']
-    .forEach(id => { document.getElementById(id).value = ''; });
-  ACTIVE_QTR = '';
-  STATE_EXPANDED.clear();
-  COST_EXPANDED.clear();
-  document.querySelectorAll('.qtr-pill').forEach(p => p.classList.remove('active'));
-  const allPill = document.querySelector('.qtr-pill[data-qtr=""]');
-  if (allPill) allPill.classList.add('active');
-  FILTERED = aggregateRows(LIVE_ROWS);
-  document.getElementById('filterStatus').textContent = 'No filters active';
-  document.getElementById('rowInfo').textContent = `${LIVE_ROWS.length.toLocaleString()} installs`;
+function clearAllFilters(){
+  ['fFY','fState','fCity','fOffer','fPhase','fDateFrom','fDateTo'].forEach(id=>{document.getElementById(id).value='';});
+  ACTIVE_QTR='';STATE_EXPANDED.clear();COST_EXPANDED.clear();
+  document.querySelectorAll('.qtr-pill').forEach(p=>p.classList.remove('active'));
+  const allPill=document.querySelector('.qtr-pill[data-qtr=""]');
+  if(allPill)allPill.classList.add('active');
+  FILTERED=aggregateRows(LIVE_ROWS);
+  document.getElementById('filterStatus').textContent='No filters active';
+  document.getElementById('rowInfo').textContent=`${LIVE_ROWS.length.toLocaleString()} installs`;
   renderAll();
 }
 
 // ════════════════════════════════════════════════════
 // POPULATE FILTER DROPDOWNS
 // ════════════════════════════════════════════════════
-function populateFilters(selectedState) {
-  const states = [...new Set(LIVE_ROWS.map(r=>r.state).filter(Boolean))].sort();
-  const offers = [...new Set(LIVE_ROWS.map(r=>r.offer).filter(Boolean))].sort();
-
-  const fStateEl = document.getElementById('fState');
-  const fCityEl  = document.getElementById('fCity');
-  const fOfferEl = document.getElementById('fOffer');
-
-  fStateEl.innerHTML = '<option value="">All</option>' + states.map(s=>`<option>${s}</option>`).join('');
-  fOfferEl.innerHTML = '<option value="">All</option>' + offers.map(o=>`<option>${o}</option>`).join('');
-
-  // City dropdown: filter by selected state if any
-  const activeState = selectedState || document.getElementById('fState').value || '';
-  const cityRows = activeState ? LIVE_ROWS.filter(r=>r.state===activeState) : LIVE_ROWS;
-  const cities = [...new Set(cityRows.map(r=>r.city).filter(Boolean))].sort();
-  fCityEl.innerHTML = '<option value="">All</option>' + cities.map(c=>`<option>${c}</option>`).join('');
-
-  // Re-apply state selection
-  if (selectedState) fStateEl.value = selectedState;
+function populateFilters(selectedState){
+  const states=[...new Set(LIVE_ROWS.map(r=>r.state).filter(Boolean))].sort();
+  const offers=[...new Set(LIVE_ROWS.map(r=>r.offer).filter(Boolean))].sort();
+  document.getElementById('fState').innerHTML='<option value="">All</option>'+states.map(s=>`<option>${s}</option>`).join('');
+  document.getElementById('fOffer').innerHTML='<option value="">All</option>'+offers.map(o=>`<option>${o}</option>`).join('');
+  const activeState=selectedState||document.getElementById('fState').value||'';
+  const cityRows=activeState?LIVE_ROWS.filter(r=>r.state===activeState):LIVE_ROWS;
+  const cities=[...new Set(cityRows.map(r=>r.city).filter(Boolean))].sort();
+  document.getElementById('fCity').innerHTML='<option value="">All</option>'+cities.map(c=>`<option>${c}</option>`).join('');
+  if(selectedState)document.getElementById('fState').value=selectedState;
 }
 
-function onStateFilterChange() {
-  const selectedState = document.getElementById('fState').value;
-  // Reset city when state changes
-  document.getElementById('fCity').value = '';
+function onStateFilterChange(){
+  const selectedState=document.getElementById('fState').value;
+  document.getElementById('fCity').value='';
   populateFilters(selectedState);
   applyFilters();
 }
@@ -1150,102 +975,245 @@ function onStateFilterChange() {
 // ════════════════════════════════════════════════════
 // KPI STRIP RENDER
 // ════════════════════════════════════════════════════
-function renderKPIs() {
-  const k = FILTERED.kpis;
-  const totKW = k.total_kw || 0;
-  const gmPerWatt   = totKW > 0 ? k.total_gm   / (totKW * 1000) : 0;
-  const cogsPerWatt = totKW > 0 ? k.total_cogs / (totKW * 1000) : 0;
+function renderKPIs(){
+  const k=FILTERED.kpis;
+  const totKW=k.total_kw||0;
+  const gmPerWatt=totKW>0?k.total_gm/(totKW*1000):0;
+  const cogsPerWatt=totKW>0?k.total_cogs/(totKW*1000):0;
+  const s=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+  const sc=(id,v,c)=>{const el=document.getElementById(id);if(el){el.textContent=v;if(c!==undefined)el.className='kpi-delta '+c;}};
+  s('kProj',k.total_installs.toLocaleString());
+  s('kRev',cr2(k.total_revenue));
+  s('kCOGS',cr2(k.total_cogs));
+  s('kGM',cr2(k.total_gm));
+  s('kAOV',lakh(k.avg_aov));
+  s('kAOS',k.avg_aos.toFixed(2)+' KW');
+  s('kGMperKW','₹'+gmPerWatt.toFixed(2));
+  s('kCOGSperKW','₹'+cogsPerWatt.toFixed(2));
+  s('kONM',cr2(k.onm_qhse));
+  const gmEl=document.getElementById('kGMpct');
+  if(gmEl){gmEl.textContent=pct(k.avg_gm_pct);gmEl.className='kpi-val '+gClass(k.avg_gm_pct);}
+  sc('kGMpctD',(k.avg_gm_pct>=48?'↑ above ':'↓ below ')+'48% target',k.avg_gm_pct>=48?'up':'down');
+  const revNote=k.revenue_projects<k.total_installs?`${k.revenue_projects.toLocaleString()} w/ revenue`:'total installs';
+  sc('kProjD',revNote);
+  sc('kRevD','ex-GST — click to breakdown');
+  sc('kCOGSD','IC_Total — click for details');
+  sc('kGMD','Revenue − IC_Total');
+  sc('kAOVD','avg per project w/ revenue');
+  sc('kAOSD','avg system size (all installs)');
+  sc('kGMperKWD','₹ per Watt installed');
+  sc('kCOGSperKWD','IC cost per Watt');
+}
 
-  const s  = (id, v)    => { const el=document.getElementById(id); if(el) el.textContent=v; };
-  const sc = (id, v, c) => { const el=document.getElementById(id); if(el){el.textContent=v; if(c!==undefined) el.className='kpi-delta '+c;} };
+// ════════════════════════════════════════════════════
+// KPI DRILL PANEL
+// ════════════════════════════════════════════════════
+function toggleKpiDrill(key){
+  if(ACTIVE_KPI_DRILL===key){
+    ACTIVE_KPI_DRILL=null;
+    document.getElementById('kpiDrillPanel').classList.remove('open');
+    return;
+  }
+  ACTIVE_KPI_DRILL=key;
+  document.getElementById('kpiDrillPanel').classList.add('open');
+  buildKpiDrill(key);
+}
 
-  // ✅ Projects KPI = total installs (all SSE IDs)
-  s('kProj',      k.total_installs.toLocaleString());
-  s('kRev',       cr2(k.total_revenue));
-  s('kCOGS',      cr2(k.total_cogs));
-  s('kGM',        cr2(k.total_gm));
-  s('kAOV',       lakh(k.avg_aov));
-  s('kAOS',       k.avg_aos.toFixed(2) + ' KW');
-  s('kGMperKW',   '₹' + gmPerWatt.toFixed(2));
-  s('kCOGSperKW', '₹' + cogsPerWatt.toFixed(2));
-  s('kONM',       cr2(k.onm_qhse));
+function buildKpiDrill(key){
+  const k=FILTERED.kpis;
+  const d=FILTERED;
+  const inner=document.getElementById('drillInner');
+  const totalRev=k.total_revenue||1;
+  const totKW=k.total_kw||1;
+  const gmPerWatt=k.total_gm/(totKW*1000);
+  const cogsPerWatt=k.total_cogs/(totKW*1000);
 
-  const gmEl = document.getElementById('kGMpct');
-  if (gmEl) { gmEl.textContent = pct(k.avg_gm_pct); gmEl.className = 'kpi-val ' + gClass(k.avg_gm_pct); }
+  let html='';
+  const closeBtn=`<button class="drill-close" onclick="toggleKpiDrill('${key}')">✕ Close</button>`;
 
-  sc('kGMpctD', (k.avg_gm_pct>=48?'↑ above ':'↓ below ')+'48% target', k.avg_gm_pct>=48?'up':'down');
-
-  // ✅ Show install count context
-  const revNote = k.revenue_projects < k.total_installs
-    ? `${k.revenue_projects.toLocaleString()} w/ revenue`
-    : 'total installs';
-  sc('kProjD', revNote);
-
-  const fCity=document.getElementById('fCity').value, fState=document.getElementById('fState').value;
-  const ctx = [fCity||fState, document.getElementById('fOffer').value,
-               document.getElementById('fPhase').value, document.getElementById('fFY').value,
-               ACTIVE_QTR].filter(Boolean).join(' · ') || 'All';
-
-  sc('kRevD',       ctx==='All'?'ex-GST':ctx);
-  sc('kCOGSD',      'IC_Total (installation cost)');
-  sc('kGMD',        'Revenue − IC_Total');
-  sc('kAOVD',       ctx==='All'?'avg per project w/ revenue':ctx);
-  sc('kAOSD',       ctx==='All'?'avg system size (all installs)':ctx);
-  sc('kGMperKWD',   '₹ per Watt installed');
-  sc('kCOGSperKWD', 'IC cost per Watt');
+  if(key==='installs'){
+    html=`<div style="flex:1">
+      <div class="drill-title">Total Installs Breakdown ${closeBtn}</div>
+      <div class="drill-grid">
+        ${d.states.map(s=>`<div class="drill-card">
+          <div class="drill-card-label">${s.state}</div>
+          <div class="drill-card-val">${s.projects.toLocaleString()}</div>
+          <div class="drill-card-sub">${(s.projects/k.total_installs*100).toFixed(1)}% of total</div>
+        </div>`).join('')}
+      </div>
+    </div>
+    <div class="drill-insight">
+      📦 <strong>Top state</strong> accounts for <strong>${d.states[0]?(d.states[0].projects/k.total_installs*100).toFixed(0):0}%</strong> of installs.<br>
+      🔋 Total capacity installed: <strong>${(totKW/1000).toFixed(1)} MW</strong> across ${k.total_installs.toLocaleString()} systems.
+    </div>`;
+  }
+  else if(key==='revenue'){
+    const topCity=d.cities[0];
+    const top3=d.cities.slice(0,3).reduce((s,c)=>s+c.revenue,0);
+    html=`<div style="flex:1">
+      <div class="drill-title">Revenue Breakdown by City ${closeBtn}</div>
+      ${d.cities.slice(0,8).map(c=>`<div class="drill-bar-row">
+        <div class="drill-bar-label">${c.city}</div>
+        <div class="drill-bar-wrap"><div class="drill-bar-fill" style="width:${(c.revenue/totalRev*100).toFixed(0)}%;background:var(--blue)"></div></div>
+        <div class="drill-bar-val">${cr2(c.revenue)} · ${(c.revenue/totalRev*100).toFixed(1)}%</div>
+      </div>`).join('')}
+    </div>
+    <div class="drill-insight">
+      🏙️ Top 3 cities bring in <strong>${(top3/totalRev*100).toFixed(0)}%</strong> of total revenue.<br>
+      📍 Highest: <strong>${topCity?topCity.city:'—'}</strong> at ${topCity?cr2(topCity.revenue):'—'}.<br>
+      📈 Avg GM across portfolio: <strong>${pct(k.avg_gm_pct)}</strong>
+    </div>`;
+  }
+  else if(key==='cogs'){
+    const costs=d.costs;
+    const totalCOGS=k.total_cogs||1;
+    html=`<div style="flex:1">
+      <div class="drill-title">COGS Component Breakdown ${closeBtn}</div>
+      ${costs.slice(0,6).map(c=>`<div class="drill-bar-row">
+        <div class="drill-bar-label">${c.item}</div>
+        <div class="drill-bar-wrap"><div class="drill-bar-fill" style="width:${(c.total/totalCOGS*100).toFixed(0)}%;background:var(--red)"></div></div>
+        <div class="drill-bar-val">${(c.total/totalCOGS*100).toFixed(1)}% · ${c.unitRate.toFixed(2)} ₹/Wp</div>
+      </div>`).join('')}
+    </div>
+    <div class="drill-insight">
+      🔩 <strong>Module + Inverter</strong> typically drive 60–75% of COGS.<br>
+      📉 COGS per Watt: <strong>₹${cogsPerWatt.toFixed(2)}</strong><br>
+      Go to <em>Cost Breakdown</em> tab for full drill-down.
+    </div>`;
+  }
+  else if(key==='gm'){
+    const gmByState=d.states.map(s=>({name:s.state,gm:s.gm,rev:s.revenue})).sort((a,b)=>b.gm-a.gm);
+    html=`<div style="flex:1">
+      <div class="drill-title">Gross Margin by State ${closeBtn}</div>
+      ${gmByState.slice(0,6).map(s=>`<div class="drill-bar-row">
+        <div class="drill-bar-label">${s.name}</div>
+        <div class="drill-bar-wrap"><div class="drill-bar-fill" style="width:${(s.gm/k.total_gm*100).toFixed(0)}%;background:var(--green)"></div></div>
+        <div class="drill-bar-val">${cr2(s.gm)} · ${(s.gm/k.total_gm*100).toFixed(1)}%</div>
+      </div>`).join('')}
+    </div>
+    <div class="drill-insight">
+      💰 Total GM: <strong>${cr2(k.total_gm)}</strong> on <strong>${cr2(k.total_revenue)}</strong> revenue.<br>
+      📊 Overall GM%: <strong>${pct(k.avg_gm_pct)}</strong> vs 48% target.<br>
+      <span style="color:${k.avg_gm_pct>=48?'var(--green)':'var(--red)'}">${k.avg_gm_pct>=48?'✅ Above target':'⚠️ Below target'}</span>
+    </div>`;
+  }
+  else if(key==='gmpct'){
+    const decomp=d.gmDecomp;
+    if(decomp){
+      html=`<div style="flex:1">
+        <div class="drill-title">GM% Change Drivers ${closeBtn}</div>
+        <div class="drill-bar-row">
+          <div class="drill-bar-label">Price Effect</div>
+          <div class="drill-bar-wrap"><div class="drill-bar-fill" style="width:${Math.min(Math.abs(decomp.priceEffect)/5*100,100).toFixed(0)}%;background:${decomp.priceEffect>=0?'var(--green)':'var(--red)'}"></div></div>
+          <div class="drill-bar-val" style="color:${decomp.priceEffect>=0?'var(--green)':'var(--red)'}">${decomp.priceEffect>=0?'+':''}${decomp.priceEffect.toFixed(1)}%</div>
+        </div>
+        ${decomp.costEffects.map(e=>`<div class="drill-bar-row">
+          <div class="drill-bar-label">${e.name}</div>
+          <div class="drill-bar-wrap"><div class="drill-bar-fill" style="width:${Math.min(Math.abs(e.gmImpact)/5*100,100).toFixed(0)}%;background:${e.gmImpact>=0?'var(--green)':'var(--red)'}"></div></div>
+          <div class="drill-bar-val" style="color:${e.gmImpact>=0?'var(--green)':'var(--red)'}">${e.gmImpact>=0?'+':''}${e.gmImpact.toFixed(1)}%</div>
+        </div>`).join('')}
+      </div>
+      <div class="drill-insight">
+        ${decomp.gmChg>=0?'📈':'📉'} GM% went from <strong>${decomp.gmPctPrev.toFixed(1)}%</strong> (${decomp.lblPrev}) to <strong>${decomp.gmPctNow.toFixed(1)}%</strong> (${decomp.lblNow}).<br>
+        Net change: <strong style="color:${decomp.gmChg>=0?'var(--green)':'var(--red)'}">${decomp.gmChg>=0?'+':''}${decomp.gmChg.toFixed(1)}%</strong>
+      </div>`;
+    }else{
+      html=`<div style="flex:1"><div class="drill-title">GM% Analysis ${closeBtn}</div><div style="padding:12px;color:var(--muted);font-size:11px">Not enough months to compare. Load more data.</div></div>`;
+    }
+  }
+  else if(key==='aov'){
+    const sorted=[...d.cities].sort((a,b)=>b.aov-a.aov);
+    const maxAOV=sorted[0]?.aov||1;
+    html=`<div style="flex:1">
+      <div class="drill-title">AOV Ranking by City ${closeBtn}</div>
+      ${sorted.slice(0,8).map(c=>`<div class="drill-bar-row">
+        <div class="drill-bar-label">${c.city}</div>
+        <div class="drill-bar-wrap"><div class="drill-bar-fill" style="width:${(c.aov/maxAOV*100).toFixed(0)}%;background:var(--teal)"></div></div>
+        <div class="drill-bar-val">${lakh(c.aov)}</div>
+      </div>`).join('')}
+    </div>
+    <div class="drill-insight">
+      💳 Avg AOV: <strong>${lakh(k.avg_aov)}</strong><br>
+      🏆 Best: <strong>${sorted[0]?sorted[0].city:'—'}</strong> at ${sorted[0]?lakh(sorted[0].aov):'—'}<br>
+      📦 AOV is driven by system size and product type.
+    </div>`;
+  }
+  else if(key==='aos'){
+    const sorted=[...d.cities].sort((a,b)=>b.aos-a.aos);
+    const maxAOS=sorted[0]?.aos||1;
+    html=`<div style="flex:1">
+      <div class="drill-title">Avg System Size by City ${closeBtn}</div>
+      ${sorted.slice(0,8).map(c=>`<div class="drill-bar-row">
+        <div class="drill-bar-label">${c.city}</div>
+        <div class="drill-bar-wrap"><div class="drill-bar-fill" style="width:${(c.aos/maxAOS*100).toFixed(0)}%;background:var(--purple)"></div></div>
+        <div class="drill-bar-val">${c.aos.toFixed(2)} kW</div>
+      </div>`).join('')}
+    </div>
+    <div class="drill-insight">
+      ⚡ Avg size: <strong>${k.avg_aos.toFixed(2)} kW</strong><br>
+      🔝 Largest avg: <strong>${sorted[0]?sorted[0].city:'—'}</strong> at ${sorted[0]?sorted[0].aos.toFixed(2):0} kW<br>
+      📈 Bigger systems = higher AOV, better margin per project.
+    </div>`;
+  }
+  else{
+    html=`<div style="flex:1"><div class="drill-title">Details ${closeBtn}</div><div style="padding:10px;color:var(--muted);font-size:10px">Select another KPI for more detail.</div></div>`;
+  }
+  inner.innerHTML=html;
 }
 
 // ════════════════════════════════════════════════════
 // ROUTER
 // ════════════════════════════════════════════════════
-function switchView(view, el) {
-  CURRENT_VIEW = view;
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+function switchView(view, el){
+  CURRENT_VIEW=view;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   el.classList.add('active');
   renderContent();
 }
-function renderAll()    { renderKPIs(); renderContent(); }
-function renderContent() {
+function renderAll(){renderKPIs();renderContent();}
+function renderContent(){
   destroyCharts();
-  if (CURRENT_VIEW==='overview') renderOverview();
-  else if (CURRENT_VIEW==='city')    renderCityView();
-  else if (CURRENT_VIEW==='product') renderProductView();
-  else if (CURRENT_VIEW==='costs')   renderCostsView();
+  if(CURRENT_VIEW==='overview')renderOverview();
+  else if(CURRENT_VIEW==='city')renderCityView();
+  else if(CURRENT_VIEW==='product')renderProductView();
+  else if(CURRENT_VIEW==='costs')renderCostsView();
 }
-function destroyCharts() {
-  Object.values(CHARTS).forEach(c => { try{c.destroy()}catch(e){} });
-  CHARTS = {};
-}
+function destroyCharts(){Object.values(CHARTS).forEach(c=>{try{c.destroy()}catch(e){}});CHARTS={};}
 
 // ════════════════════════════════════════════════════
 // OVERVIEW VIEW
 // ════════════════════════════════════════════════════
-function renderOverview() {
-  const d = FILTERED;
-  document.getElementById('mainContent').innerHTML = `
-    <div class="charts-row1">
+function renderOverview(){
+  const d=FILTERED;
+  document.getElementById('mainContent').innerHTML=`
+    <div class="charts-row1" style="height:195px">
       <div class="card">
         <div class="card-title">Revenue & GM% Trend <span class="card-badge badge-blue">Monthly</span></div>
         <div class="legend-row">
-          <div class="leg"><div class="leg-line" style="background:#2563A8"></div>Revenue</div>
-          <div class="leg"><div class="leg-line" style="background:#EF4444"></div>COGS</div>
-          <div class="leg"><div class="leg-dot" style="background:#16A34A"></div>GM%</div>
+          <div class="leg"><div class="leg-sq" style="background:rgba(37,99,168,0.75)"></div><span class="leg-label">Revenue (₹L)</span></div>
+          <div class="leg"><div class="leg-sq" style="background:rgba(239,68,68,0.6)"></div><span class="leg-label">COGS (₹L)</span></div>
+          <div class="leg"><div class="leg-line" style="background:#16A34A"></div><span class="leg-label">GM% (right axis)</span></div>
+          <div style="margin-left:auto;font-size:8px;color:var(--muted);font-family:'DM Mono',monospace">Target: 48% GM</div>
         </div>
         <div class="canvas-wrap"><canvas id="cTrend"></canvas></div>
       </div>
       <div class="card">
-        <div class="card-title">Revenue Growth <span class="card-badge badge-amber">Quarter-on-Quarter</span></div>
+        <div class="card-title">Quarterly Revenue <span class="card-badge badge-amber">QoQ Growth</span></div>
+        <div class="legend-row">
+          <div class="leg"><div class="leg-sq" style="background:rgba(37,99,168,0.75)"></div><span class="leg-label">Revenue (₹Cr)</span></div>
+          <div class="leg"><div class="leg-line" style="background:#F59E0B"></div><span class="leg-label">QoQ % Change</span></div>
+        </div>
         <div class="canvas-wrap"><canvas id="cQoQ"></canvas></div>
       </div>
       <div class="card">
-        <div class="card-title">Product Mix <span class="card-badge badge-navy">Revenue Share</span></div>
+        <div class="card-title">Product Mix <span class="card-badge badge-navy">by Revenue</span></div>
         <div class="canvas-wrap"><canvas id="cOfferDonut"></canvas></div>
       </div>
     </div>
     <div class="table-section">
       <div class="tbl-header">
         <div class="tbl-title">State Performance Summary
-          <span style="font-size:9px;color:var(--muted);font-weight:400;font-family:'DM Mono',monospace">${d.states.length} states</span>
+          <span style="font-size:8.5px;color:var(--muted);font-weight:400;font-family:'DM Mono',monospace">${d.states.length} states · click row to expand cities</span>
         </div>
         <div class="tbl-tabs">
           <div class="tbl-tab active" onclick="sortStateTable('revenue',this)">By Revenue</div>
@@ -1265,142 +1233,150 @@ function renderOverview() {
         </table>
       </div>
     </div>`;
-  setTimeout(() => { drawTrendChart(); drawQoQChart(); drawOfferDonut(); buildStateTable('revenue'); }, 30);
+  setTimeout(()=>{drawTrendChart();drawQoQChart();drawOfferDonut();buildStateTable('revenue');},30);
 }
 
-function drawTrendChart() {
-  const d = FILTERED.monthly;
-  if (!d.length) return;
-  CHARTS.trend = new Chart(document.getElementById('cTrend'), {
-    type: 'bar',
-    data: {
-      labels: d.map(m => m.label),
-      datasets: [
-        {label:'Revenue', data:d.map(m=>m.revenue/1e5), backgroundColor:'rgba(37,99,168,0.7)', borderRadius:3, yAxisID:'y'},
-        {label:'COGS',    data:d.map(m=>m.cogs/1e5),    backgroundColor:'rgba(239,68,68,0.6)',  borderRadius:3, yAxisID:'y'},
-        {type:'line', label:'GM%', data:d.map(m=>m.gm_pct), borderColor:'#16A34A', borderWidth:2,
-         borderDash:[4,2], pointRadius:3, pointBackgroundColor:'#16A34A', tension:0.3, yAxisID:'y2', fill:false}
-      ]
-    },
-    options: {
-      responsive:true, maintainAspectRatio:false,
-      plugins:{legend:{display:false}, tooltip:{backgroundColor:'#1A2C4E',titleColor:'#fff',bodyColor:'#94A3B8',
-        cornerRadius:6,padding:8,callbacks:{label:ctx=>ctx.datasetIndex<2?`₹${ctx.parsed.y.toFixed(1)}L`:`${ctx.parsed.y.toFixed(1)}%`}}},
-      scales:{
-        x:{grid:{display:false},ticks:{color:'#94A3B8',font:{size:8},maxRotation:45}},
-        y:{grid:{color:'rgba(200,220,238,0.4)'},ticks:{color:'#94A3B8',font:{size:8},callback:v=>`₹${v.toFixed(0)}L`},position:'left'},
-        y2:{grid:{display:false},ticks:{color:'#16A34A',font:{size:8},callback:v=>`${v}%`},position:'right',min:30,max:70}
-      }
-    }
-  });
-}
-
-function drawQoQChart() {
-  const quarters = FILTERED.quarterly;
-  if (!quarters.length) return;
-  const growthData = quarters.map((q,i) => {
-    if (i===0) return null;
-    const prev = quarters[i-1];
-    return prev.revenue>0 ? (q.revenue-prev.revenue)/prev.revenue*100 : null;
-  });
-  const QCOLORS = {Q1:'rgba(37,99,168,0.75)',Q2:'rgba(22,163,74,0.75)',Q3:'rgba(245,158,11,0.8)',Q4:'rgba(124,58,237,0.75)'};
-  CHARTS.qoq = new Chart(document.getElementById('cQoQ'), {
+function drawTrendChart(){
+  const d=FILTERED.monthly;
+  if(!d.length)return;
+  CHARTS.trend=new Chart(document.getElementById('cTrend'),{
     type:'bar',
     data:{
-      labels: quarters.map(q=>q.label),
+      labels:d.map(m=>m.label),
       datasets:[
-        {label:'Revenue (Cr)',data:quarters.map(q=>q.revenue/1e7),
-         backgroundColor:quarters.map(q=>QCOLORS[q.q]||'rgba(37,99,168,0.7)'),borderRadius:4,yAxisID:'y'},
-        {type:'line',label:'QoQ Growth %',data:growthData,borderColor:'#F59E0B',borderWidth:2,
-         pointRadius:4,pointBackgroundColor:'#F59E0B',tension:0.3,yAxisID:'y2',fill:false,borderDash:[4,3]}
+        {label:'Revenue',data:d.map(m=>m.revenue/1e5),backgroundColor:'rgba(37,99,168,0.72)',borderRadius:4,yAxisID:'y'},
+        {label:'COGS',data:d.map(m=>m.cogs/1e5),backgroundColor:'rgba(239,68,68,0.55)',borderRadius:4,yAxisID:'y'},
+        {type:'line',label:'GM%',data:d.map(m=>m.gm_pct),borderColor:'#16A34A',borderWidth:2.5,
+         pointRadius:4,pointBackgroundColor:'#fff',pointBorderColor:'#16A34A',pointBorderWidth:2,
+         tension:0.35,yAxisID:'y2',fill:false}
       ]
     },
     options:{
       responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:true,position:'top',labels:{color:'#5A7A96',font:{size:8},padding:6,boxWidth:10}},
-        tooltip:{backgroundColor:'#1A2C4E',titleColor:'#fff',bodyColor:'#94A3B8',cornerRadius:6,padding:8,
-          callbacks:{label:ctx=>ctx.datasetIndex===0?`₹${ctx.parsed.y.toFixed(2)} Cr`:ctx.parsed.y!==null?`${ctx.parsed.y.toFixed(1)}% QoQ`:'—'}}},
+      plugins:{
+        legend:{display:false},
+        tooltip:{backgroundColor:'#1A2C4E',titleColor:'#fff',bodyColor:'#94A3B8',cornerRadius:8,padding:10,
+          callbacks:{
+            label:ctx=>{
+              if(ctx.datasetIndex<2)return `  ${ctx.dataset.label}: ₹${ctx.parsed.y.toFixed(1)}L`;
+              return `  GM%: ${ctx.parsed.y.toFixed(1)}%`;
+            }
+          }
+        },
+        annotation:{
+          annotations:{target:{type:'line',yMin:48,yMax:48,borderColor:'rgba(22,163,74,0.3)',borderWidth:1,borderDash:[6,3],yScaleID:'y2'}}
+        }
+      },
       scales:{
-        x:{grid:{display:false},ticks:{color:'#94A3B8',font:{size:8},maxRotation:45}},
-        y:{grid:{color:'rgba(200,220,238,0.4)'},ticks:{color:'#94A3B8',font:{size:8},callback:v=>`₹${v.toFixed(0)}Cr`},position:'left'},
-        y2:{grid:{display:false},ticks:{color:'#F59E0B',font:{size:8},callback:v=>v!==null?`${v.toFixed(0)}%`:''},position:'right'}
+        x:{grid:{display:false},ticks:{color:'#94A3B8',font:{size:8},maxRotation:40}},
+        y:{grid:{color:'rgba(200,220,238,0.3)'},ticks:{color:'#94A3B8',font:{size:8},callback:v=>`₹${v.toFixed(0)}L`},position:'left',
+           title:{display:true,text:'Revenue / COGS (₹ Lakhs)',color:'#94A3B8',font:{size:7}}},
+        y2:{grid:{display:false},ticks:{color:'#16A34A',font:{size:8},callback:v=>`${v}%`},position:'right',min:25,max:70,
+            title:{display:true,text:'Gross Margin %',color:'#16A34A',font:{size:7}}}
       }
     }
   });
 }
 
-function drawOfferDonut() {
-  const d = FILTERED.offers;
-  if (!d.length) return;
-  const COLORS = ['#2563A8','#F59E0B','#16A34A','#7C3AED','#EF4444','#0891B2','#EC4899','#84CC16'];
-  CHARTS.donut = new Chart(document.getElementById('cOfferDonut'), {
-    type:'doughnut',
-    data:{labels:d.map(o=>o.offer),datasets:[{data:d.map(o=>o.revenue),backgroundColor:COLORS,borderColor:'#fff',borderWidth:3,hoverOffset:6}]},
-    options:{responsive:true,maintainAspectRatio:false,cutout:'62%',
-      plugins:{legend:{position:'right',labels:{color:'#5A7A96',font:{size:9},padding:8,boxWidth:10,
-        generateLabels:chart=>chart.data.labels.map((l,i)=>({
-          text:`${l} (${(chart.data.datasets[0].data[i]/chart.data.datasets[0].data.reduce((a,b)=>a+b,0)*100).toFixed(1)}%)`,
-          fillStyle:COLORS[i],strokeStyle:'#fff',lineWidth:2,index:i}))}},
-        tooltip:{backgroundColor:'#1A2C4E',titleColor:'#fff',bodyColor:'#94A3B8',
-          callbacks:{label:ctx=>`₹${(ctx.parsed/1e7).toFixed(2)} Cr — ${ctx.label}`}}}}
+function drawQoQChart(){
+  const quarters=FILTERED.quarterly;
+  if(!quarters.length)return;
+  const growthData=quarters.map((q,i)=>{
+    if(i===0)return null;
+    const prev=quarters[i-1];
+    return prev.revenue>0?(q.revenue-prev.revenue)/prev.revenue*100:null;
+  });
+  const QCOLORS={Q1:'rgba(37,99,168,0.75)',Q2:'rgba(22,163,74,0.75)',Q3:'rgba(245,158,11,0.8)',Q4:'rgba(124,58,237,0.75)'};
+  CHARTS.qoq=new Chart(document.getElementById('cQoQ'),{
+    type:'bar',
+    data:{
+      labels:quarters.map(q=>q.label),
+      datasets:[
+        {label:'Revenue (₹Cr)',data:quarters.map(q=>q.revenue/1e7),
+         backgroundColor:quarters.map(q=>QCOLORS[q.q]||'rgba(37,99,168,0.7)'),borderRadius:5,yAxisID:'y'},
+        {type:'line',label:'QoQ Growth %',data:growthData,borderColor:'#F59E0B',borderWidth:2.5,
+         pointRadius:5,pointBackgroundColor:'#fff',pointBorderColor:'#F59E0B',pointBorderWidth:2,
+         tension:0.3,yAxisID:'y2',fill:false}
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{backgroundColor:'#1A2C4E',titleColor:'#fff',bodyColor:'#94A3B8',cornerRadius:8,padding:10,
+          callbacks:{label:ctx=>ctx.datasetIndex===0?`  Revenue: ₹${ctx.parsed.y.toFixed(2)} Cr`:
+            ctx.parsed.y!==null?`  QoQ Growth: ${ctx.parsed.y.toFixed(1)}%`:'  No prev quarter'}
+        }
+      },
+      scales:{
+        x:{grid:{display:false},ticks:{color:'#94A3B8',font:{size:8},maxRotation:40}},
+        y:{grid:{color:'rgba(200,220,238,0.3)'},ticks:{color:'#94A3B8',font:{size:8},callback:v=>`₹${v.toFixed(0)}Cr`},position:'left',
+           title:{display:true,text:'Revenue (₹ Crore)',color:'#94A3B8',font:{size:7}}},
+        y2:{grid:{display:false},ticks:{color:'#F59E0B',font:{size:8},callback:v=>v!==null?`${v.toFixed(0)}%`:''},position:'right',
+            title:{display:true,text:'QoQ Growth %',color:'#F59E0B',font:{size:7}}}
+      }
+    }
   });
 }
 
-let STATE_SORT = 'revenue';
-let STATE_EXPANDED = new Set();
+function drawOfferDonut(){
+  const d=FILTERED.offers;
+  if(!d.length)return;
+  const COLORS=['#2563A8','#F59E0B','#16A34A','#7C3AED','#EF4444','#0891B2','#EC4899','#84CC16'];
+  const total=d.reduce((s,o)=>s+o.revenue,0)||1;
+  CHARTS.donut=new Chart(document.getElementById('cOfferDonut'),{
+    type:'doughnut',
+    data:{labels:d.map(o=>o.offer),datasets:[{data:d.map(o=>o.revenue),backgroundColor:COLORS,borderColor:'#fff',borderWidth:3,hoverOffset:8}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'58%',
+      plugins:{
+        legend:{position:'right',labels:{color:'#5A7A96',font:{size:8.5},padding:6,boxWidth:10,
+          generateLabels:chart=>chart.data.labels.map((l,i)=>{
+            const rev=chart.data.datasets[0].data[i];
+            return{text:`${l}  ${(rev/total*100).toFixed(1)}%`,
+              fillStyle:COLORS[i],strokeStyle:'#fff',lineWidth:2,index:i};
+          })}},
+        tooltip:{backgroundColor:'#1A2C4E',titleColor:'#fff',bodyColor:'#94A3B8',cornerRadius:8,padding:10,
+          callbacks:{label:ctx=>[`  Revenue: ₹${(ctx.parsed/1e7).toFixed(2)} Cr`,`  Share: ${(ctx.parsed/total*100).toFixed(1)}%`]}}
+      }
+    }
+  });
+}
 
-function sortStateTable(col, el) {
-  STATE_SORT = col;
+let STATE_SORT='revenue';
+let STATE_EXPANDED=new Set();
+
+function sortStateTable(col, el){
+  STATE_SORT=col;
   document.querySelectorAll('.tbl-tab').forEach(t=>t.classList.remove('active'));
   el.classList.add('active');
   buildStateTable(col);
 }
 
-function toggleStateExpand(stateName) {
-  if (STATE_EXPANDED.has(stateName)) STATE_EXPANDED.delete(stateName);
+function toggleStateExpand(stateName){
+  if(STATE_EXPANDED.has(stateName))STATE_EXPANDED.delete(stateName);
   else STATE_EXPANDED.add(stateName);
   buildStateTable(STATE_SORT);
 }
 
-function buildStateTable(sortCol) {
-  const states = [...FILTERED.states].sort((a,b)=>b[sortCol]-a[sortCol]);
-  const totalRev = states.reduce((s,r)=>s+r.revenue,0)||1;
-  const maxRev   = states[0]?.revenue||1;
-
-  // ✅ FIX: Build city→state lookup from LIVE_ROWS (just for state name mapping)
-  // but use FILTERED.cities for the actual numbers — they are already correctly
-  // filtered by date range, FY, quarter, phase, offer, state, city filters
-  const c2s = {};
-  LIVE_ROWS.forEach(r => { if (r.city && r.state) c2s[r.city] = r.state; });
-
-  // Build cityStateMap from FILTERED.cities which already have correct filtered numbers
-  const cityStateMap = {};
-  FILTERED.cities.forEach(c => {
-    const state = c2s[c.city] || '';
-    if (!state) return;
-    const key = state + '||' + c.city;
-    cityStateMap[key] = {
-      city:     c.city,
-      state:    state,
-      revenue:  c.revenue,
-      cogs:     c.cogs,
-      gm:       c.gm,
-      gm_pct:   c.gm_pct,
-      installs: c.projects,
-      projects: c.projects,
-      kw:       c.aos * c.projects,   // aos × count = total kW
-      aov:      c.aov,
-      aos:      c.aos,
-    };
+function buildStateTable(sortCol){
+  const states=[...FILTERED.states].sort((a,b)=>b[sortCol]-a[sortCol]);
+  const totalRev=states.reduce((s,r)=>s+r.revenue,0)||1;
+  const maxRev=states[0]?.revenue||1;
+  const c2s={};
+  LIVE_ROWS.forEach(r=>{if(r.city&&r.state)c2s[r.city]=r.state;});
+  const cityStateMap={};
+  FILTERED.cities.forEach(c=>{
+    const state=c2s[c.city]||'';if(!state)return;
+    const key=state+'||'+c.city;
+    cityStateMap[key]={city:c.city,state,revenue:c.revenue,cogs:c.cogs,gm:c.gm,gm_pct:c.gm_pct,
+      installs:c.projects,projects:c.projects,kw:c.aos*c.projects,aov:c.aov,aos:c.aos};
   });
-
-  let rows = '';
-  states.forEach((s, i) => {
-    const share    = s.revenue / totalRev * 100;
-    const isOpen   = STATE_EXPANDED.has(s.state);
-    const stateName = s.state || '—';
-
-    rows += `<tr style="cursor:pointer" onclick="toggleStateExpand('${stateName.replace(/'/g,"\'")}')">
+  let rows='';
+  states.forEach((s,i)=>{
+    const share=s.revenue/totalRev*100;
+    const isOpen=STATE_EXPANDED.has(s.state);
+    const stateName=s.state||'—';
+    rows+=`<tr style="cursor:pointer" onclick="toggleStateExpand('${stateName.replace(/'/g,"\\'")}')">
       <td class="td-rank">${i+1}</td>
       <td><div class="state-name-cell">
         <span class="expand-btn ${isOpen?'open':''}">${isOpen?'−':'+'}</span>
@@ -1415,21 +1391,16 @@ function buildStateTable(sortCol) {
       <td>${s.aos.toFixed(2)} kW</td>
       <td><div class="sparkbar"><div class="bar-track"><div class="bar-fill" style="width:${(s.revenue/maxRev*100).toFixed(0)}%;background:var(--blue)"></div></div><span>${share.toFixed(1)}%</span></div></td>
     </tr>`;
-
-    if (isOpen) {
-      // Cities already have correct filtered numbers from FILTERED.cities
-      const cities = Object.values(cityStateMap)
-        .filter(c => c.state === s.state)
-        .sort((a,b) => b.revenue - a.revenue);
-
-      if (cities.length === 0) {
-        rows += `<tr class="city-sub-row"><td colspan="10" style="padding-left:36px;color:var(--muted);font-style:italic">No city data for current filters</td></tr>`;
-      } else {
-        cities.forEach(c => {
-          const cityShare = s.revenue > 0 ? c.revenue/s.revenue*100 : 0;
-          rows += `<tr class="city-sub-row">
+    if(isOpen){
+      const cities=Object.values(cityStateMap).filter(c=>c.state===s.state).sort((a,b)=>b.revenue-a.revenue);
+      if(!cities.length){
+        rows+=`<tr class="city-sub-row"><td colspan="10" style="padding-left:32px;color:var(--muted);font-style:italic">No city data for current filters</td></tr>`;
+      }else{
+        cities.forEach(c=>{
+          const cityShare=s.revenue>0?c.revenue/s.revenue*100:0;
+          rows+=`<tr class="city-sub-row">
             <td></td>
-            <td style="padding-left:30px;font-weight:600;color:var(--blue)">↳ ${c.city}</td>
+            <td style="padding-left:26px;font-weight:600;color:var(--blue)">↳ ${c.city}</td>
             <td>${c.installs.toLocaleString()}</td>
             <td class="b">${cr2(c.revenue)}</td>
             <td>${cr2(c.cogs)}</td>
@@ -1443,9 +1414,7 @@ function buildStateTable(sortCol) {
       }
     }
   });
-
-  // Total row
-  rows += `<tr class="total-row">
+  rows+=`<tr class="total-row">
     <td>—</td><td>TOTAL</td>
     <td>${states.reduce((s,r)=>s+r.projects,0).toLocaleString()}</td>
     <td>${cr2(totalRev)}</td>
@@ -1454,132 +1423,195 @@ function buildStateTable(sortCol) {
     <td>${pct((totalRev-states.reduce((s,r)=>s+r.cogs,0))/totalRev*100)}</td>
     <td>—</td><td>—</td><td>100%</td>
   </tr>`;
+  document.getElementById('stateBody').innerHTML=rows;
+}
 
-  document.getElementById('stateBody').innerHTML = rows;
+// ════════════════════════════════════════════════════
+// CITY DRILL MODAL
+// ════════════════════════════════════════════════════
+function openCityDrill(cityName){
+  const m=FILTERED.cityMoM[cityName];
+  const cityData=FILTERED.cities.find(c=>c.city===cityName);
+  if(!m&&!cityData)return;
+
+  const modal=document.getElementById('cityDrillModal');
+  const overlay=document.getElementById('cityDrillOverlay');
+
+  const gmUp=m&&m.gmChg>=0;
+  const headlineBg=gmUp?'#DCFCE7':'#FEE2E2';
+  const headlineColor=gmUp?'#16A34A':'#DC2626';
+  const headlineBorder=gmUp?'#86EFAC':'#FCA5A5';
+
+  let headline='';
+  if(m&&m.gmPctPrev>0){
+    const diff=Math.abs(m.gmChg).toFixed(1);
+    headline=`GM% ${gmUp?'improved':'dropped'} from <strong>${m.gmPctPrev.toFixed(1)}%</strong> in ${m.lblPrev} to <strong>${m.gmPctNow.toFixed(1)}%</strong> this month — a <strong>${diff}% ${gmUp?'improvement':'drop'}</strong>.`;
+  }else{
+    headline=`No month-over-month comparison available. Current GM%: <strong>${cityData?pct(cityData.gm_pct):'—'}</strong>`;
+  }
+
+  // Build "why" factors
+  let factorsHtml='';
+  if(m&&m.gmPctPrev>0){
+    const factors=[];
+
+    // Revenue change
+    if(m.revChg!==null){
+      const revUp=m.revChg>=0;
+      factors.push({
+        icon:revUp?'📈':'📉',
+        bg:revUp?'#F0FDF4':'#FFF8F8',
+        border:revUp?'#BBF7D0':'#FECACA',
+        text:`Revenue was <strong>${revUp?'up':'down'} ${Math.abs(m.revChg).toFixed(0)}%</strong> vs ${m.lblPrev} — from ${cr2(m.revPrev)} to ${cr2(m.revNow)}.`,
+      });
+    }
+
+    // COGS change — if revenue up but margin down → costs rose faster
+    if(m.revChg!==null&&m.revNow>0&&m.revPrev>0&&m.cogNow>0&&m.cogPrev>0){
+      const cogsChg=(m.cogNow-m.cogPrev)/m.cogPrev*100;
+      const cogsUp=cogsChg>0;
+      const isCostDriven=!gmUp&&m.revChg>=0;
+      if(isCostDriven||Math.abs(cogsChg)>2){
+        factors.push({
+          icon:cogsUp?'🔺':'🔽',
+          bg:cogsUp?'#FFF8F8':'#F0FDF4',
+          border:cogsUp?'#FECACA':'#BBF7D0',
+          text:`COGS went <strong>${cogsUp?'up':'down'} ${Math.abs(cogsChg).toFixed(0)}%</strong> — from ${cr2(m.cogPrev)} to ${cr2(m.cogNow)}.${isCostDriven?' Costs rose faster than revenue, squeezing the margin.':''}`,
+        });
+      }
+    }
+
+    // AOS change
+    if(m.aosChg!==null&&Math.abs(m.aosChg)>3){
+      const aosUp=m.aosChg>0;
+      factors.push({
+        icon:'📦',
+        bg:'#EFF6FF',
+        border:'#BFDBFE',
+        text:`Avg system size changed from <strong>${m.aosPrev.toFixed(1)} kW to ${m.aosNow.toFixed(1)} kW</strong> (${aosUp?'+':''}${m.aosChg.toFixed(0)}%). ${aosUp?'Larger systems = higher revenue per job.':'Smaller systems may indicate different customer mix.'}`,
+      });
+    }
+
+    // Volume
+    const volChg=m.cntPrev>0?((m.cntNow-m.cntPrev)/m.cntPrev*100):null;
+    if(volChg!==null&&Math.abs(volChg)>10){
+      const volUp=volChg>0;
+      factors.push({
+        icon:volUp?'🚀':'🔻',
+        bg:volUp?'#F0FDF4':'#FFF8F8',
+        border:volUp?'#BBF7D0':'#FECACA',
+        text:`Installs ${volUp?'increased':'decreased'} from <strong>${m.cntPrev} to ${m.cntNow} projects</strong> (${volUp?'+':''}${volChg.toFixed(0)}%).`,
+      });
+    }
+
+    // If no factors found
+    if(!factors.length){
+      factors.push({icon:'ℹ️',bg:'#EFF6FF',border:'#BFDBFE',text:`The GM% change of ${Math.abs(m.gmChg).toFixed(1)}% is relatively small. No single dominant driver identified.`});
+    }
+
+    factorsHtml=factors.map(f=>`
+      <div class="cdm-factor" style="background:${f.bg};border:1px solid ${f.border};border-radius:7px">
+        <span class="cdm-factor-icon">${f.icon}</span>
+        <span style="font-size:10.5px;line-height:1.55">${f.text}</span>
+      </div>`).join('');
+  }
+
+  modal.innerHTML=`
+    <div class="cdm-header">
+      <div>
+        <div class="cdm-title">📍 ${cityName}</div>
+        <div class="cdm-sub">Month-over-Month Performance Analysis${m?` · ${m.lblPrev} → ${m.lblNow}`:''}</div>
+      </div>
+      <div class="cdm-close" onclick="closeCityDrill()">✕</div>
+    </div>
+
+    <div class="cdm-headline" style="background:${headlineBg};border:1px solid ${headlineBorder};color:${headlineColor}">
+      ${gmUp?'📈':'📉'} ${headline}
+    </div>
+
+    ${m&&m.gmPctPrev>0?`
+    <div class="cdm-section">
+      <div class="cdm-section-title">Key Metrics Comparison</div>
+      ${[
+        {label:'Gross Margin %',prev:m.gmPctPrev.toFixed(1)+'%',now:m.gmPctNow.toFixed(1)+'%',delta:m.gmChg,suffix:'%',isGood:m.gmChg>=0},
+        {label:'Revenue',prev:cr2(m.revPrev||0),now:cr2(m.revNow||0),delta:m.revChg,suffix:'%',isGood:(m.revChg||0)>=0},
+        {label:'COGS',prev:cr2(m.cogPrev||0),now:cr2(m.cogNow||0),delta:m.cogNow&&m.cogPrev?(m.cogNow-m.cogPrev)/m.cogPrev*100:null,suffix:'%',isGood:m.cogNow<m.cogPrev},
+        {label:'Avg System Size',prev:m.aosPrev.toFixed(2)+' kW',now:m.aosNow.toFixed(2)+' kW',delta:m.aosChg,suffix:'%',isGood:m.aosChg>=0},
+        {label:'Installs',prev:String(m.cntPrev),now:String(m.cntNow),delta:m.cntPrev?((m.cntNow-m.cntPrev)/m.cntPrev*100):null,suffix:'%',isGood:m.cntNow>=m.cntPrev},
+      ].map(row=>`
+        <div class="cdm-metric-row">
+          <div class="cdm-metric-label">${row.label}</div>
+          <div class="cdm-metric-vals">
+            <span class="cdm-prev">${row.prev}</span>
+            <span class="cdm-arrow">→</span>
+            <span class="cdm-now" style="color:var(--navy)">${row.now}</span>
+            ${row.delta!==null?`<span class="cdm-delta" style="background:${row.isGood?'#DCFCE7':'#FEE2E2'};color:${row.isGood?'var(--green)':'var(--red)'}">
+              ${row.isGood?'▲':'▼'}${Math.abs(row.delta).toFixed(1)}${row.suffix}
+            </span>`:''}
+          </div>
+        </div>`).join('')}
+    </div>
+
+    <div class="cdm-section">
+      <div class="cdm-section-title">Why did margin ${m.gmChg>=0?'improve':'drop'}?</div>
+      ${factorsHtml}
+    </div>
+    `:cityData?`
+    <div class="cdm-section">
+      <div class="cdm-section-title">Current Snapshot</div>
+      <div class="cdm-metric-row"><div class="cdm-metric-label">Revenue</div><div class="cdm-metric-vals"><span class="cdm-now">${cr2(cityData.revenue)}</span></div></div>
+      <div class="cdm-metric-row"><div class="cdm-metric-label">COGS</div><div class="cdm-metric-vals"><span class="cdm-now">${cr2(cityData.cogs)}</span></div></div>
+      <div class="cdm-metric-row"><div class="cdm-metric-label">GM%</div><div class="cdm-metric-vals"><span class="cdm-now" style="color:var(--green)">${pct(cityData.gm_pct)}</span></div></div>
+      <div class="cdm-metric-row"><div class="cdm-metric-label">Installs</div><div class="cdm-metric-vals"><span class="cdm-now">${cityData.projects}</span></div></div>
+    </div>`:''}
+  `;
+
+  overlay.classList.add('open');
+}
+
+function closeCityDrill(event){
+  if(event&&event.target!==document.getElementById('cityDrillOverlay'))return;
+  document.getElementById('cityDrillOverlay').classList.remove('open');
 }
 
 // ════════════════════════════════════════════════════
 // CITY VIEW
 // ════════════════════════════════════════════════════
-function buildCityInsights() {
-  const cityMoM = FILTERED.cityMoM || {};
-  const cities  = FILTERED.cities;
-  if (!Object.keys(cityMoM).length || !cities.length) return '';
-
-  const insights = [];
-  const totalRev = cities.reduce((s,c)=>s+c.revenue,0)||1;
-  const mLabel   = Object.values(cityMoM)[0]?.lblPrev || 'last month';
-
-  // 1. GM% biggest movers — plain sentence per city
-  const gmMovers = Object.entries(cityMoM)
-    .filter(([,m]) => m.cntNow>=5 && m.gmPctPrev>0)
-    .map(([city,m]) => ({city, ...m}))
-    .sort((a,b) => Math.abs(b.gmChg) - Math.abs(a.gmChg))
-    .slice(0,3);
-
-  gmMovers.forEach(m => {
-    const up   = m.gmChg > 0;
-    const diff = Math.abs(m.gmChg).toFixed(1);
-    const isCostDriven = !up && m.revChg !== null && m.revChg >= 0;
-    const isRevDriven  = !up && m.revChg !== null && m.revChg < 0;
-    const why = isCostDriven
-      ? `Revenue was actually up ${m.revChg.toFixed(0)}% — so costs went up faster than revenue`
-      : isRevDriven
-      ? `Revenue dropped ${Math.abs(m.revChg).toFixed(0)}% which pulled the margin down`
-      : up && m.revChg !== null && m.revChg > 0
-      ? `Revenue grew ${m.revChg.toFixed(0)}% and margin improved together`
-      : '';
-    insights.push({
-      type: up ? 'good' : 'bad',
-      icon: up ? '📈' : '📉',
-      text: `<strong>${m.city}</strong> — Margin was <strong>${m.gmPctPrev.toFixed(1)}%</strong> in ${mLabel}, now <strong>${m.gmPctNow.toFixed(1)}%</strong>. That's a <strong>${diff}% ${up?'improvement':'drop'}</strong>${why ? '. '+why : ''}.`,
-    });
-  });
-
-  // 2. Volume growing but margin falling — the "growth trap"
-  const growthMarginTrap = Object.entries(cityMoM)
-    .filter(([,m]) => m.cntNow>=5 && m.revChg>5 && m.gmChg < -1)
-    .map(([city,m]) => ({city,...m}))
-    .sort((a,b) => b.revChg - a.revChg);
-  if (growthMarginTrap.length) {
-    const c = growthMarginTrap[0];
-    insights.push({
-      type: 'warn',
-      icon: '⚠️',
-      text: `<strong>${c.city}</strong> — Revenue is up <strong>${c.revChg.toFixed(0)}%</strong> vs ${mLabel}, but margin dropped <strong>${Math.abs(c.gmChg).toFixed(1)}%</strong>. More installs but less profit per install — worth investigating costs here.`,
-    });
-  }
-
-  // 3. AOS shift — system size change in plain words
-  const aosMovers = Object.entries(cityMoM)
-    .filter(([,m]) => m.cntNow>=5 && m.aosChg!==null && Math.abs(m.aosChg)>5)
-    .map(([city,m]) => ({city,...m}))
-    .sort((a,b) => Math.abs(b.aosChg) - Math.abs(a.aosChg))
-    .slice(0,2);
-  aosMovers.forEach(m => {
-    const up = m.aosChg > 0;
-    insights.push({
-      type: 'info',
-      icon: '📦',
-      text: `<strong>${m.city}</strong> — Customers are installing <strong>${up?'bigger':'smaller'} systems</strong> this month. Average size went from <strong>${m.aosPrev.toFixed(1)} kW to ${m.aosNow.toFixed(1)} kW</strong> (${up?'+':''}${m.aosChg.toFixed(0)}%). ${up?'Larger orders = higher revenue per project.':'Smaller systems = lower revenue per project.'}`,
-    });
-  });
-
-  // 4. Revenue concentration — how dependent are we on top cities
-  const top3Rev = cities.slice(0,3).reduce((s,c)=>s+c.revenue,0);
-  const top3Pct = (top3Rev/totalRev*100).toFixed(0);
-  const top3Names = cities.slice(0,3).map(c=>c.city).join(', ');
-  insights.push({
-    type: parseInt(top3Pct) > 60 ? 'warn' : 'info',
-    icon: '🏙️',
-    text: parseInt(top3Pct) > 60
-      ? `<strong>${top3Names}</strong> together make up <strong>${top3Pct}%</strong> of all revenue. A slowdown in any one of these cities would significantly impact overall numbers.`
-      : `Revenue is reasonably spread — top 3 cities (<strong>${top3Names}</strong>) account for <strong>${top3Pct}%</strong> of revenue.`,
-  });
-
-  const colors = {
-    good: {bg:'#DCFCE7', border:'#86EFAC'},
-    bad:  {bg:'#FEE2E2', border:'#FCA5A5'},
-    warn: {bg:'#FEF3C7', border:'#FCD34D'},
-    info: {bg:'#EEF2FF', border:'#A5B4FC'},
-  };
-
-  return `<div style="display:flex;flex-direction:column;gap:5px;flex-shrink:0">
-    <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;font-family:'DM Mono',monospace;padding:0 2px">📊 What's happening in your cities</div>
-    <div style="display:flex;flex-wrap:wrap;gap:6px">
-      ${insights.map(ins => {
-        const c = colors[ins.type];
-        return `<div style="background:${c.bg};border:1px solid ${c.border};border-radius:7px;padding:7px 11px;font-size:10.5px;color:var(--text);line-height:1.55;flex:1;min-width:270px;max-width:480px">
-          <span style="margin-right:5px">${ins.icon}</span>${ins.text}
-        </div>`;
-      }).join('')}
-    </div>
-  </div>`;
-}
-
-function renderCityView() {
-  const d = FILTERED;
-  const insights = buildCityInsights();
-  document.getElementById('mainContent').innerHTML = `
-    ${insights ? `<div style="background:#fff;border:1px solid var(--border);border-radius:8px;padding:8px 12px;flex-shrink:0;box-shadow:var(--shadow)">${insights}</div>` : ''}
-    <div class="charts-row1" style="${insights?'height:170px':''}">
+function renderCityView(){
+  const d=FILTERED;
+  document.getElementById('mainContent').innerHTML=`
+    <div class="charts-row1" style="height:210px">
       <div class="card">
-        <div class="card-title">Top Cities — Revenue vs GM% <span class="card-badge badge-blue">Top 15</span></div>
+        <div class="card-title">
+          Top Cities — Revenue vs GM%
+          <span class="card-badge badge-blue">Bars = Revenue · Line = GM%</span>
+        </div>
+        <div class="legend-row">
+          <div class="leg"><div class="leg-sq" style="background:rgba(37,99,168,0.75)"></div><span class="leg-label">Revenue (₹Cr)</span></div>
+          <div class="leg"><div class="leg-sq" style="background:rgba(239,68,68,0.5)"></div><span class="leg-label">COGS (₹Cr)</span></div>
+          <div class="leg"><div class="leg-line" style="background:#F59E0B"></div><span class="leg-label">GM% (right axis)</span></div>
+          <div style="margin-left:auto;display:flex;align-items:center;gap:5px">
+            <div style="width:10px;height:2px;background:rgba(22,163,74,0.4);border-top:1.5px dashed #16A34A"></div>
+            <span style="font-size:8px;color:var(--muted)">48% target</span>
+          </div>
+        </div>
         <div class="canvas-wrap"><canvas id="cCityRev"></canvas></div>
       </div>
       <div class="card">
-        <div class="card-title">GM% by City <span class="card-badge badge-green">Ranked</span></div>
+        <div class="card-title">GM% Ranking by City <span class="card-badge badge-green">🟢 ≥50% · 🟡 42–50% · 🔴 &lt;42%</span></div>
+        <div class="chart-annotation">Longer bar = higher margin. Green zone is target.</div>
         <div class="canvas-wrap"><canvas id="cCityGM"></canvas></div>
       </div>
       <div class="card">
-        <div class="card-title">AOV by City <span class="card-badge badge-amber">₹ Lakhs</span></div>
+        <div class="card-title">Avg Order Value by City <span class="card-badge badge-amber">₹ Lakhs per project</span></div>
+        <div class="chart-annotation">AOV = Revenue ÷ Projects · Higher = bigger systems</div>
         <div class="canvas-wrap"><canvas id="cCityAOV"></canvas></div>
       </div>
     </div>
     <div class="table-section">
       <div class="tbl-header">
         <div class="tbl-title">City-wise Breakdown
-          <span style="font-size:9px;color:var(--muted);font-weight:400;font-family:'DM Mono',monospace">${d.cities.length} cities · Installs = count of all SSE IDs</span>
+          <span style="font-size:8.5px;color:var(--muted);font-weight:400;font-family:'DM Mono',monospace">${d.cities.length} cities · Surat excluded · Click 🔍 badge for MoM detail</span>
         </div>
         <div class="tbl-tabs">
           <div class="tbl-tab active" onclick="sortCityTable('revenue',this)">Revenue</div>
@@ -1593,79 +1625,171 @@ function renderCityView() {
           <th>#</th><th style="text-align:left">City</th><th style="text-align:left">State</th>
           <th>Installs</th><th>Revenue (ex-GST)</th><th>COGS</th>
           <th>GM ₹</th><th>GM %</th><th>Avg AOV</th><th>Avg AOS</th>
-          <th>GM% vs Prev Mo</th>
+          <th>MoM Change</th>
         </tr></thead><tbody id="cityBody"></tbody></table>
       </div>
     </div>`;
-  setTimeout(() => { drawCityCharts(); buildCityTable('revenue'); }, 30);
+  setTimeout(()=>{drawCityCharts();buildCityTable('revenue');},30);
 }
 
-function drawCityCharts() {
-  const cities = FILTERED.cities.slice(0,15);
-  CHARTS.cityRev = new Chart(document.getElementById('cCityRev'), {
+function drawCityCharts(){
+  const cities=FILTERED.cities.slice(0,12);
+  const totalRev=cities.reduce((s,c)=>s+c.revenue,0)||1;
+
+  // Chart 1: Revenue (bars, stacked with COGS) + GM% line
+  CHARTS.cityRev=new Chart(document.getElementById('cCityRev'),{
     type:'bar',
-    data:{labels:cities.map(c=>c.city),datasets:[
-      {label:'Revenue',data:cities.map(c=>c.revenue/1e7),backgroundColor:'rgba(37,99,168,0.75)',borderRadius:4},
-      {label:'COGS',   data:cities.map(c=>c.cogs/1e7),   backgroundColor:'rgba(239,68,68,0.6)',  borderRadius:4}
-    ]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},
-      tooltip:{backgroundColor:'#1A2C4E',titleColor:'#fff',bodyColor:'#94A3B8',cornerRadius:6,callbacks:{label:ctx=>`₹${ctx.parsed.y.toFixed(2)} Cr`}}},
-      scales:{x:{grid:{display:false},ticks:{color:'#94A3B8',font:{size:8},maxRotation:45}},
-        y:{grid:{color:'rgba(200,220,238,0.4)'},ticks:{color:'#94A3B8',font:{size:8},callback:v=>`₹${v}Cr`}}}}
+    data:{
+      labels:cities.map(c=>c.city),
+      datasets:[
+        {label:'Revenue',data:cities.map(c=>c.revenue/1e7),backgroundColor:'rgba(37,99,168,0.72)',borderRadius:4,yAxisID:'y'},
+        {label:'COGS',data:cities.map(c=>c.cogs/1e7),backgroundColor:'rgba(239,68,68,0.5)',borderRadius:4,yAxisID:'y'},
+        {type:'line',label:'GM%',data:cities.map(c=>c.gm_pct),
+          borderColor:'#F59E0B',borderWidth:2.5,
+          pointRadius:5,pointBackgroundColor:'#fff',pointBorderColor:'#F59E0B',pointBorderWidth:2,
+          tension:0.3,yAxisID:'y2',fill:false}
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{backgroundColor:'#1A2C4E',titleColor:'#fff',bodyColor:'#94A3B8',cornerRadius:8,padding:10,
+          callbacks:{
+            title:items=>`📍 ${items[0].label}`,
+            label:ctx=>{
+              if(ctx.datasetIndex===0)return `  Revenue: ₹${ctx.parsed.y.toFixed(2)} Cr`;
+              if(ctx.datasetIndex===1)return `  COGS: ₹${ctx.parsed.y.toFixed(2)} Cr`;
+              return `  GM%: ${ctx.parsed.y.toFixed(1)}%`;
+            },
+            afterBody:items=>{
+              const city=FILTERED.cities.find(c=>c.city===items[0].label);
+              return city?[`  Margin ₹: ${cr2(city.gm)}`,`  Installs: ${city.projects}`]:[];
+            }
+          }
+        }
+      },
+      scales:{
+        x:{grid:{display:false},ticks:{color:'#94A3B8',font:{size:8},maxRotation:40}},
+        y:{grid:{color:'rgba(200,220,238,0.3)'},ticks:{color:'#94A3B8',font:{size:8},callback:v=>`₹${v.toFixed(0)}Cr`},position:'left',
+           title:{display:true,text:'Revenue / COGS (₹ Crore)',color:'#94A3B8',font:{size:7}}},
+        y2:{grid:{display:false},ticks:{color:'#F59E0B',font:{size:8},callback:v=>`${v}%`},position:'right',min:25,max:70,
+            title:{display:true,text:'GM %',color:'#F59E0B',font:{size:7}}}
+      }
+    }
   });
 
-  const sortedGM = [...FILTERED.cities].sort((a,b)=>b.gm_pct-a.gm_pct).slice(0,12);
-  CHARTS.cityGM = new Chart(document.getElementById('cCityGM'), {
+  // Chart 2: GM% horizontal bar with color zones
+  const sortedGM=[...FILTERED.cities].sort((a,b)=>b.gm_pct-a.gm_pct).slice(0,10);
+  CHARTS.cityGM=new Chart(document.getElementById('cCityGM'),{
     type:'bar',
-    data:{labels:sortedGM.map(c=>c.city),datasets:[{data:sortedGM.map(c=>c.gm_pct),
-      backgroundColor:sortedGM.map(c=>c.gm_pct>=55?'rgba(22,163,74,0.75)':c.gm_pct>=48?'rgba(37,99,168,0.7)':'rgba(245,158,11,0.7)'),borderRadius:4}]},
-    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},
-      tooltip:{backgroundColor:'#1A2C4E',callbacks:{label:ctx=>`${ctx.parsed.x.toFixed(1)}%`}}},
-      scales:{x:{grid:{color:'rgba(200,220,238,0.4)'},ticks:{color:'#94A3B8',font:{size:8},callback:v=>`${v}%`},min:30,max:65},
-        y:{grid:{display:false},ticks:{color:'#5A7A96',font:{size:8}}}}}
+    data:{
+      labels:sortedGM.map(c=>c.city),
+      datasets:[{
+        data:sortedGM.map(c=>c.gm_pct),
+        backgroundColor:sortedGM.map(c=>c.gm_pct>=50?'rgba(22,163,74,0.78)':c.gm_pct>=42?'rgba(245,158,11,0.78)':'rgba(239,68,68,0.72)'),
+        borderRadius:5,borderSkipped:false,
+      }]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,indexAxis:'y',
+      plugins:{
+        legend:{display:false},
+        tooltip:{backgroundColor:'#1A2C4E',titleColor:'#fff',bodyColor:'#94A3B8',cornerRadius:8,padding:10,
+          callbacks:{
+            title:i=>`📍 ${i[0].label}`,
+            label:ctx=>`  GM%: ${ctx.parsed.x.toFixed(1)}%`,
+            afterLabel:ctx=>{
+              const c=FILTERED.cities.find(x=>x.city===ctx.label);
+              return c?[`  Revenue: ${cr2(c.revenue)}`,`  GM ₹: ${cr2(c.gm)}`,`  Installs: ${c.projects}`]:[];
+            }
+          }
+        }
+      },
+      scales:{
+        x:{grid:{color:'rgba(200,220,238,0.3)'},ticks:{color:'#94A3B8',font:{size:8},callback:v=>`${v}%`},min:25,max:65,
+           title:{display:true,text:'Gross Margin % (Target: 48%+)',color:'#94A3B8',font:{size:7}}},
+        y:{grid:{display:false},ticks:{color:'#5A7A96',font:{size:8.5},padding:4}}
+      }
+    }
   });
 
-  CHARTS.cityAOV = new Chart(document.getElementById('cCityAOV'), {
+  // Chart 3: AOV bar
+  CHARTS.cityAOV=new Chart(document.getElementById('cCityAOV'),{
     type:'bar',
-    data:{labels:cities.slice(0,12).map(c=>c.city),datasets:[{data:cities.slice(0,12).map(c=>c.aov/1e5),
-      backgroundColor:'rgba(124,58,237,0.7)',borderRadius:4}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},
-      tooltip:{backgroundColor:'#1A2C4E',callbacks:{label:ctx=>`₹${ctx.parsed.y.toFixed(2)} L`}}},
-      scales:{x:{grid:{display:false},ticks:{color:'#94A3B8',font:{size:8},maxRotation:45}},
-        y:{grid:{color:'rgba(200,220,238,0.4)'},ticks:{color:'#94A3B8',font:{size:8},callback:v=>`₹${v.toFixed(1)}L`}}}}
+    data:{
+      labels:cities.slice(0,10).map(c=>c.city),
+      datasets:[{
+        data:cities.slice(0,10).map(c=>c.aov/1e5),
+        backgroundColor:cities.slice(0,10).map((c,i)=>`hsla(${260+i*8},60%,55%,0.75)`),
+        borderRadius:5,
+      }]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{backgroundColor:'#1A2C4E',titleColor:'#fff',bodyColor:'#94A3B8',cornerRadius:8,padding:10,
+          callbacks:{
+            title:i=>`📍 ${i[0].label}`,
+            label:ctx=>`  AOV: ₹${ctx.parsed.y.toFixed(2)} Lakhs`,
+            afterLabel:ctx=>{
+              const c=FILTERED.cities.find(x=>x.city===ctx.label);
+              return c?[`  Avg system: ${c.aos.toFixed(2)} kW`,`  Installs: ${c.projects}`]:[];
+            }
+          }
+        }
+      },
+      scales:{
+        x:{grid:{display:false},ticks:{color:'#94A3B8',font:{size:8},maxRotation:40}},
+        y:{grid:{color:'rgba(200,220,238,0.3)'},ticks:{color:'#94A3B8',font:{size:8},callback:v=>`₹${v.toFixed(1)}L`},
+           title:{display:true,text:'Avg Order Value (₹ Lakhs)',color:'#94A3B8',font:{size:7}}}
+      }
+    }
   });
 }
 
-function sortCityTable(col,el) {
-  document.querySelectorAll('.tbl-tab').forEach(t=>t.classList.remove('active')); el.classList.add('active');
+function sortCityTable(col,el){
+  document.querySelectorAll('.tbl-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');
   buildCityTable(col);
 }
 
-function buildCityTable(sortCol) {
-  const cities  = [...FILTERED.cities].sort((a,b)=>b[sortCol]-a[sortCol]);
-  const cityMoM = FILTERED.cityMoM || {};
-  const c2s = {};
-  LIVE_ROWS.forEach(r => { if(r.city && r.state) c2s[r.city] = r.state; });
-  document.getElementById('cityBody').innerHTML = cities.map((c,i) => {
-    const m = cityMoM[c.city];
-    let momCell = '<td style="color:var(--muted);font-size:9px;text-align:center">—</td>';
-    if (m && m.gmPctPrev > 0) {
-      const up  = m.gmChg >= 0;
-      const cls = up ? 'g' : 'r';
-      const revTrend = m.revChg !== null
-        ? `<span style="font-size:8px;color:var(--muted);display:block">Revenue ${m.revChg>=0?'up':'down'} ${Math.abs(m.revChg).toFixed(0)}% vs ${m.lblPrev}</span>`
-        : '';
-      momCell = `<td>
-        <span class="${cls}" style="font-weight:700;font-family:'DM Mono',monospace;font-size:10px">
-          ${up?'▲':'▼'}${Math.abs(m.gmChg).toFixed(1)}%
+function buildCityTable(sortCol){
+  const cities=[...FILTERED.cities].sort((a,b)=>b[sortCol]-a[sortCol]);
+  const cityMoM=FILTERED.cityMoM||{};
+  const c2s={};LIVE_ROWS.forEach(r=>{if(r.city&&r.state)c2s[r.city]=r.state;});
+
+  document.getElementById('cityBody').innerHTML=cities.map((c,i)=>{
+    const m=cityMoM[c.city];
+    let momCell='<td style="text-align:center">—</td>';
+
+    if(m&&m.gmPctPrev>0){
+      const up=m.gmChg>=0;
+      const absDiff=Math.abs(m.gmChg);
+      const isMajor=absDiff>2;
+      const cls=up?'good':'bad';
+      const warnCls=!up&&m.revChg>=0?'warn':cls;
+      const label=`${up?'▲':'▼'}${absDiff.toFixed(1)}% GM`;
+
+      momCell=`<td style="text-align:center">
+        <span class="change-alert ${isMajor?warnCls:cls}" onclick="openCityDrill('${c.city.replace(/'/g,"\\'")}');event.stopPropagation()">
+          ${label} ${isMajor?'🔍':''}
         </span>
-        <span style="font-size:8px;color:var(--muted);margin-left:3px">${m.gmPctPrev.toFixed(1)}%→${m.gmPctNow.toFixed(1)}%</span>
-        ${revTrend}
+        <div style="font-size:7.5px;color:var(--muted);margin-top:1px">${m.gmPctPrev.toFixed(1)}%→${m.gmPctNow.toFixed(1)}%</div>
+      </td>`;
+    }else{
+      momCell=`<td style="text-align:center">
+        <span class="change-alert" style="cursor:pointer;border-color:var(--border)" onclick="openCityDrill('${c.city.replace(/'/g,"\\'")}');event.stopPropagation()">
+          View →
+        </span>
       </td>`;
     }
+
     return `<tr>
       <td class="td-rank">${i+1}</td>
-      <td style="font-weight:600">${c.city||'—'}</td>
+      <td style="font-weight:600;cursor:pointer;color:var(--blue)" onclick="openCityDrill('${c.city.replace(/'/g,"\\'")}')">
+        ${c.city||'—'} <span style="font-size:8px;color:var(--muted)">↗</span>
+      </td>
       <td class="dim-cell">${c2s[c.city]||'—'}</td>
       <td>${c.projects.toLocaleString()}</td>
       <td class="b">${cr2(c.revenue)}</td>
@@ -1682,15 +1806,20 @@ function buildCityTable(sortCol) {
 // ════════════════════════════════════════════════════
 // PRODUCT VIEW
 // ════════════════════════════════════════════════════
-function renderProductView() {
-  document.getElementById('mainContent').innerHTML = `
-    <div class="charts-row1">
+function renderProductView(){
+  document.getElementById('mainContent').innerHTML=`
+    <div class="charts-row1" style="height:200px">
       <div class="card" style="grid-column:span 2">
-        <div class="card-title">City × Product AOV Matrix <span class="card-badge badge-blue">₹ Lakhs — Avg Order Value per City/Product combo</span></div>
+        <div class="card-title">
+          City × Product AOV Matrix
+          <span class="card-badge badge-blue">₹L avg order value · 🟢 Above avg · 🔴 Below avg</span>
+        </div>
+        <div class="chart-annotation" style="margin-bottom:4px">Each cell = Avg Revenue per project for that City + Product combo. Green = above portfolio avg, Red = below.</div>
         <div class="tbl-wrap" style="flex:1"><table id="matrixTable"></table></div>
       </div>
       <div class="card">
-        <div class="card-title">Product GM% Comparison <span class="card-badge badge-green">Ranked</span></div>
+        <div class="card-title">GM% by Product <span class="card-badge badge-green">Ranked · Target 48%</span></div>
+        <div class="chart-annotation">🟢 ≥46% · 🔵 43–46% · 🔴 &lt;43%</div>
         <div class="canvas-wrap"><canvas id="cProdGM"></canvas></div>
       </div>
     </div>
@@ -1704,67 +1833,82 @@ function renderProductView() {
         </tr></thead><tbody id="prodBody"></tbody></table>
       </div>
     </div>`;
-  setTimeout(() => { buildMatrix(); drawProdGMChart(); buildProdTable(); }, 30);
+  setTimeout(()=>{buildMatrix();drawProdGMChart();buildProdTable();},30);
 }
 
-function buildMatrix() {
-  const cityMap = {};
-  LIVE_ROWS.forEach(r => {
-    const filt = FILTERED.cities.find(c=>c.city===r.city);
-    if (!filt) return;
-    if (!cityMap[r.city]) cityMap[r.city] = {};
-    if (!cityMap[r.city][r.offer]) cityMap[r.city][r.offer] = {rev:0,n:0};
-    if (r.hasRevenue) {
-      cityMap[r.city][r.offer].rev += r.revenue;
-      cityMap[r.city][r.offer].n   += 1;
-    }
+function buildMatrix(){
+  const cityMap={};
+  LIVE_ROWS.forEach(r=>{
+    const filt=FILTERED.cities.find(c=>c.city===r.city);if(!filt)return;
+    if(!cityMap[r.city])cityMap[r.city]={};
+    if(!cityMap[r.city][r.offer])cityMap[r.city][r.offer]={rev:0,n:0};
+    if(r.hasRevenue){cityMap[r.city][r.offer].rev+=r.revenue;cityMap[r.city][r.offer].n+=1;}
   });
-  const cities   = FILTERED.cities.slice(0,15).map(c=>c.city);
-  const products = [...new Set(LIVE_ROWS.map(r=>r.offer).filter(Boolean))].sort();
-  const allAOVs  = cities.flatMap(c=>products.map(p=>cityMap[c]?.[p]?cityMap[c][p].rev/cityMap[c][p].n:0)).filter(v=>v>0);
-  const avgAll   = allAOVs.reduce((a,b)=>a+b,0)/(allAOVs.length||1);
-
-  let html = `<thead><tr><th style="text-align:left;background:var(--navy);color:#fff;padding:5px 8px;font-size:9px;position:sticky;top:0;z-index:10">City</th>`;
-  products.forEach(p => html+=`<th style="background:var(--navy);color:#fff;padding:5px 8px;font-size:9px;position:sticky;top:0;z-index:10;text-align:center">${p}</th>`);
-  html+=`<th style="background:var(--navy2);color:var(--sun);padding:5px 8px;font-size:9px;position:sticky;top:0;z-index:10">City Avg</th></tr></thead><tbody>`;
-
-  cities.forEach(city => {
-    const row = cityMap[city]||{};
-    const cityAOVs = products.map(p=>row[p]?row[p].rev/row[p].n:0).filter(v=>v>0);
-    const cityAvg  = cityAOVs.length ? cityAOVs.reduce((a,b)=>a+b)/cityAOVs.length : 0;
-    html+=`<tr><td style="font-weight:600;color:var(--navy);font-size:10px">${city}</td>`;
-    products.forEach(p => {
-      const v = row[p] ? row[p].rev/row[p].n : 0;
-      if (!v){ html+=`<td class="dim-cell" style="text-align:center">—</td>`; return; }
-      const cls = v>=avgAll*1.07?'g':v<=avgAll*0.93?'r':'';
-      html+=`<td class="${cls}" style="text-align:center;font-size:10px;font-family:'DM Mono',monospace">₹${(v/1e5).toFixed(2)}L<br><span style="font-size:8px;color:var(--muted)">${row[p].n} proj</span></td>`;
+  const cities=FILTERED.cities.slice(0,15).map(c=>c.city);
+  const products=[...new Set(LIVE_ROWS.map(r=>r.offer).filter(Boolean))].sort();
+  const allAOVs=cities.flatMap(c=>products.map(p=>cityMap[c]?.[p]?cityMap[c][p].rev/cityMap[c][p].n:0)).filter(v=>v>0);
+  const avgAll=allAOVs.reduce((a,b)=>a+b,0)/(allAOVs.length||1);
+  let html=`<thead><tr><th style="text-align:left;background:var(--navy);color:#fff;padding:5px 8px;font-size:8.5px;position:sticky;top:0;z-index:10">City</th>`;
+  products.forEach(p=>html+=`<th style="background:var(--navy);color:#fff;padding:5px 8px;font-size:8.5px;position:sticky;top:0;z-index:10;text-align:center">${p}</th>`);
+  html+=`<th style="background:var(--navy2);color:var(--sun);padding:5px 8px;font-size:8.5px;position:sticky;top:0;z-index:10">City Avg</th></tr></thead><tbody>`;
+  cities.forEach(city=>{
+    const row=cityMap[city]||{};
+    const cityAOVs=products.map(p=>row[p]?row[p].rev/row[p].n:0).filter(v=>v>0);
+    const cityAvg=cityAOVs.length?cityAOVs.reduce((a,b)=>a+b)/cityAOVs.length:0;
+    html+=`<tr><td style="font-weight:600;color:var(--navy);font-size:9.5px">${city}</td>`;
+    products.forEach(p=>{
+      const v=row[p]?row[p].rev/row[p].n:0;
+      if(!v){html+=`<td class="dim-cell" style="text-align:center">—</td>`;return;}
+      const cls=v>=avgAll*1.07?'g':v<=avgAll*0.93?'r':'';
+      html+=`<td class="${cls}" style="text-align:center;font-size:9.5px;font-family:'DM Mono',monospace">
+        ₹${(v/1e5).toFixed(2)}L<br><span style="font-size:7.5px;color:var(--muted)">${row[p].n} proj</span>
+      </td>`;
     });
-    html+=`<td style="text-align:center;font-family:'DM Mono',monospace;font-size:10px;color:var(--sun);font-weight:600">${cityAvg?`₹${(cityAvg/1e5).toFixed(2)}L`:'—'}</td>`;
-    html+=`</tr>`;
+    html+=`<td style="text-align:center;font-family:'DM Mono',monospace;font-size:9.5px;color:var(--sun);font-weight:600">${cityAvg?`₹${(cityAvg/1e5).toFixed(2)}L`:'—'}</td></tr>`;
   });
   html+=`</tbody>`;
-  document.getElementById('matrixTable').innerHTML = html;
+  document.getElementById('matrixTable').innerHTML=html;
 }
 
-function drawProdGMChart() {
-  const d = [...FILTERED.offers].sort((a,b)=>b.gm_pct-a.gm_pct);
-  if(!d.length) return;
-  CHARTS.prodGM = new Chart(document.getElementById('cProdGM'), {
+function drawProdGMChart(){
+  const d=[...FILTERED.offers].sort((a,b)=>b.gm_pct-a.gm_pct);
+  if(!d.length)return;
+  CHARTS.prodGM=new Chart(document.getElementById('cProdGM'),{
     type:'bar',
-    data:{labels:d.map(o=>o.offer),datasets:[{data:d.map(o=>o.gm_pct),
-      backgroundColor:d.map(o=>o.gm_pct>=46?'rgba(22,163,74,0.75)':o.gm_pct>=43?'rgba(37,99,168,0.7)':'rgba(239,68,68,0.65)'),borderRadius:6}]},
-    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},
-      tooltip:{backgroundColor:'#1A2C4E',callbacks:{label:ctx=>`${ctx.parsed.x.toFixed(1)}%`}}},
-      scales:{x:{grid:{color:'rgba(200,220,238,0.4)'},ticks:{color:'#94A3B8',font:{size:8},callback:v=>`${v}%`},min:30,max:60},
-        y:{grid:{display:false},ticks:{color:'#5A7A96',font:{size:9}}}}}
+    data:{labels:d.map(o=>o.offer),datasets:[{
+      data:d.map(o=>o.gm_pct),
+      backgroundColor:d.map(o=>o.gm_pct>=46?'rgba(22,163,74,0.78)':o.gm_pct>=43?'rgba(37,99,168,0.75)':'rgba(239,68,68,0.72)'),
+      borderRadius:6,borderSkipped:false,
+    }]},
+    options:{
+      responsive:true,maintainAspectRatio:false,indexAxis:'y',
+      plugins:{
+        legend:{display:false},
+        tooltip:{backgroundColor:'#1A2C4E',titleColor:'#fff',bodyColor:'#94A3B8',cornerRadius:8,padding:10,
+          callbacks:{
+            title:i=>`📦 ${i[0].label}`,
+            label:ctx=>`  GM%: ${ctx.parsed.x.toFixed(1)}%`,
+            afterLabel:ctx=>{
+              const o=FILTERED.offers.find(x=>x.offer===ctx.label);
+              return o?[`  Revenue: ${cr2(o.revenue)}`,`  Installs: ${o.projects}`,`  AOV: ${lakh(o.aov)}`]:[];
+            }
+          }
+        }
+      },
+      scales:{
+        x:{grid:{color:'rgba(200,220,238,0.3)'},ticks:{color:'#94A3B8',font:{size:8},callback:v=>`${v}%`},min:25,max:65,
+           title:{display:true,text:'Gross Margin % (Target ≥48%)',color:'#94A3B8',font:{size:7}}},
+        y:{grid:{display:false},ticks:{color:'#5A7A96',font:{size:9}}}
+      }
+    }
   });
 }
 
-function buildProdTable() {
-  const offers = [...FILTERED.offers].sort((a,b)=>b.revenue-a.revenue);
-  const totalRev = offers.reduce((s,o)=>s+o.revenue,0)||1;
-  document.getElementById('prodBody').innerHTML = offers.map((o,i) => {
-    const share = o.revenue/totalRev*100;
+function buildProdTable(){
+  const offers=[...FILTERED.offers].sort((a,b)=>b.revenue-a.revenue);
+  const totalRev=offers.reduce((s,o)=>s+o.revenue,0)||1;
+  document.getElementById('prodBody').innerHTML=offers.map((o,i)=>{
+    const share=o.revenue/totalRev*100;
     return `<tr>
       <td class="td-rank">${i+1}</td>
       <td style="font-weight:600">${o.offer||'—'}</td>
@@ -1783,426 +1927,350 @@ function buildProdTable() {
 // ════════════════════════════════════════════════════
 // COST BREAKDOWN VIEW
 // ════════════════════════════════════════════════════
-function buildGMDecompPanel(d) {
-  if (!d) return '';
-  const gmUp   = d.gmChg >= 0;
-  const gmDiff = Math.abs(d.gmChg).toFixed(1);
-  const headlineCls = gmUp ? '#16A34A' : '#DC2626';
-  const headlineBg  = gmUp ? '#DCFCE7' : '#FEE2E2';
-  const headlineBorder = gmUp ? '#86EFAC' : '#FCA5A5';
-
-  const headlineText = gmUp
-    ? `Margin improved — from <strong>${d.gmPctPrev.toFixed(1)}%</strong> in ${d.lblPrev} to <strong>${d.gmPctNow.toFixed(1)}%</strong> this month. Up <strong>${gmDiff}%</strong>.`
-    : `Margin dropped — was <strong>${d.gmPctPrev.toFixed(1)}%</strong> in ${d.lblPrev}, now <strong>${d.gmPctNow.toFixed(1)}%</strong>. Down <strong>${gmDiff}%</strong>.`;
-
-  // Revenue per Wp row
-  const revUp   = d.priceEffect >= 0;
-  const revText = revUp
-    ? `Selling price per Wp went up (₹${d.revWpPrev.toFixed(2)} → ₹${d.revWpNow.toFixed(2)}) — this <strong>helped</strong> margin`
-    : `Selling price per Wp came down (₹${d.revWpPrev.toFixed(2)} → ₹${d.revWpNow.toFixed(2)}) — this <strong>hurt</strong> margin`;
-
-  // Cost component rows — plain language
-  const costRows = d.costEffects.map(e => {
-    const costUp  = e.gmImpact < 0;  // cost up = bad = hurts margin
-    const bg      = costUp ? '#FEF9F9' : '#F0FDF4';
-    const dotClr  = costUp ? '#DC2626' : '#16A34A';
-    const impact  = Math.abs(e.gmImpact).toFixed(1);
-    const rateChg = Math.abs(((e.rateL - e.rateP) / (e.rateP||1)) * 100).toFixed(1);
-    const action  = costUp
-      ? `Cost went up ${rateChg}% (₹${e.rateP.toFixed(3)}→₹${e.rateL.toFixed(3)}/Wp) — <strong>reduced margin by ${impact}%</strong>`
-      : `Cost came down ${rateChg}% (₹${e.rateP.toFixed(3)}→₹${e.rateL.toFixed(3)}/Wp) — <strong>added ${impact}% to margin</strong>`;
-    return `<div style="background:${bg};border-radius:5px;padding:4px 8px;display:flex;align-items:flex-start;gap:7px;font-size:10.5px;line-height:1.4">
-      <span style="color:${dotClr};font-size:13px;line-height:1;margin-top:1px">${costUp?'↑':'↓'}</span>
+function buildGMDecompPanel(d){
+  if(!d)return'';
+  const gmUp=d.gmChg>=0;
+  const headlineBg=gmUp?'#DCFCE7':'#FEE2E2';
+  const headlineColor=gmUp?'#16A34A':'#DC2626';
+  const headlineBorder=gmUp?'#86EFAC':'#FCA5A5';
+  const headlineText=gmUp
+    ?`Margin improved — from <strong>${d.gmPctPrev.toFixed(1)}%</strong> in ${d.lblPrev} to <strong>${d.gmPctNow.toFixed(1)}%</strong>. Up <strong>${Math.abs(d.gmChg).toFixed(1)}%</strong>.`
+    :`Margin dropped — was <strong>${d.gmPctPrev.toFixed(1)}%</strong> in ${d.lblPrev}, now <strong>${d.gmPctNow.toFixed(1)}%</strong>. Down <strong>${Math.abs(d.gmChg).toFixed(1)}%</strong>.`;
+  const revUp=d.priceEffect>=0;
+  const revText=revUp
+    ?`Selling price per Wp went up (₹${d.revWpPrev.toFixed(2)} → ₹${d.revWpNow.toFixed(2)}) — this <strong>helped</strong> margin`
+    :`Selling price per Wp came down (₹${d.revWpPrev.toFixed(2)} → ₹${d.revWpNow.toFixed(2)}) — this <strong>hurt</strong> margin`;
+  const costRows=d.costEffects.map(e=>{
+    const costUp=e.gmImpact<0;
+    const bg=costUp?'#FEF9F9':'#F0FDF4';
+    const dotC=costUp?'#DC2626':'#16A34A';
+    const impact=Math.abs(e.gmImpact).toFixed(1);
+    const rateChg=Math.abs(((e.rateL-e.rateP)/(e.rateP||1))*100).toFixed(1);
+    const action=costUp
+      ?`Cost went up ${rateChg}% (₹${e.rateP.toFixed(3)}→₹${e.rateL.toFixed(3)}/Wp) — <strong>reduced margin by ${impact}%</strong>`
+      :`Cost came down ${rateChg}% (₹${e.rateP.toFixed(3)}→₹${e.rateL.toFixed(3)}/Wp) — <strong>added ${impact}% to margin</strong>`;
+    return `<div style="background:${bg};border-radius:5px;padding:4px 8px;display:flex;align-items:flex-start;gap:6px;font-size:10px;line-height:1.4">
+      <span style="color:${dotC};font-size:12px;line-height:1;margin-top:1px">${costUp?'↑':'↓'}</span>
       <span><strong>${e.name}:</strong> ${action}</span>
     </div>`;
   }).join('');
-
-  // City mix row
-  const mixRow = Math.abs(d.cityMixEffect) > 0.05 ? (() => {
-    const mixUp = d.cityMixEffect >= 0;
-    const bg    = mixUp ? '#F0FDF4' : '#FEF9F9';
-    const dotC  = mixUp ? '#16A34A' : '#DC2626';
-    const mixTxt = mixUp
-      ? `More installs came from high-margin cities this month — <strong>added ${Math.abs(d.cityMixEffect).toFixed(1)}% to margin</strong>`
-      : `More installs came from lower-margin cities this month — <strong>reduced margin by ${Math.abs(d.cityMixEffect).toFixed(1)}%</strong>`;
-    return `<div style="background:${bg};border-radius:5px;padding:4px 8px;display:flex;align-items:flex-start;gap:7px;font-size:10.5px;line-height:1.4">
-      <span style="color:${dotC};font-size:13px;line-height:1;margin-top:1px">${mixUp?'↑':'↓'}</span>
+  const mixRow=Math.abs(d.cityMixEffect)>0.05?(()=>{
+    const mixUp=d.cityMixEffect>=0;
+    const bg=mixUp?'#F0FDF4':'#FEF9F9';
+    const dotC=mixUp?'#16A34A':'#DC2626';
+    const mixTxt=mixUp
+      ?`More installs came from high-margin cities — <strong>added ${Math.abs(d.cityMixEffect).toFixed(1)}% to margin</strong>`
+      :`More installs came from lower-margin cities — <strong>reduced margin by ${Math.abs(d.cityMixEffect).toFixed(1)}%</strong>`;
+    return `<div style="background:${bg};border-radius:5px;padding:4px 8px;display:flex;align-items:flex-start;gap:6px;font-size:10px;line-height:1.4">
+      <span style="color:${dotC};font-size:12px;line-height:1;margin-top:1px">${mixUp?'↑':'↓'}</span>
       <span><strong>City Mix:</strong> ${mixTxt}</span>
     </div>`;
-  })() : '';
-
-  return `
-    <div style="background:#fff;border:1px solid var(--border);border-radius:8px;padding:10px 14px;flex-shrink:0;box-shadow:var(--shadow)">
-      <!-- Headline -->
-      <div style="background:${headlineBg};border:1px solid ${headlineBorder};border-radius:6px;padding:6px 10px;margin-bottom:8px;font-size:11px;color:${headlineCls};line-height:1.5">
-        📊 ${headlineText}
-      </div>
-      <!-- Revenue line -->
-      <div style="background:#F8FAFF;border-radius:5px;padding:4px 8px;display:flex;align-items:flex-start;gap:7px;font-size:10.5px;line-height:1.4;margin-bottom:4px">
-        <span style="color:${revUp?'#16A34A':'#DC2626'};font-size:13px;line-height:1;margin-top:1px">${revUp?'↑':'↓'}</span>
-        <span><strong>Revenue per Wp:</strong> ${revText}</span>
-      </div>
-      <!-- Cost rows -->
-      <div style="display:flex;flex-direction:column;gap:3px">
-        ${costRows}
-        ${mixRow}
-      </div>
-    </div>`;
+  })():'';
+  return `<div style="background:#fff;border:1px solid var(--border);border-radius:8px;padding:9px 14px;flex-shrink:0;box-shadow:var(--shadow)">
+    <div style="background:${headlineBg};border:1px solid ${headlineBorder};border-radius:6px;padding:6px 10px;margin-bottom:7px;font-size:10.5px;color:${headlineColor};line-height:1.5">
+      📊 ${headlineText}
+    </div>
+    <div style="background:#F8FAFF;border-radius:5px;padding:4px 8px;display:flex;align-items:flex-start;gap:6px;font-size:10px;line-height:1.4;margin-bottom:4px">
+      <span style="color:${revUp?'#16A34A':'#DC2626'};font-size:12px;line-height:1;margin-top:1px">${revUp?'↑':'↓'}</span>
+      <span><strong>Revenue per Wp:</strong> ${revText}</span>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:3px">${costRows}${mixRow}</div>
+  </div>`;
 }
 
-function renderCostsView() {
-  const costs   = FILTERED.costs;
-  const monthly = FILTERED.monthly;
-  const decomp  = buildGMDecompPanel(FILTERED.gmDecomp);
-
-  document.getElementById('mainContent').innerHTML = `
+function renderCostsView(){
+  const costs=FILTERED.costs;
+  const monthly=FILTERED.monthly;
+  const decomp=buildGMDecompPanel(FILTERED.gmDecomp);
+  document.getElementById('mainContent').innerHTML=`
     ${decomp}
-    <div class="charts-row1" style="height:190px">
+    <div class="charts-row1" style="height:185px;flex-shrink:0">
       <div class="card" style="grid-column:span 2">
-        <div class="card-title">MoM Cost Trend <span class="card-badge badge-amber">COGS · Last 12 months · ₹ Lakhs</span></div>
+        <div class="card-title">COGS Trend vs GM% <span class="card-badge badge-amber">Monthly · Last 12 months</span></div>
+        <div class="legend-row">
+          <div class="leg"><div class="leg-sq" style="background:rgba(239,68,68,0.65)"></div><span class="leg-label">COGS (₹Lakhs, left)</span></div>
+          <div class="leg"><div class="leg-line" style="background:#16A34A"></div><span class="leg-label">GM% (right)</span></div>
+          <div style="font-size:8px;color:var(--muted);margin-left:auto">Lower COGS + Higher GM% = efficiency improving</div>
+        </div>
         <div class="canvas-wrap"><canvas id="cCostMoM"></canvas></div>
       </div>
       <div class="card">
-        <div class="card-title">Cost Component Share <span class="card-badge badge-navy">% of tracked</span></div>
+        <div class="card-title">Cost Component Share <span class="card-badge badge-navy">% of tracked COGS</span></div>
+        <div class="chart-annotation">Module & Inverter usually dominate. Use % to track shifts.</div>
         <div class="canvas-wrap"><canvas id="cCostDonut"></canvas></div>
       </div>
     </div>
     <div class="table-section">
       <div class="tbl-header">
-        <div class="tbl-title">Cost Breakdown
-          <span style="font-size:9px;color:var(--muted);font-weight:400;font-family:'DM Mono',monospace">Click + to drill into module/inverter types · Rate vs prev month (size-adjusted)</span>
+        <div class="tbl-title">Cost Breakdown by Component
+          <span style="font-size:8.5px;color:var(--muted);font-weight:400;font-family:'DM Mono',monospace">Click + to drill into module/inverter types · Rate = size-adjusted ₹/Wp</span>
         </div>
       </div>
       <div class="tbl-wrap">
         <table><thead><tr>
-          <th>#</th>
-          <th style="text-align:left">Component</th>
-          <th>Total Cost</th>
-          <th>% of COGS</th>
-          <th>Avg / Project</th>
-          <th>Unit Rate</th>
-          <th>vs Prev Month</th>
+          <th>#</th><th style="text-align:left">Component</th>
+          <th>Total Cost</th><th>% of COGS</th><th>Avg / Project</th>
+          <th>Unit Rate (₹/Wp)</th><th>vs Prev Month</th>
         </tr></thead><tbody id="costBody"></tbody></table>
       </div>
     </div>`;
-  setTimeout(() => { drawCostMoMChart(monthly); drawCostDonut(costs); buildCostTable(costs); }, 30);
+  setTimeout(()=>{drawCostMoMChart(monthly);drawCostDonut(costs);buildCostTable(costs);},30);
 }
 
-
-
-function drawCostMoMChart(monthly) {
-  const d = monthly.slice(-12);
-  if (!d.length) return;
-  CHARTS.costMoM = new Chart(document.getElementById('cCostMoM'), {
+function drawCostMoMChart(monthly){
+  const d=monthly.slice(-12);
+  if(!d.length)return;
+  CHARTS.costMoM=new Chart(document.getElementById('cCostMoM'),{
     type:'bar',
     data:{
-      labels: d.map(m=>m.label),
+      labels:d.map(m=>m.label),
       datasets:[
-        {label:'COGS (IC Total)',data:d.map(m=>m.cogs/1e5),backgroundColor:'rgba(239,68,68,0.65)',borderRadius:3,yAxisID:'y'},
-        {type:'line',label:'GM%',data:d.map(m=>m.gm_pct),borderColor:'#16A34A',borderWidth:2,
-         pointRadius:3,pointBackgroundColor:'#16A34A',tension:0.3,yAxisID:'y2',fill:false,borderDash:[4,2]}
+        {label:'COGS (₹L)',data:d.map(m=>m.cogs/1e5),backgroundColor:'rgba(239,68,68,0.6)',borderRadius:4,yAxisID:'y'},
+        {type:'line',label:'GM%',data:d.map(m=>m.gm_pct),borderColor:'#16A34A',borderWidth:2.5,
+         pointRadius:4,pointBackgroundColor:'#fff',pointBorderColor:'#16A34A',pointBorderWidth:2,
+         tension:0.3,yAxisID:'y2',fill:false}
       ]
     },
-    options:{responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:true,position:'top',labels:{color:'#5A7A96',font:{size:8},padding:6,boxWidth:10}},
-        tooltip:{mode:'index',backgroundColor:'#1A2C4E',titleColor:'#fff',bodyColor:'#94A3B8',cornerRadius:6,
-          callbacks:{label:ctx=>ctx.datasetIndex===0?`₹${ctx.parsed.y.toFixed(1)}L COGS`:`${ctx.parsed.y.toFixed(1)}% GM`}}},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{mode:'index',backgroundColor:'#1A2C4E',titleColor:'#fff',bodyColor:'#94A3B8',cornerRadius:8,padding:10,
+          callbacks:{label:ctx=>ctx.datasetIndex===0?`  COGS: ₹${ctx.parsed.y.toFixed(1)}L`:`  GM%: ${ctx.parsed.y.toFixed(1)}%`}
+        }
+      },
       scales:{
         x:{grid:{display:false},ticks:{color:'#94A3B8',font:{size:8}}},
-        y:{grid:{color:'rgba(200,220,238,0.4)'},ticks:{color:'#94A3B8',font:{size:8},callback:v=>`₹${v.toFixed(0)}L`},position:'left'},
-        y2:{grid:{display:false},ticks:{color:'#16A34A',font:{size:8},callback:v=>`${v.toFixed(0)}%`},position:'right',min:30,max:65}
+        y:{grid:{color:'rgba(200,220,238,0.3)'},ticks:{color:'#94A3B8',font:{size:8},callback:v=>`₹${v.toFixed(0)}L`},position:'left',
+           title:{display:true,text:'COGS (₹ Lakhs)',color:'#94A3B8',font:{size:7}}},
+        y2:{grid:{display:false},ticks:{color:'#16A34A',font:{size:8},callback:v=>`${v.toFixed(0)}%`},position:'right',min:25,max:65,
+            title:{display:true,text:'GM %',color:'#16A34A',font:{size:7}}}
       }
     }
   });
 }
 
-function drawCostDonut(costs) {
-  if (!costs.length) return;
-  const COLORS = ['#2563A8','#F59E0B','#16A34A','#7C3AED','#EF4444','#0891B2','#EC4899','#84CC16'];
-  CHARTS.costDonut = new Chart(document.getElementById('cCostDonut'), {
+function drawCostDonut(costs){
+  if(!costs.length)return;
+  const COLORS=['#2563A8','#F59E0B','#16A34A','#7C3AED','#EF4444','#0891B2','#EC4899','#84CC16'];
+  const total=costs.reduce((s,c)=>s+c.total,0)||1;
+  CHARTS.costDonut=new Chart(document.getElementById('cCostDonut'),{
     type:'doughnut',
     data:{labels:costs.map(c=>c.item),datasets:[{data:costs.map(c=>c.total),backgroundColor:COLORS,borderColor:'#fff',borderWidth:2}]},
-    options:{responsive:true,maintainAspectRatio:false,cutout:'62%',
-      plugins:{legend:{position:'right',labels:{color:'#5A7A96',font:{size:8},padding:5,boxWidth:8}},
-        tooltip:{backgroundColor:'#1A2C4E',callbacks:{label:ctx=>{
-          const t=ctx.dataset.data.reduce((a,b)=>a+b,0);
-          return `${ctx.label}: ${(ctx.parsed/t*100).toFixed(1)}%`;
-        }}}}}
+    options:{responsive:true,maintainAspectRatio:false,cutout:'58%',
+      plugins:{
+        legend:{position:'right',labels:{color:'#5A7A96',font:{size:8},padding:4,boxWidth:8,
+          generateLabels:chart=>chart.data.labels.map((l,i)=>{
+            const v=chart.data.datasets[0].data[i];
+            return{text:`${l}  ${(v/total*100).toFixed(0)}%`,fillStyle:COLORS[i],strokeStyle:'#fff',lineWidth:2,index:i};
+          })}},
+        tooltip:{backgroundColor:'#1A2C4E',callbacks:{label:ctx=>[`  ${ctx.label}`,`  ${(ctx.parsed/total*100).toFixed(1)}% of COGS`,`  ${cr2(ctx.parsed)}`]}}
+      }
+    }
   });
 }
 
-let COST_EXPANDED = new Set();
+let COST_EXPANDED=new Set();
 
-function toggleCostExpand(key) {
-  if (COST_EXPANDED.has(key)) COST_EXPANDED.delete(key);
+function toggleCostExpand(key){
+  if(COST_EXPANDED.has(key))COST_EXPANDED.delete(key);
   else COST_EXPANDED.add(key);
   buildCostTable(FILTERED.costs);
 }
 
-function buildCostTable(costs) {
-  if (!costs || !costs.length) {
-    document.getElementById('costBody').innerHTML =
-      '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:20px">No cost data available</td></tr>';
+function buildCostTable(costs){
+  if(!costs||!costs.length){
+    document.getElementById('costBody').innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:20px">No cost data available</td></tr>';
     return;
   }
-  const totalCOGS = FILTERED.kpis.total_cogs || 1;
-
-  let rows = '';
-  costs.forEach((c, i) => {
-    const cogsShare = c.total / totalCOGS * 100;
-    const hasTypes  = c.subTypes && c.subTypes.length > 0;
-    const isOpen    = COST_EXPANDED.has(c.key);
-
-    // ── MoM cell: show genuine rate movement (size-adjusted) ──────────────
-    let momCell = '<td style="color:var(--muted);font-size:9px;text-align:center">—</td>';
-    if (c.mom && c.mom.normNow > 0 && c.mom.normPrev > 0) {
-      const m   = c.mom;
-      const chg = m.normChg;   // size-adjusted rate change — the real signal
-      const up  = chg > 0;
-
-      // Badge: RATE up/down is genuine; SIZE badge if raw moved but norm flat
-      let badge = '';
-      if (m.isGenuine) {
-        badge = up
-          ? `<span style="background:#FEE2E2;color:#DC2626;padding:1px 6px;border-radius:4px;font-size:8px;font-weight:700">RATE ▲</span>`
-          : `<span style="background:#DCFCE7;color:#16A34A;padding:1px 6px;border-radius:4px;font-size:8px;font-weight:700">RATE ▼</span>`;
-      } else if (Math.abs(m.aosChg) > 1) {
-        badge = m.aosChg > 0
-          ? `<span style="background:#EEF2FF;color:#4F46E5;padding:1px 6px;border-radius:4px;font-size:8px;font-weight:600">SIZE ▲</span>`
-          : `<span style="background:#F0FDFA;color:#0D9488;padding:1px 6px;border-radius:4px;font-size:8px;font-weight:600">SIZE ▼</span>`;
-      } else {
-        badge = `<span style="background:#F1F5F9;color:#94A3B8;padding:1px 6px;border-radius:4px;font-size:8px">—</span>`;
-      }
-
-      // Show size-adjusted rate values (normNow/normPrev) — these are the true unit rates
-      const rateChgCls = up ? 'r' : 'g';
-      const aosLine = Math.abs(m.aosChg) > 1
-        ? `<div style="font-size:8px;color:var(--muted);margin-top:1px">AOS ${m.aosPrev.toFixed(1)}→${m.aosNow.toFixed(1)} kW</div>`
-        : '';
-
-      momCell = `<td>
-        <div style="display:flex;flex-direction:column;gap:1px">
-          <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap">
-            <span class="${rateChgCls}" style="font-size:10px;font-weight:700;font-family:'DM Mono',monospace">
-              ${up?'▲':'▼'}${Math.abs(chg).toFixed(1)}%
-            </span>
-            <span style="font-size:9px;color:var(--muted);font-family:'DM Mono',monospace">
-              ${m.normPrev.toFixed(2)}→${m.normNow.toFixed(2)} ${m.unit}
-            </span>
-            ${badge}
-          </div>
-          ${aosLine}
+  const totalCOGS=FILTERED.kpis.total_cogs||1;
+  let rows='';
+  costs.forEach((c,i)=>{
+    const cogsShare=c.total/totalCOGS*100;
+    const hasTypes=c.subTypes&&c.subTypes.length>0;
+    const isOpen=COST_EXPANDED.has(c.key);
+    let momCell='<td style="color:var(--muted);font-size:9px;text-align:center">—</td>';
+    if(c.mom&&c.mom.normNow>0&&c.mom.normPrev>0){
+      const m=c.mom;const chg=m.normChg;const up=chg>0;
+      let badge='';
+      if(m.isGenuine){badge=up
+        ?`<span class="mom-badge mom-up">RATE ▲</span>`
+        :`<span class="mom-badge mom-down">RATE ▼</span>`;}
+      else if(Math.abs(m.aosChg)>1){badge=m.aosChg>0
+        ?`<span class="mom-badge" style="background:#EEF2FF;color:#4F46E5">SIZE ▲</span>`
+        :`<span class="mom-badge" style="background:#F0FDFA;color:#0D9488">SIZE ▼</span>`;}
+      else{badge=`<span class="mom-badge mom-flat">FLAT</span>`;}
+      momCell=`<td>
+        <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap">
+          <span class="${up?'r':'g'}" style="font-size:9.5px;font-weight:700;font-family:'DM Mono',monospace">
+            ${up?'▲':'▼'}${Math.abs(chg).toFixed(1)}%
+          </span>
+          <span style="font-size:8.5px;color:var(--muted);font-family:'DM Mono',monospace">
+            ${m.normPrev.toFixed(2)}→${m.normNow.toFixed(2)} ₹/Wp
+          </span>
+          ${badge}
         </div>
       </td>`;
     }
-
-    rows += `<tr class="cost-component-row" onclick="${hasTypes?`toggleCostExpand('${c.key}')`:``}">
+    rows+=`<tr class="cost-component-row" onclick="${hasTypes?`toggleCostExpand('${c.key}')`:``}">
       <td class="td-rank">${i+1}</td>
       <td><div class="state-name-cell">
-        ${hasTypes
-          ? `<span class="expand-btn ${isOpen?'open':''}">${isOpen?'−':'+'}</span>`
-          : `<span style="width:16px;display:inline-block"></span>`}
+        ${hasTypes?`<span class="expand-btn ${isOpen?'open':''}">${isOpen?'−':'+'}</span>`:`<span style="width:15px;display:inline-block"></span>`}
         <span style="font-weight:700;color:var(--navy)">${c.item}</span>
-        ${hasTypes?`<span style="font-size:9px;color:var(--muted);margin-left:4px">${c.subTypes.length} types</span>`:''}
+        ${hasTypes?`<span style="font-size:8px;color:var(--muted);margin-left:3px">${c.subTypes.length} types</span>`:''}
       </div></td>
       <td class="b">${cr2(c.total)}</td>
       <td><div class="sparkbar">
         <div class="bar-track"><div class="bar-fill" style="width:${Math.min(cogsShare,100).toFixed(0)}%;background:var(--red)"></div></div>
         <span class="${cogsShare>30?'a':cogsShare>15?'b':'dim-cell'}">${cogsShare.toFixed(1)}%</span>
       </div></td>
-      <td style="font-family:'DM Mono',monospace;font-size:10px">₹${c.avg.toLocaleString()}</td>
-      <td style="font-family:'DM Mono',monospace;font-size:11px;font-weight:700;color:var(--purple)">
-        ${c.unitRate>0?c.unitRate.toFixed(2)+' '+c.unitLabel:'—'}
+      <td style="font-family:'DM Mono',monospace;font-size:9.5px">₹${c.avg.toLocaleString()}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:10.5px;font-weight:700;color:var(--purple)">
+        ${c.unitRate>0?c.unitRate.toFixed(2)+' ₹/Wp':'—'}
       </td>
       ${momCell}
     </tr>`;
-
-    // ── Sub-type rows (module types / inverter types) ──────────────────────
-    if (isOpen && hasTypes) {
-      const maxTotal = c.subTypes[0]?.total || 1;
-      c.subTypes.forEach(t => {
-        const typeShare = c.total > 0 ? t.total/c.total*100 : 0;
-        const rpwStr = t.rpw > 0
-          ? `<span style="color:var(--purple);font-weight:700;font-family:'DM Mono',monospace">${t.rpw.toFixed(2)} ${t.unit}</span>`
-          : '—';
-
-        // Sub-type MoM cell
-        let subMomCell = `<td style="color:var(--muted);font-size:9px">—</td>`;
-        if (t.mom && t.mom.hasData) {
-          const sm   = t.mom;
-          const up   = sm.normChg > 0;
-          const cls  = up ? 'r' : 'g';
-          let badge = '';
-          if (sm.isGenuine) {
-            badge = up
-              ? `<span style="background:#FEE2E2;color:#DC2626;padding:1px 5px;border-radius:4px;font-size:8px;font-weight:700">▲ RATE UP</span>`
-              : `<span style="background:#DCFCE7;color:#16A34A;padding:1px 5px;border-radius:4px;font-size:8px;font-weight:700">▼ RATE DOWN</span>`;
-          }
-          subMomCell = `<td>
-            <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap">
-              <span class="${cls}" style="font-size:10px;font-weight:700;font-family:'DM Mono',monospace">
-                ${up?'▲':'▼'}${Math.abs(sm.normChg).toFixed(1)}%
-              </span>
-              <span style="font-size:9px;color:var(--muted);font-family:'DM Mono',monospace">
-                ${sm.normPrev.toFixed(2)}→${sm.normNow.toFixed(2)} ${sm.unit}
-              </span>
-              ${badge}
-            </div>
-          </td>`;
+    if(isOpen&&hasTypes){
+      const maxTotal=c.subTypes[0]?.total||1;
+      c.subTypes.forEach(t=>{
+        const typeShare=c.total>0?t.total/c.total*100:0;
+        const rpwStr=t.rpw>0?`<span style="color:var(--purple);font-weight:700;font-family:'DM Mono',monospace">${t.rpw.toFixed(2)} ₹/Wp</span>`:'—';
+        let subMomCell=`<td style="color:var(--muted);font-size:9px">—</td>`;
+        if(t.mom&&t.mom.hasData){
+          const sm=t.mom;const up=sm.normChg>0;const cls=up?'r':'g';
+          let badge=sm.isGenuine?(up?`<span class="mom-badge mom-up">▲ UP</span>`:`<span class="mom-badge mom-down">▼ DOWN</span>`):'';
+          subMomCell=`<td><div style="display:flex;align-items:center;gap:4px">
+            <span class="${cls}" style="font-size:9.5px;font-weight:700;font-family:'DM Mono',monospace">
+              ${up?'▲':'▼'}${Math.abs(sm.normChg).toFixed(1)}%
+            </span>
+            <span style="font-size:8px;color:var(--muted);font-family:'DM Mono',monospace">
+              ${sm.normPrev.toFixed(2)}→${sm.normNow.toFixed(2)} ₹/Wp
+            </span>
+            ${badge}
+          </div></td>`;
         }
-
-        rows += `<tr class="cost-sub-row">
+        rows+=`<tr class="cost-sub-row">
           <td></td>
-          <td style="padding-left:30px;font-weight:600;color:var(--blue);font-size:10px">↳ ${t.name||'Unknown'}</td>
-          <td style="font-size:10px">${cr2(t.total)}</td>
+          <td style="padding-left:26px;font-weight:600;color:var(--blue);font-size:9.5px">↳ ${t.name||'Unknown'}</td>
+          <td style="font-size:9.5px">${cr2(t.total)}</td>
           <td><div class="sparkbar">
             <div class="bar-track"><div class="bar-fill" style="width:${(t.total/maxTotal*100).toFixed(0)}%;background:var(--teal)"></div></div>
-            <span style="font-size:9px;color:var(--dim)">${typeShare.toFixed(1)}%</span>
+            <span style="font-size:8.5px;color:var(--dim)">${typeShare.toFixed(1)}%</span>
           </div></td>
-          <td style="font-size:10px;font-family:'DM Mono',monospace">₹${t.avg.toLocaleString()}</td>
-          <td style="font-size:10px">${rpwStr}</td>
+          <td style="font-size:9.5px;font-family:'DM Mono',monospace">₹${t.avg.toLocaleString()}</td>
+          <td style="font-size:9.5px">${rpwStr}</td>
           ${subMomCell}
         </tr>`;
       });
     }
   });
-
-  document.getElementById('costBody').innerHTML = rows;
+  document.getElementById('costBody').innerHTML=rows;
 }
 
 // ════════════════════════════════════════════════════
 // LIVE REFRESH
 // ════════════════════════════════════════════════════
-function setRefreshUI(state, msg) {
-  const btn = document.getElementById('btnRefresh');
-  IS_REFRESHING = (state==='loading');
-  btn.disabled  = (state==='loading');
-  btn.innerHTML = state==='loading'
-    ? '<span style="display:inline-block;animation:spin .8s linear infinite">⏳</span> Fetching…'
-    : '⟳ Refresh from GSheet';
-  const dot = document.querySelector('.live-dot');
-  if (dot) dot.style.background = state==='live'?'#22C55E':state==='error'?'#DC2626':'#F59E0B';
-  if (msg) document.getElementById('statusTxt').textContent = msg;
+function setRefreshUI(state, msg){
+  const btn=document.getElementById('btnRefresh');
+  IS_REFRESHING=(state==='loading');
+  btn.disabled=(state==='loading');
+  btn.innerHTML=state==='loading'?'<span style="display:inline-block;animation:spin .8s linear infinite">⏳</span>':'⟳ Refresh';
+  const dot=document.querySelector('.live-dot');
+  if(dot)dot.style.background=state==='live'?'#22C55E':state==='error'?'#DC2626':'#F59E0B';
+  if(msg)document.getElementById('statusTxt').textContent=msg;
 }
 
-async function refreshFromSheet() {
-  if (IS_REFRESHING) return;
-  setRefreshUI('loading', '🔄 Connecting to data sources…');
+async function refreshFromSheet(){
+  if(IS_REFRESHING)return;
+  setRefreshUI('loading','🔄 Connecting…');
+  let rawRows=[],sourceLabel='',lastErr='';
+  try{
+    setRefreshUI('loading','🔄 Fetching Published GSheet…');
+    const res=await fetch(PUBLISHED_CSV+'&t='+Date.now(),{cache:'no-store'});
+    if(res.ok){
+      const text=await res.text();
+      if(text.trim()&&!text.trim().startsWith('<')&&!text.includes('<!DOCTYPE')){
+        const parsed=parseCSV(text);
+        if(parsed.length>3){rawRows=parsed;sourceLabel='Google Sheets (Published)';}
+        else lastErr=`Published CSV: only ${parsed.length} rows`;
+      }else lastErr='Published CSV returned HTML';
+    }else lastErr=`Published CSV HTTP ${res.status}`;
+  }catch(e){lastErr='Published CSV: '+e.message;}
 
-  let rawRows = [], sourceLabel = '', lastErr = '';
-
-  // SOURCE 1: Published CSV
-  try {
-    setRefreshUI('loading', '🔄 Fetching from Published Google Sheet…');
-    const res = await fetch(PUBLISHED_CSV + '&t=' + Date.now(), {cache:'no-store'});
-    if (res.ok) {
-      const text = await res.text();
-      if (text.trim() && !text.trim().startsWith('<') && !text.includes('<!DOCTYPE')) {
-        const parsed = parseCSV(text);
-        if (parsed.length > 3) {
-          rawRows = parsed; sourceLabel = 'Google Sheets (Published)';
-          console.log(`✅ Published CSV: ${parsed.length} rows`);
-        } else {
-          lastErr = `Published CSV: only ${parsed.length} rows`;
-        }
-      } else {
-        lastErr = 'Published CSV returned HTML — sheet may not be published yet';
-      }
-    } else {
-      lastErr = `Published CSV HTTP ${res.status}`;
-    }
-  } catch(e) { lastErr = 'Published CSV: ' + e.message; }
-
-  // SOURCE 2: GitHub raw CSV
-  if (!rawRows.length) {
-    try {
-      setRefreshUI('loading', '🔄 Trying GitHub repository…');
-      const res = await fetch(GITHUB_RAW + '?t=' + Date.now(), {cache:'no-store'});
-      if (res.ok) {
-        const text = await res.text();
-        if (text.trim() && !text.trim().startsWith('<')) {
-          const parsed = parseCSV(text);
-          if (parsed.length > 3) { rawRows = parsed; sourceLabel = 'GitHub'; }
-          else lastErr = `GitHub: only ${parsed.length} rows`;
+  if(!rawRows.length){
+    try{
+      setRefreshUI('loading','🔄 Trying GitHub…');
+      const res=await fetch(GITHUB_RAW+'?t='+Date.now(),{cache:'no-store'});
+      if(res.ok){
+        const text=await res.text();
+        if(text.trim()&&!text.trim().startsWith('<')){
+          const parsed=parseCSV(text);
+          if(parsed.length>3){rawRows=parsed;sourceLabel='GitHub';}
+          else lastErr=`GitHub: only ${parsed.length} rows`;
         }
       }
-    } catch(e) { lastErr = 'GitHub: ' + e.message; }
+    }catch(e){lastErr='GitHub: '+e.message;}
   }
 
-  // SOURCE 3: Direct GSheet export
-  if (!rawRows.length) {
-    for (const tab of SHEET_TABS) {
-      if (rawRows.length) break;
-      const urls = [
+  if(!rawRows.length){
+    for(const tab of SHEET_TABS){
+      if(rawRows.length)break;
+      const urls=[
         `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${tab.gid}&t=${Date.now()}`,
         `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(tab.name)}&t=${Date.now()}`,
       ];
-      for (const url of urls) {
-        try {
-          const res  = await fetch(url, {cache:'no-store'});
-          if (!res.ok) { lastErr=`HTTP ${res.status}`; continue; }
-          const text = await res.text();
-          if (text.trim().startsWith('<!') || text.includes('Sign in')) {
-            lastErr='Sheet blocked by Google (CORS)'; continue;
-          }
-          const parsed = parseCSV(text);
-          if (parsed.length < 3) { lastErr=`Only ${parsed.length} rows`; continue; }
-          rawRows = parsed; sourceLabel = tab.name; break;
-        } catch(e) { lastErr = e.message; }
+      for(const url of urls){
+        try{
+          const res=await fetch(url,{cache:'no-store'});
+          if(!res.ok){lastErr=`HTTP ${res.status}`;continue;}
+          const text=await res.text();
+          if(text.trim().startsWith('<!')||text.includes('Sign in')){lastErr='Sheet blocked';continue;}
+          const parsed=parseCSV(text);
+          if(parsed.length<3){lastErr=`Only ${parsed.length} rows`;continue;}
+          rawRows=parsed;sourceLabel=tab.name;break;
+        }catch(e){lastErr=e.message;}
       }
     }
   }
 
-  if (!rawRows.length) {
-    setRefreshUI('error',
-      `⚠ Could not fetch live data. Last error: ${lastErr}. ` +
-      `Open browser console (F12) for details. ` +
-      `Ensure sheet is published via File → Share → Publish to Web → CSV.`);
-    document.getElementById('lastUpdated').textContent = 'Offline — no live data';
+  if(!rawRows.length){
+    setRefreshUI('error',`⚠ Could not fetch live data. ${lastErr}. Ensure sheet is published via File → Share → Publish to Web → CSV.`);
+    document.getElementById('lastUpdated').textContent='Offline';
     return;
   }
 
-  try {
-    LIVE_ROWS = processLiveRows(rawRows);
-    if (!LIVE_ROWS.length) throw new Error('0 valid rows after processing — check console (F12)');
-
-    DATA     = aggregateRows(LIVE_ROWS);
-    FILTERED = aggregateRows(LIVE_ROWS);
-
+  try{
+    LIVE_ROWS=processLiveRows(rawRows);
+    if(!LIVE_ROWS.length)throw new Error('0 valid rows after processing');
+    DATA=aggregateRows(LIVE_ROWS);
+    FILTERED=aggregateRows(LIVE_ROWS);
     populateFilters();
     ['fFY','fState','fCity','fOffer','fPhase','fDateFrom','fDateTo'].forEach(id=>{document.getElementById(id).value='';});
     ACTIVE_QTR='';
     document.querySelectorAll('.qtr-pill').forEach(p=>p.classList.remove('active'));
-    const allPill=document.querySelector('.qtr-pill[data-qtr=""]'); if(allPill) allPill.classList.add('active');
+    const allPill=document.querySelector('.qtr-pill[data-qtr=""]');if(allPill)allPill.classList.add('active');
     document.getElementById('filterStatus').textContent='No filters active';
     document.getElementById('rowInfo').textContent=`${LIVE_ROWS.length.toLocaleString()} installs`;
-
-    const k = DATA.kpis;
-    const t = new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-    document.getElementById('lastUpdated').textContent = `🟢 Live · ${t}`;
-    const srcEl = document.getElementById('dataSourceLbl');
-    if (srcEl) srcEl.textContent = `Solar Square · B2C GM · ${sourceLabel} · ${rawRows.length.toLocaleString()} rows`;
-    setRefreshUI('live',
-      `✅ Live "${sourceLabel}" · ${rawRows.length.toLocaleString()} rows · ` +
-      `${k.total_installs.toLocaleString()} installs (${k.revenue_projects.toLocaleString()} w/ revenue) · ` +
-      `₹${(k.total_revenue/1e7).toFixed(2)} Cr rev · ` +
-      `COGS ₹${(k.total_cogs/1e7).toFixed(2)} Cr · GM ${k.avg_gm_pct.toFixed(1)}%`);
+    const k=DATA.kpis;
+    const t=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+    document.getElementById('lastUpdated').textContent=`🟢 ${t}`;
+    const srcEl=document.getElementById('dataSourceLbl');
+    if(srcEl)srcEl.textContent=`Solar Square · B2C GM · ${sourceLabel} · ${rawRows.length.toLocaleString()} rows`;
+    setRefreshUI('live',`✅ Live · ${rawRows.length.toLocaleString()} rows · ${k.total_installs.toLocaleString()} installs · GM ${k.avg_gm_pct.toFixed(1)}%`);
     renderAll();
-  } catch(e) {
-    setRefreshUI('error', `⚠ Parse error: ${e.message}`);
-    console.error('Refresh error:', e);
-    if (rawRows.length) console.log('Sample cols:', Object.keys(rawRows[0]).join(' | '));
+  }catch(e){
+    setRefreshUI('error',`⚠ Parse error: ${e.message}`);
+    console.error('Refresh error:',e);
   }
 }
 
 // ════════════════════════════════════════════════════
 // INIT
 // ════════════════════════════════════════════════════
-document.getElementById('lastUpdated').textContent = 'Loading live data…';
-document.getElementById('statusTxt').textContent   = '⏳ Fetching live data from GSheet / GitHub…';
+document.getElementById('lastUpdated').textContent='Loading…';
+document.getElementById('statusTxt').textContent='⏳ Fetching live data…';
 renderAll();
-setTimeout(refreshFromSheet, 800);
-
+setTimeout(refreshFromSheet,800);
 </script>
 </body>
 </html>
