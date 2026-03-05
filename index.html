@@ -587,6 +587,8 @@ function processLiveRows(rawRows) {
       ickit:        N(r['ic_kit']   || ''),
       moduleType:   (r['module_item_name']||r['module_item_name_']||'').trim(),
       inverterType: (r['inverter_item_name']||r['inverter_item_name_']||'').trim(),
+      moduleQty:    N(r['module_qty']||r['module_qty_']||0),
+      inverterQty:  N(r['inverter_qty']||r['inverter_qty_']||0),
     };
   });
 
@@ -713,41 +715,223 @@ function aggregateRows(rows) {
   const costItems = ['module','inverter','prefab','cables','elecbos','earthing','conduit','jbox','ickit'];
   const costNames = {module:'Module',inverter:'Inverter',prefab:'Prefab MMS',cables:'Cables',
     elecbos:'Electrical BoS',earthing:'Earthing/LA',conduit:'Conduit Pipe',jbox:'Junction Box',ickit:'IC Kit'};
-  const costTotals = {};
-  costItems.forEach(k => {
-    costTotals[k] = revRows.reduce((s,r) => s + (r[k]||0), 0);
-  });
-  const totalCostTracked = Object.values(costTotals).reduce((a,b)=>a+b,0)||1;
 
-  // Sub-type breakdowns for Module and Inverter (from item name columns)
+  const costTotals = {};
+  costItems.forEach(k => { costTotals[k] = revRows.reduce((s,r) => s+(r[k]||0), 0); });
+  const totalCostTracked = Object.values(costTotals).reduce((a,b)=>a+b,0)||1;
+  const revKW  = revRows.reduce((s,r)=>s+r.kw, 0) || 1;
+
+  // ── Extract Wp rating from module item name e.g. "540 Wp Mono Bifacial" → 540 ──
+  function extractWp(itemName) {
+    if (!itemName) return 0;
+    const m = itemName.match(/(\d+)\s*[Ww][Pp]/);
+    return m ? parseInt(m[1]) : 0;
+  }
+
+  // ── Total Wp installed (module_qty × Wp per panel) across all rev rows ──
+  const totalWp = revRows.reduce((s,r) => {
+    const wp = extractWp(r.moduleType);
+    return s + (wp > 0 && r.moduleQty > 0 ? wp * r.moduleQty : 0);
+  }, 0) || 1;
+
+  // ── Sub-type breakdowns: Module (₹/Wp) and Inverter (₹/kW) ──
   const moduleTypes = {}, inverterTypes = {};
   revRows.forEach(r => {
-    const mCost = r.module || 0;
-    const iCost = r.inverter || 0;
-    if (r.moduleType && mCost > 0) {
-      if (!moduleTypes[r.moduleType]) moduleTypes[r.moduleType] = {name:r.moduleType, total:0, count:0};
-      moduleTypes[r.moduleType].total += mCost;
-      moduleTypes[r.moduleType].count += 1;
+    if (r.moduleType && (r.module||0) > 0) {
+      if (!moduleTypes[r.moduleType])
+        moduleTypes[r.moduleType] = {name:r.moduleType, total:0, count:0, totalWp:0, kw:0};
+      const wp = extractWp(r.moduleType);
+      moduleTypes[r.moduleType].total   += r.module;
+      moduleTypes[r.moduleType].count   += 1;
+      moduleTypes[r.moduleType].totalWp += (wp > 0 && r.moduleQty > 0 ? wp * r.moduleQty : 0);
+      moduleTypes[r.moduleType].kw      += r.kw;
     }
-    if (r.inverterType && iCost > 0) {
-      if (!inverterTypes[r.inverterType]) inverterTypes[r.inverterType] = {name:r.inverterType, total:0, count:0};
-      inverterTypes[r.inverterType].total += iCost;
+    if (r.inverterType && (r.inverter||0) > 0) {
+      if (!inverterTypes[r.inverterType])
+        inverterTypes[r.inverterType] = {name:r.inverterType, total:0, count:0, kw:0};
+      inverterTypes[r.inverterType].total += r.inverter;
       inverterTypes[r.inverterType].count += 1;
+      inverterTypes[r.inverterType].kw    += r.kw;
     }
   });
-  const moduleSubTypes  = Object.values(moduleTypes).map(t=>({...t, avg:t.count?Math.round(t.total/t.count):0})).sort((a,b)=>b.total-a.total);
-  const inverterSubTypes = Object.values(inverterTypes).map(t=>({...t, avg:t.count?Math.round(t.total/t.count):0})).sort((a,b)=>b.total-a.total);
 
+  // ── Per sub-type MoM: compute last 2 months for each module/inverter type ──
+  function buildSubTypeMoM(typeKey, costField, isModule) {
+    if (monthly.length < 2) return {};
+    const mLast = monthly[monthly.length-1];
+    const mPrev = monthly[monthly.length-2];
+
+    const rL = allRows.filter(r => r.date &&
+      r.date.getFullYear()===mLast.year && r.date.getMonth()===mLast.month && r.hasRevenue);
+    const rP = allRows.filter(r => r.date &&
+      r.date.getFullYear()===mPrev.year && r.date.getMonth()===mPrev.month && r.hasRevenue);
+
+    const mom = {};
+    // collect per-type data for both months
+    [['now', rL, mLast.label], ['prev', rP, mPrev.label]].forEach(([tag, rows, lbl]) => {
+      rows.forEach(r => {
+        const typeName = r[typeKey];
+        if (!typeName || !(r[costField] > 0)) return;
+        if (!mom[typeName]) mom[typeName] = {now:{cost:0,size:0,count:0}, prev:{cost:0,size:0,count:0}, lblNow:mLast.label, lblPrev:mPrev.label};
+        const bucket = mom[typeName][tag];
+        bucket.cost  += r[costField];
+        bucket.count += 1;
+        if (isModule) {
+          const wp = extractWp(typeName);
+          bucket.size += (wp > 0 && r.moduleQty > 0 ? wp * r.moduleQty : r.kw * 1000);
+        } else {
+          bucket.size += r.kw;
+        }
+      });
+    });
+
+    // compute norm rate for each type in each month
+    const result = {};
+    Object.entries(mom).forEach(([name, d]) => {
+      const avgCostNow  = d.now.count  ? d.now.cost  / d.now.count  : 0;
+      const avgCostPrev = d.prev.count ? d.prev.cost / d.prev.count : 0;
+      const avgSizeNow  = d.now.count  ? d.now.size  / d.now.count  : 0;
+      const avgSizePrev = d.prev.count ? d.prev.size / d.prev.count : 0;
+      const normNow  = avgSizeNow  > 0 ? avgCostNow  / avgSizeNow  : 0;
+      const normPrev = avgSizePrev > 0 ? avgCostPrev / avgSizePrev : 0;
+      const normChg  = normPrev > 0 ? (normNow - normPrev) / normPrev * 100 : 0;
+      const scale    = isModule ? 1 : 1000;  // ₹/Wp stays; W→kW multiply
+      result[name] = {
+        normNow:  normNow  * scale,
+        normPrev: normPrev * scale,
+        normChg,
+        isGenuine: Math.abs(normChg) > 0 && normPrev > 0,
+        unit: isModule ? '₹/Wp' : '₹/kW',
+        lblNow:  d.lblNow,
+        lblPrev: d.lblPrev,
+        hasData: d.now.count > 0 && d.prev.count > 0,
+      };
+    });
+    return result;
+  }
+
+  const moduleMoM   = buildSubTypeMoM('moduleType',   'module',   true);
+  const inverterMoM = buildSubTypeMoM('inverterType', 'inverter', false);
+
+  const moduleSubTypes = Object.values(moduleTypes).map(t => ({
+    ...t,
+    avg:  t.count  ? Math.round(t.total / t.count) : 0,
+    unit: '₹/Wp',
+    rpw:  t.totalWp > 0 ? t.total / t.totalWp : 0,
+    mom:  moduleMoM[t.name] || null,
+  })).sort((a,b) => b.total - a.total);
+
+  const inverterSubTypes = Object.values(inverterTypes).map(t => ({
+    ...t,
+    avg:  t.count ? Math.round(t.total / t.count) : 0,
+    unit: '₹/kW',
+    rpw:  t.kw > 0 ? t.total / t.kw : 0,
+    mom:  inverterMoM[t.name] || null,
+  })).sort((a,b) => b.total - a.total);
+
+  // ── MoM genuine rate analysis ─────────────────────────────────────────────
+  // Genuine rate = avg cost per project adjusted for avg system size (AOS)
+  //   norm_rate = (avg_cost_this_month / avg_kw_this_month)
+  //             vs (avg_cost_last_month / avg_kw_last_month)
+  // If norm_rate moved → genuine procurement rate change (show flag)
+  // If norm_rate flat but total moved → just AOS / volume change (show SIZE)
+  // For module: use ₹/Wp (module_qty × Wp) instead of ₹/kW
+  const momData = {};
+  if (monthly.length >= 2) {
+    const mLast = monthly[monthly.length-1];
+    const mPrev = monthly[monthly.length-2];
+    costItems.forEach(k => {
+      const rL = allRows.filter(r => r.date &&
+        r.date.getFullYear()===mLast.year && r.date.getMonth()===mLast.month && r.hasRevenue);
+      const rP = allRows.filter(r => r.date &&
+        r.date.getFullYear()===mPrev.year && r.date.getMonth()===mPrev.month && r.hasRevenue);
+
+      const cntL = rL.length || 1,  cntP = rP.length || 1;
+
+      // For module: size unit = Wp;  for all others: size unit = kW
+      let sizeL, sizeP;
+      if (k === 'module') {
+        sizeL = rL.reduce((s,r) => { const wp=extractWp(r.moduleType); return s+(wp>0&&r.moduleQty>0?wp*r.moduleQty:r.kw*1000); }, 0);
+        sizeP = rP.reduce((s,r) => { const wp=extractWp(r.moduleType); return s+(wp>0&&r.moduleQty>0?wp*r.moduleQty:r.kw*1000); }, 0);
+      } else {
+        sizeL = rL.reduce((s,r)=>s+r.kw,0) * 1000;  // convert to W for consistency
+        sizeP = rP.reduce((s,r)=>s+r.kw,0) * 1000;
+      }
+
+      const costL = rL.reduce((s,r)=>s+(r[k]||0),0);
+      const costP = rP.reduce((s,r)=>s+(r[k]||0),0);
+
+      // Avg per project
+      const avgCostL = costL / cntL,  avgCostP = costP / cntP;
+      // Avg size per project (Wp or W)
+      const avgSizeL = sizeL / cntL,  avgSizeP = sizeP / cntP;
+
+      // Normalised rate: avg_cost_per_project / avg_size_per_project = ₹/Wp or ₹/W
+      const normL = avgSizeL > 0 ? avgCostL / avgSizeL : 0;
+      const normP = avgSizeP > 0 ? avgCostP / avgSizeP : 0;
+
+      // Raw unit rate (total / total size)
+      const rawL  = sizeL > 0 ? costL / sizeL : 0;
+      const rawP  = sizeP > 0 ? costP / sizeP : 0;
+
+      // AOS change % (system size)
+      const kwL   = rL.reduce((s,r)=>s+r.kw,0) / cntL;
+      const kwP   = rP.reduce((s,r)=>s+r.kw,0) / cntP;
+      const aosChg = kwP > 0 ? (kwL-kwP)/kwP*100 : 0;
+
+      // Genuine rate change = normalised rate movement (size-adjusted)
+      const normChg = normP > 0 ? (normL-normP)/normP*100 : 0;
+      const rawChg  = rawP  > 0 ? (rawL-rawP)/rawP*100   : 0;
+
+      // Is the rate change genuine? → normChg tells us
+      // Direction of normChg: up = cost per unit increased = bad = red
+      const isGenuine = Math.abs(normChg) > 0;
+      const unit = k === 'module' ? '₹/Wp' : '₹/kW';
+
+      // Scale raw values for display
+      const dispScale = k === 'module' ? 1 : 1000; // ₹/Wp stays as is; ₹/W → ₹/kW multiply by 1000
+      momData[k] = {
+        rawNow:   rawL  * dispScale,
+        rawPrev:  rawP  * dispScale,
+        normNow:  normL * dispScale,
+        normPrev: normP * dispScale,
+        normChg,   // size-adjusted rate change %
+        rawChg,    // raw change % (includes size effect)
+        aosChg,
+        aosNow: kwL,
+        aosPrev: kwP,
+        isGenuine,
+        unit,
+        lblNow:  mLast.label,
+        lblPrev: mPrev.label,
+      };
+    });
+  }
+
+  // Overall ₹/Wp for module, ₹/kW for others
   const costs = costItems
     .filter(k => costTotals[k] > 0)
-    .map(k => ({
-      item:     costNames[k],
-      key:      k,
-      total:    costTotals[k],
-      avg:      Math.round(costTotals[k] / (totRevProj||1)),
-      share:    costTotals[k] / totalCostTracked * 100,
-      subTypes: k==='module' ? moduleSubTypes : k==='inverter' ? inverterSubTypes : [],
-    }))
+    .map(k => {
+      let unitRate = 0, unitLabel = '';
+      if (k === 'module') {
+        unitRate  = totalWp > 0 ? costTotals[k] / totalWp : 0;
+        unitLabel = '₹/Wp';
+      } else {
+        unitRate  = revKW > 0 ? costTotals[k] / revKW : 0;
+        unitLabel = '₹/kW';
+      }
+      return {
+        item:      costNames[k],
+        key:       k,
+        total:     costTotals[k],
+        avg:       Math.round(costTotals[k] / (totRevProj||1)),
+        share:     costTotals[k] / totalCostTracked * 100,
+        unitRate,
+        unitLabel,
+        mom:       momData[k] || null,
+        subTypes:  k==='module' ? moduleSubTypes : k==='inverter' ? inverterSubTypes : [],
+      };
+    })
     .sort((a,b) => b.total - a.total);
 
   return {
@@ -1498,32 +1682,26 @@ function renderCostsView() {
     </div>
     <div class="table-section">
       <div class="tbl-header">
-        <div class="tbl-title">Cost Component Analysis
-          <span style="font-size:9px;color:var(--muted);font-weight:400;font-family:'DM Mono',monospace">MoM change · avg per project · share of total COGS</span>
-        </div>
-        <div class="tbl-tabs">
-          <div class="tbl-tab active" onclick="setCostSort('share',this)">By Share</div>
-          <div class="tbl-tab" onclick="setCostSort('total',this)">By Total</div>
-          <div class="tbl-tab" onclick="setCostSort('avg',this)">By Avg/Project</div>
+        <div class="tbl-title">Cost Breakdown
+          <span style="font-size:9px;color:var(--muted);font-weight:400;font-family:'DM Mono',monospace">Click + to drill into module/inverter types · Rate vs prev month (size-adjusted)</span>
         </div>
       </div>
       <div class="tbl-wrap">
         <table><thead><tr>
-          <th>#</th><th style="text-align:left">Component</th>
-          <th>Total Cost</th><th>Share %</th><th>Avg / Project</th>
-          <th>% of COGS</th><th>Trend (last 4mo)</th>
+          <th>#</th>
+          <th style="text-align:left">Component</th>
+          <th>Total Cost</th>
+          <th>% of COGS</th>
+          <th>Avg / Project</th>
+          <th>Unit Rate</th>
+          <th>vs Prev Month</th>
         </tr></thead><tbody id="costBody"></tbody></table>
       </div>
     </div>`;
-  setTimeout(() => { drawCostMoMChart(monthly); drawCostDonut(costs); buildCostTable('share', costs); }, 30);
+  setTimeout(() => { drawCostMoMChart(monthly); drawCostDonut(costs); buildCostTable(costs); }, 30);
 }
 
-let COST_SORT = 'share';
-function setCostSort(s,el) {
-  COST_SORT=s;
-  document.querySelectorAll('.tbl-tab').forEach(t=>t.classList.remove('active')); el.classList.add('active');
-  buildCostTable(s, FILTERED.costs);
-}
+
 
 function drawCostMoMChart(monthly) {
   const d = monthly.slice(-12);
@@ -1571,54 +1749,132 @@ let COST_EXPANDED = new Set();
 function toggleCostExpand(key) {
   if (COST_EXPANDED.has(key)) COST_EXPANDED.delete(key);
   else COST_EXPANDED.add(key);
-  buildCostTable(COST_SORT, FILTERED.costs);
+  buildCostTable(FILTERED.costs);
 }
 
-function buildCostTable(sortCol, costs) {
+function buildCostTable(costs) {
   if (!costs || !costs.length) {
-    document.getElementById('costBody').innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:20px">No cost component data available</td></tr>';
+    document.getElementById('costBody').innerHTML =
+      '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:20px">No cost data available</td></tr>';
     return;
   }
   const totalCOGS = FILTERED.kpis.total_cogs || 1;
-  let sorted = [...costs];
-  if (sortCol==='share') sorted.sort((a,b)=>b.share-a.share);
-  if (sortCol==='total') sorted.sort((a,b)=>b.total-a.total);
-  if (sortCol==='avg')   sorted.sort((a,b)=>b.avg-a.avg);
 
   let rows = '';
-  sorted.forEach((c, i) => {
+  costs.forEach((c, i) => {
     const cogsShare = c.total / totalCOGS * 100;
     const hasTypes  = c.subTypes && c.subTypes.length > 0;
     const isOpen    = COST_EXPANDED.has(c.key);
 
-    rows += `<tr class="cost-component-row" onclick="${hasTypes ? `toggleCostExpand('${c.key}')` : ''}">
+    // ── MoM cell: show genuine rate movement (size-adjusted) ──────────────
+    let momCell = '<td style="color:var(--muted);font-size:9px;text-align:center">—</td>';
+    if (c.mom && c.mom.normNow > 0 && c.mom.normPrev > 0) {
+      const m   = c.mom;
+      const chg = m.normChg;   // size-adjusted rate change — the real signal
+      const up  = chg > 0;
+
+      // Badge: RATE up/down is genuine; SIZE badge if raw moved but norm flat
+      let badge = '';
+      if (m.isGenuine) {
+        badge = up
+          ? `<span style="background:#FEE2E2;color:#DC2626;padding:1px 6px;border-radius:4px;font-size:8px;font-weight:700">RATE ▲</span>`
+          : `<span style="background:#DCFCE7;color:#16A34A;padding:1px 6px;border-radius:4px;font-size:8px;font-weight:700">RATE ▼</span>`;
+      } else if (Math.abs(m.aosChg) > 1) {
+        badge = m.aosChg > 0
+          ? `<span style="background:#EEF2FF;color:#4F46E5;padding:1px 6px;border-radius:4px;font-size:8px;font-weight:600">SIZE ▲</span>`
+          : `<span style="background:#F0FDFA;color:#0D9488;padding:1px 6px;border-radius:4px;font-size:8px;font-weight:600">SIZE ▼</span>`;
+      } else {
+        badge = `<span style="background:#F1F5F9;color:#94A3B8;padding:1px 6px;border-radius:4px;font-size:8px">—</span>`;
+      }
+
+      // Show size-adjusted rate values (normNow/normPrev) — these are the true unit rates
+      const rateChgCls = up ? 'r' : 'g';
+      const aosLine = Math.abs(m.aosChg) > 1
+        ? `<div style="font-size:8px;color:var(--muted);margin-top:1px">AOS ${m.aosPrev.toFixed(1)}→${m.aosNow.toFixed(1)} kW</div>`
+        : '';
+
+      momCell = `<td>
+        <div style="display:flex;flex-direction:column;gap:1px">
+          <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap">
+            <span class="${rateChgCls}" style="font-size:10px;font-weight:700;font-family:'DM Mono',monospace">
+              ${up?'▲':'▼'}${Math.abs(chg).toFixed(1)}%
+            </span>
+            <span style="font-size:9px;color:var(--muted);font-family:'DM Mono',monospace">
+              ${m.normPrev.toFixed(2)}→${m.normNow.toFixed(2)} ${m.unit}
+            </span>
+            ${badge}
+          </div>
+          ${aosLine}
+        </div>
+      </td>`;
+    }
+
+    rows += `<tr class="cost-component-row" onclick="${hasTypes?`toggleCostExpand('${c.key}')`:``}">
       <td class="td-rank">${i+1}</td>
       <td><div class="state-name-cell">
         ${hasTypes
           ? `<span class="expand-btn ${isOpen?'open':''}">${isOpen?'−':'+'}</span>`
           : `<span style="width:16px;display:inline-block"></span>`}
         <span style="font-weight:700;color:var(--navy)">${c.item}</span>
-        ${hasTypes ? `<span style="font-size:9px;color:var(--muted);margin-left:4px">${c.subTypes.length} types</span>` : ''}
+        ${hasTypes?`<span style="font-size:9px;color:var(--muted);margin-left:4px">${c.subTypes.length} types</span>`:''}
       </div></td>
       <td class="b">${cr2(c.total)}</td>
-      <td class="${c.share>30?'a':c.share>10?'b':'dim-cell'}">${c.share.toFixed(1)}%</td>
-      <td style="font-family:'DM Mono',monospace">₹${c.avg.toLocaleString()}</td>
-      <td>${cogsShare.toFixed(1)}%</td>
-      <td><div class="sparkbar" style="min-width:80px"><div class="bar-track"><div class="bar-fill" style="width:${cogsShare.toFixed(0)}%;background:var(--red)"></div></div></div></td>
+      <td><div class="sparkbar">
+        <div class="bar-track"><div class="bar-fill" style="width:${Math.min(cogsShare,100).toFixed(0)}%;background:var(--red)"></div></div>
+        <span class="${cogsShare>30?'a':cogsShare>15?'b':'dim-cell'}">${cogsShare.toFixed(1)}%</span>
+      </div></td>
+      <td style="font-family:'DM Mono',monospace;font-size:10px">₹${c.avg.toLocaleString()}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:11px;font-weight:700;color:var(--purple)">
+        ${c.unitRate>0?c.unitRate.toFixed(2)+' '+c.unitLabel:'—'}
+      </td>
+      ${momCell}
     </tr>`;
 
+    // ── Sub-type rows (module types / inverter types) ──────────────────────
     if (isOpen && hasTypes) {
-      const maxSubTotal = c.subTypes[0]?.total || 1;
+      const maxTotal = c.subTypes[0]?.total || 1;
       c.subTypes.forEach(t => {
-        const typeShare = c.total > 0 ? t.total / c.total * 100 : 0;
+        const typeShare = c.total > 0 ? t.total/c.total*100 : 0;
+        const rpwStr = t.rpw > 0
+          ? `<span style="color:var(--purple);font-weight:700;font-family:'DM Mono',monospace">${t.rpw.toFixed(2)} ${t.unit}</span>`
+          : '—';
+
+        // Sub-type MoM cell
+        let subMomCell = `<td style="color:var(--muted);font-size:9px">—</td>`;
+        if (t.mom && t.mom.hasData) {
+          const sm   = t.mom;
+          const up   = sm.normChg > 0;
+          const cls  = up ? 'r' : 'g';
+          let badge = '';
+          if (sm.isGenuine) {
+            badge = up
+              ? `<span style="background:#FEE2E2;color:#DC2626;padding:1px 5px;border-radius:4px;font-size:8px;font-weight:700">▲ RATE UP</span>`
+              : `<span style="background:#DCFCE7;color:#16A34A;padding:1px 5px;border-radius:4px;font-size:8px;font-weight:700">▼ RATE DOWN</span>`;
+          }
+          subMomCell = `<td>
+            <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap">
+              <span class="${cls}" style="font-size:10px;font-weight:700;font-family:'DM Mono',monospace">
+                ${up?'▲':'▼'}${Math.abs(sm.normChg).toFixed(1)}%
+              </span>
+              <span style="font-size:9px;color:var(--muted);font-family:'DM Mono',monospace">
+                ${sm.normPrev.toFixed(2)}→${sm.normNow.toFixed(2)} ${sm.unit}
+              </span>
+              ${badge}
+            </div>
+          </td>`;
+        }
+
         rows += `<tr class="cost-sub-row">
           <td></td>
           <td style="padding-left:30px;font-weight:600;color:var(--blue);font-size:10px">↳ ${t.name||'Unknown'}</td>
-          <td style="font-size:10px;color:var(--dim)">${cr2(t.total)}</td>
-          <td style="font-size:10px;color:var(--dim)">${typeShare.toFixed(1)}% of ${c.item}</td>
-          <td style="font-size:10px;color:var(--dim);font-family:'DM Mono',monospace">₹${t.avg.toLocaleString()}</td>
-          <td style="font-size:10px;color:var(--muted)">${t.count} projects</td>
-          <td><div class="sparkbar" style="min-width:80px"><div class="bar-track"><div class="bar-fill" style="width:${(t.total/maxSubTotal*100).toFixed(0)}%;background:var(--teal)"></div></div></div></td>
+          <td style="font-size:10px">${cr2(t.total)}</td>
+          <td><div class="sparkbar">
+            <div class="bar-track"><div class="bar-fill" style="width:${(t.total/maxTotal*100).toFixed(0)}%;background:var(--teal)"></div></div>
+            <span style="font-size:9px;color:var(--dim)">${typeShare.toFixed(1)}%</span>
+          </div></td>
+          <td style="font-size:10px;font-family:'DM Mono',monospace">₹${t.avg.toLocaleString()}</td>
+          <td style="font-size:10px">${rpwStr}</td>
+          ${subMomCell}
         </tr>`;
       });
     }
