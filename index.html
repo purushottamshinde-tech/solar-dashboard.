@@ -641,6 +641,138 @@ function makeResolver(allKeys){
 // ════════════════════════════════════════════════════
 // PROCESS LIVE CSV ROWS
 // ════════════════════════════════════════════════════
+// === MODULE RATE TABLE (from official rate list Feb-26) ===
+const MODULE_RATE_TABLE = {
+  '15 Wp Mono Non DCR-Om Coral-Om Coral': 407,
+  '320 Wp Poly DCR-Renewsys': 8176,
+  '325 Wp Poly DCR-Renewsys': 7134,
+  '330 Wp Poly DCR-ECE': 6853,
+  '330 Wp Poly DCR-Navitas': 7718,
+  '330 Wp Poly DCR-Panasonic': 8184,
+  '330 Wp Poly DCR-Premier': 8598,
+  '330 Wp Poly DCR-Renewsys': 7788,
+  '330 Wp Poly DCR-WAAREE': 8514,
+  '330 Wp Poly Non DCR-WAAREE': 6666,
+  '335 Wp Poly DCR-Adani': 8768,
+  '335 Wp Poly DCR-ECE': 6768,
+  '335 Wp Poly DCR-Navitas': 7434,
+  '335 Wp Poly DCR-Panasonic': 8442,
+  '335 Wp Poly DCR-Pennar': 8305,
+  '335 Wp Poly DCR-Premier': 8348,
+  '335 Wp Poly DCR-RAYZON': 8442,
+  '335 Wp Poly DCR-Renewsys': 8188,
+  '335 Wp Poly Non DCR-ADANI': 8476,
+  '335 Wp Poly Non DCR-Cosmic PV Power': 5796,
+  '335 Wp Poly Non DCR-RENEWSYS': 8188,
+  '335 Wp Poly Non DCR-WAAREE': 6824,
+  '340 Wp Poly DCR-NAVITAS': 8644,
+  '350 Wp Poly Non DCR-CANADIAN SOLAR': 7980,
+  '350 Wp Poly Non DCR-REC': 9345,
+  '355 Wp Poly Non DCR-CANADIAN SOLAR': 7984,
+  '360 Wp Poly Non DCR-CANADIAN SOLAR': 7982,
+  '365 Wp Poly Non DCR-JA Solar': 9789,
+  '370 Wp Poly Non DCR-REC': 10656,
+  '390 Wp Mono Non DCR-RENEWSYS': 8212,
+  '400 Wp Mono Non DCR-Panasonic': 10320,
+  '445 Wp Mono Non DCR-WAAREE': 10308,
+  '450 Wp Mono Non DCR-Longi': 10598,
+  '450 Wp Mono Non DCR-Panasonic': 10598,
+  '455 Wp Mono Non DCR-Longi': 10602,
+  '465 Wp Mono Bifacial Non DCR-JINKO': 5154,
+  '530 Wp Mono Bifacial DCR-ADANI': 13854,
+  '535 Wp Mono Bifacial DCR-ADANI': 14171,
+  '535 Wp Mono Bifacial Non DCR-LONGI': 15118,
+  '535 Wp Mono DCR-ADANI': 16227,
+  '535 Wp Mono DCR-PREMIER': 16478,
+  '540 Wp Mono Bifacial DCR-ADANI': 13137,
+  '540 Wp Mono Bifacial DCR-NAVITAS': 12048,
+  '540 Wp Mono Bifacial DCR-PREMIER': 12065,
+  '540 Wp Mono Bifacial DCR-SOLEX': 12852,
+  '540 Wp Mono Bifacial Non DCR-LONGI': 9564,
+  '540 Wp Mono DCR-NAVITAS': 13932,
+  '540 Wp Mono DCR-PREMIER': 16134,
+  '540 Wp Mono Non DCR-Jinko': 13932,
+  '540 Wp Mono Non DCR-LONGI': 15012,
+  '540 Wp Mono Non DCR-RENEWSYS': 16281,
+  '540 Wp Mono Non DCR-WAAREE': 15232,
+  '545 Wp Mono Bifacial DCR-ADANI': 13049,
+  '545 Wp Mono Bifacial DCR-NAVITAS': 12167,
+  '545 Wp Mono Bifacial DCR-PREMIER': 12861,
+  '545 Wp Mono Bifacial DCR-RAYZON': 12040,
+  '545 Wp Mono Bifacial DCR-Renew': 13131,
+  '545 Wp Mono Bifacial Non DCR-LONGI': 13269,
+  '545 Wp Mono Bifacial Non DCR-NAVITAS': 8204,
+  '545 Wp Mono Bifacial Non DCR-PREMIER': 8135,
+  '545 Wp Mono Bifacial Non DCR-RENEWSYS': 9156,
+  '545 Wp Mono Bifacial Non DCR-WAAREE': 9122,
+  '545 Wp Mono DCR-PREMIER': 17004,
+  '545 Wp Mono DCR-RENEWSYS': 12808,
+  '545 Wp Mono Non DCR-JINKO': 14402,
+  '545 Wp Mono Non DCR-LONGI': 13294,
+  '545 Wp Mono Non DCR-NAVITAS': 7146,
+  '545 Wp Mono Non DCR-RENEWSYS': 16432,
+  '545 Wp Mono Non DCR-WAAREE': 9024,
+  '550 Wp Mono Bifacial DCR-ADANI': 14517,
+  '550 Wp Mono Bifacial DCR-NAVITAS': 12284,
+  '550 Wp Mono Bifacial DCR-RAYZON': 11838,
+  '550 Wp Mono Bifacial Non DCR-JINKO': 8140,
+  '550 Wp Mono Bifacial Non DCR-NAVITAS': 7411,
+  '550 Wp Mono Bifacial Non DCR-PREMIER': 7802,
+  '550 Wp Mono Bifacial Non DCR-RAYZON': 8246,
+  '550 Wp Mono Bifacial Non DCR-WAAREE': 8855,
+  '550 Wp Mono Non DCR-Anchor by Panasonic': 15840,
+  '550 Wp Mono Non DCR-Jinko': 15840,
+  '550 Wp Mono Non DCR-RAYZON': 8147,
+  '550 Wp Mono Non DCR-WAAREE': 14740,
+  '555 Wp Mono Bifacial Topcon N-Type DCR-ADANI': 13847,
+  '560 Wp Mono Bifacial Topcon N-Type DCR-ADANI': 13433,
+  '565 Wp Mono Bifacial Topcon N-Type DCR-ADANI': 13855,
+  '570 Wp Mono Bifacial Topcon N-Type DCR-ADANI': 15317,
+  '570 Wp Mono Non DCR-JINKO': 14706,
+  '575 Wp Mono Bifacial Topcon N-Type DCR-ADANI': 14145,
+  '580 Wp Mono Bifacial Topcon N-Type Non DCR-PREMIER': 9102,
+  '585 Wp Mono Bifacial Topcon N-Type Non DCR-PREMIER': 8366,
+  '585 Wp Mono Bifacial Topcon N-Type Non DCR-RENEWSYS': 9916,
+  '590 Wp Mono Bifacial Topcon N-Type Non DCR-NAVITAS': 8732,
+  '590 Wp Mono Bifacial Topcon N-Type Non DCR-PREMIER': 9683,
+  '590 Wp Mono Bifacial Topcon N-Type Non DCR-RAYZON': 8673,
+  '600 Wp Mono Non DCR-CANADIAN SOLAR': 18024,
+  '610 Wp Mono Bifacial Topcon N-Type Non DCR-PREMIER': 9220,
+};
+
+// Normalize module name for lookup
+function normalizeModuleName(n){ return (n||'').trim().replace(/\s+/g,' '); }
+
+// Pre-build lowercase lookup once
+const _MODULE_RATE_LC = {};
+for(const [k,v] of Object.entries(MODULE_RATE_TABLE)){
+  _MODULE_RATE_LC[k.toLowerCase().replace(/\s+/g,' ')] = v;
+}
+const _MODULE_UNMATCHED = {};
+
+function getModuleOverrideRate(moduleTypeName){
+  if(!moduleTypeName) return null;
+  const key = normalizeModuleName(moduleTypeName);
+  // 1. Exact
+  if(MODULE_RATE_TABLE[key] !== undefined) return MODULE_RATE_TABLE[key];
+  // 2. Case-insensitive
+  const keyLow = key.toLowerCase().replace(/\s+/g,' ');
+  if(_MODULE_RATE_LC[keyLow] !== undefined) return _MODULE_RATE_LC[keyLow];
+  // 3. Strip all hyphens+spaces and compare
+  const keyStrip = keyLow.replace(/[-\s]+/g,'');
+  for(const [k,v] of Object.entries(_MODULE_RATE_LC)){
+    if(k.replace(/[-\s]+/g,'') === keyStrip) return v;
+  }
+  // No match — warn once
+  if(!_MODULE_UNMATCHED[key]){
+    _MODULE_UNMATCHED[key] = 0;
+    console.warn('[ModuleRate] NO MATCH: "'+key+'" — kept gsheet value');
+  }
+  _MODULE_UNMATCHED[key]++;
+  return null;
+}
+
+
 function processLiveRows(rawRows){
   if(!rawRows.length)return [];
   const allKeys=Object.keys(rawRows[0]);
@@ -661,38 +793,71 @@ function processLiveRows(rawRows){
   console.log('[processLiveRows] cols detected:', {idCol,dateCol,revCol,cogsCol,kwCol});
 
   const rows = rawRows.map((r,idx)=>{
-    // SSE ID — use column value or fallback to row index
     let id = (r[idCol]||'').toString().trim();
     if(!id) id = `ROW-${idx+2}`;
 
-    const rev  = N(r[revCol]);
-    const cogs = N(r[cogsCol]);
-    const kw   = N(r[kwCol]);
-    const date = parseDate(r[dateCol]);
-    const city  = (r[cityCol]||'').trim();
-    const offer = (r[offerCol]||'').trim().replace('GoodZero+','GoodZero');
+    const rev      = N(r[revCol]);
+    const icTotal  = N(r[cogsCol]);   // gsheet ic_total (has old module rate baked in)
+    const kw       = N(r[kwCol]);
+    const date     = parseDate(r[dateCol]);
+    const city     = (r[cityCol]||'').trim();
+    const offer    = (r[offerCol]||'').trim().replace('GoodZero+','GoodZero');
+    const state    = (r[stateCol]||'').trim();
+    const phase    = (r[phaseCol]||'').trim();
+
+    const moduleType  = (r['module_item_name']||r['module_item_name_']||'').trim();
+    const inverterType= (r['inverter_item_name']||r['inverter_item_name_']||'').trim();
+    const moduleQty   = N(r['module_qty']||r['module_qty_']||0);
+    const inverterQty = N(r['inverter_qty']||r['inverter_qty_']||0);
+    const gsheetModule= N(r['module']||0);   // old module cost in gsheet
+    const inverter    = N(r['inverter']||0);
+    const prefab      = N(r['prefab_mms']||0);
+    const cables      = N(r['cables']||0);
+    const elecbos     = N(r['electrical_bos']||r['electrical_b_o_s']||0);
+    const earthing    = N(r['earthing_la']||0);
+    const conduit     = N(r['conduit_pipe']||0);
+    const jbox        = N(r['junction_box']||0);
+    const ickit       = N(r['ic_kit']||0);
+
+    // ── Module cost: rate_list × qty, fallback to gsheet module value ─
+    let moduleCost = gsheetModule;
+    let rateOverridden = false;
+    if(moduleType && moduleQty > 0){
+      const overrideRate = getModuleOverrideRate(moduleType);
+      if(overrideRate !== null){
+        moduleCost = overrideRate * moduleQty;
+        rateOverridden = true;
+      } else {
+        if(!_MODULE_UNMATCHED[moduleType]){
+          _MODULE_UNMATCHED[moduleType] = 0;
+          console.warn('[ModuleRate] NO MATCH: "'+moduleType+'" — kept gsheet module value');
+        }
+        _MODULE_UNMATCHED[moduleType]++;
+      }
+    }
+
+    // ── COGS = ic_total, but swap out old module cost for correct one ─
+    // ic_total already contains all other components correctly
+    const cogs = (icTotal - gsheetModule) + moduleCost;
 
     return {
-      id, city,
-      state : (r[stateCol]||'').trim(),
-      offer, phase : (r[phaseCol]||'').trim(),
+      id, city, state, offer, phase,
       revenue:rev, cogs, kw, gm:rev-cogs, date,
       _rawDate: r[dateCol]||'',
       hasRevenue: rev>0,
-      module   :N(r['module']||0),   inverter:N(r['inverter']||0),
-      prefab   :N(r['prefab_mms']||0), cables :N(r['cables']||0),
-      elecbos  :N(r['electrical_bos']||r['electrical_b_o_s']||0),
-      earthing :N(r['earthing_la']||0), conduit:N(r['conduit_pipe']||0),
-      jbox     :N(r['junction_box']||0), ickit :N(r['ic_kit']||0),
-      moduleType  :(r['module_item_name']||r['module_item_name_']||'').trim(),
-      inverterType:(r['inverter_item_name']||r['inverter_item_name_']||'').trim(),
-      moduleQty:N(r['module_qty']||r['module_qty_']||0),
-      inverterQty:N(r['inverter_qty']||r['inverter_qty_']||0),
+      module:moduleCost, inverter, prefab, cables, elecbos, earthing, conduit,
+      jbox, ickit, moduleType, inverterType, moduleQty, inverterQty,
+      _moduleRateOverridden: rateOverridden,
+      _icTotal: icTotal,
+      _gsheetModule: gsheetModule,
     };
   });
 
   const final = rows; // All cities included
-  console.log(`[processLiveRows] total parsed=${rows.length}`);
+  const overrideCount = rows.filter(r=>r._moduleRateOverridden===true).length;
+  const noMatchCount  = rows.filter(r=>r._moduleRateOverridden===false).length;
+  console.log(`[processLiveRows] total=${rows.length} | overrides=${overrideCount} | no-match(gsheet kept)=${noMatchCount}`);
+  if(Object.keys(_MODULE_UNMATCHED).length) console.warn('[ModuleRate] Unmatched types:',Object.keys(_MODULE_UNMATCHED));
   return final;
 }
 
