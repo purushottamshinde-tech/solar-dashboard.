@@ -2169,6 +2169,30 @@ function buildGMDecompPanel(d){
   </div>`;
 }
 
+
+let _COST_MOD_OPEN=false, _COST_INV_OPEN=false;
+function toggleModuleBreakdown(){
+  _COST_MOD_OPEN=!_COST_MOD_OPEN;
+  const col=document.getElementById('cInsModCollapsed');
+  const exp=document.getElementById('cInsModExpanded');
+  const tog=document.getElementById('cInsModToggle');
+  const card=document.getElementById('cInsModuleCard');
+  if(col)col.style.display=_COST_MOD_OPEN?'none':'block';
+  if(exp)exp.style.display=_COST_MOD_OPEN?'block':'none';
+  if(tog)tog.textContent=_COST_MOD_OPEN?'▲ close':'▼ types';
+  if(card)card.style.borderColor=_COST_MOD_OPEN?'var(--blue)':'var(--border)';
+}
+function toggleInverterBreakdown(){
+  _COST_INV_OPEN=!_COST_INV_OPEN;
+  const col=document.getElementById('cInsInvCollapsed');
+  const exp=document.getElementById('cInsInvExpanded');
+  const tog=document.getElementById('cInsInvToggle');
+  const card=document.getElementById('cInsInvCard');
+  if(col)col.style.display=_COST_INV_OPEN?'none':'block';
+  if(exp)exp.style.display=_COST_INV_OPEN?'block':'none';
+  if(tog)tog.textContent=_COST_INV_OPEN?'▲ close':'▼ types';
+  if(card)card.style.borderColor=_COST_INV_OPEN?'var(--amber)':'var(--border)';
+}
 function renderCostsView(){
   const costs=FILTERED.costs;
   const monthly=FILTERED.monthly;
@@ -2176,37 +2200,56 @@ function renderCostsView(){
   document.getElementById('mainContent').innerHTML=`
     ${decomp}
     <div style="display:flex;gap:6px;flex-shrink:0">
-      <div style="flex:1;background:#fff;border:1px solid var(--border);border-radius:8px;padding:8px 12px;display:flex;align-items:center;gap:10px;box-shadow:var(--shadow)">
-        <div style="width:36px;height:36px;background:linear-gradient(135deg,#EF4444,#F97316);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">🔴</div>
-        <div>
-          <div style="font-size:7.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;font-family:'DM Mono',monospace">Largest Cost Driver</div>
-          <div style="font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:var(--navy)" id="cInsLargest">—</div>
-          <div style="font-size:7.5px;color:var(--dim);font-family:'DM Mono',monospace" id="cInsLargestSub">% of tracked COGS</div>
+      <!-- Card 1: Module type breakdown (clickable) -->
+      <div id="cInsModuleCard" style="flex:1.4;background:#fff;border:1.5px solid var(--border);border-radius:8px;padding:8px 12px;box-shadow:var(--shadow);cursor:pointer;transition:border-color .15s;min-width:0"
+           onclick="toggleModuleBreakdown()" title="Click to see module types">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">
+          <div style="font-size:7px;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;font-family:'DM Mono',monospace;font-weight:500">Module Cost Breakdown</div>
+          <span id="cInsModToggle" style="font-size:8px;background:var(--off2);border:1px solid var(--border2);border-radius:5px;padding:1px 6px;color:var(--blue);font-family:'DM Mono',monospace">▼ types</span>
+        </div>
+        <div id="cInsModCollapsed">
+          <div style="display:flex;align-items:baseline;gap:6px">
+            <span style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--navy)" id="cInsModPct">—</span>
+            <span style="font-size:8px;color:var(--dim)" id="cInsModAmt">of COGS</span>
+          </div>
+          <div style="font-size:7.5px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:2px" id="cInsModRate">avg ₹/Wp</div>
+        </div>
+        <div id="cInsModExpanded" style="display:none;margin-top:4px">
+          <div id="cInsModTypes"></div>
         </div>
       </div>
-      <div style="flex:1;background:#fff;border:1px solid var(--border);border-radius:8px;padding:8px 12px;display:flex;align-items:center;gap:10px;box-shadow:var(--shadow)">
-        <div style="width:36px;height:36px;background:linear-gradient(135deg,#F59E0B,#EAB308);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">📐</div>
-        <div>
-          <div style="font-size:7.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;font-family:'DM Mono',monospace">Cost / Watt (IC)</div>
-          <div style="font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:var(--navy)" id="cInsCpW">—</div>
-          <div style="font-size:7.5px;color:var(--dim);font-family:'DM Mono',monospace" id="cInsCpWSub">₹ per Wp installed</div>
+
+      <!-- Card 2: Inverter type breakdown (clickable) -->
+      <div id="cInsInvCard" style="flex:1.4;background:#fff;border:1.5px solid var(--border);border-radius:8px;padding:8px 12px;box-shadow:var(--shadow);cursor:pointer;transition:border-color .15s;min-width:0"
+           onclick="toggleInverterBreakdown()" title="Click to see inverter types">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">
+          <div style="font-size:7px;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;font-family:'DM Mono',monospace;font-weight:500">Inverter Cost Breakdown</div>
+          <span id="cInsInvToggle" style="font-size:8px;background:var(--off2);border:1px solid var(--border2);border-radius:5px;padding:1px 6px;color:var(--blue);font-family:'DM Mono',monospace">▼ types</span>
+        </div>
+        <div id="cInsInvCollapsed">
+          <div style="display:flex;align-items:baseline;gap:6px">
+            <span style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--navy)" id="cInsInvPct">—</span>
+            <span style="font-size:8px;color:var(--dim)" id="cInsInvAmt">of COGS</span>
+          </div>
+          <div style="font-size:7.5px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:2px" id="cInsInvRate">avg ₹/Wp</div>
+        </div>
+        <div id="cInsInvExpanded" style="display:none;margin-top:4px">
+          <div id="cInsInvTypes"></div>
         </div>
       </div>
-      <div style="flex:1;background:#fff;border:1px solid var(--border);border-radius:8px;padding:8px 12px;display:flex;align-items:center;gap:10px;box-shadow:var(--shadow)">
-        <div style="width:36px;height:36px;background:linear-gradient(135deg,#16A34A,#0D9488);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">📈</div>
-        <div>
-          <div style="font-size:7.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;font-family:'DM Mono',monospace">COGS % of Revenue</div>
-          <div style="font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:var(--navy)" id="cInsCpR">—</div>
-          <div style="font-size:7.5px;color:var(--dim);font-family:'DM Mono',monospace" id="cInsCpRSub">lower = better margin</div>
-        </div>
+
+      <!-- Card 3: Cost / Wp -->
+      <div style="flex:1;background:#fff;border:1px solid var(--border);border-radius:8px;padding:8px 12px;box-shadow:var(--shadow);min-width:0">
+        <div style="font-size:7px;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;font-family:'DM Mono',monospace;font-weight:500;margin-bottom:5px">Cost / Watt (IC)</div>
+        <div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--navy)" id="cInsCpW">—</div>
+        <div style="font-size:7.5px;color:var(--dim);font-family:'DM Mono',monospace;margin-top:2px">₹ per Wp installed</div>
       </div>
-      <div style="flex:1;background:#fff;border:1px solid var(--border);border-radius:8px;padding:8px 12px;display:flex;align-items:center;gap:10px;box-shadow:var(--shadow)">
-        <div style="width:36px;height:36px;background:linear-gradient(135deg,#7C3AED,#4F46E5);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">📦</div>
-        <div>
-          <div style="font-size:7.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;font-family:'DM Mono',monospace">Module + Inverter</div>
-          <div style="font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:var(--navy)" id="cInsModInv">—</div>
-          <div style="font-size:7.5px;color:var(--dim);font-family:'DM Mono',monospace">of tracked COGS</div>
-        </div>
+
+      <!-- Card 4: COGS % of Revenue -->
+      <div style="flex:1;background:#fff;border:1px solid var(--border);border-radius:8px;padding:8px 12px;box-shadow:var(--shadow);min-width:0">
+        <div style="font-size:7px;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;font-family:'DM Mono',monospace;font-weight:500;margin-bottom:5px">COGS % of Revenue</div>
+        <div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--navy)" id="cInsCpR">—</div>
+        <div style="font-size:7.5px;color:var(--dim);font-family:'DM Mono',monospace;margin-top:2px" id="cInsCpRSub">lower = better margin</div>
       </div>
     </div>
     <div class="charts-row1" style="height:190px;flex-shrink:0">
@@ -2252,19 +2295,58 @@ function renderCostsView(){
     const cpw=(k.total_cogs/(totKW*1000)).toFixed(2);
     const cpRev=k.total_revenue>0?(k.total_cogs/k.total_revenue*100).toFixed(1):'—';
     const el=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
-    if(costs.length){
-      const largest=costs.reduce((a,b)=>b.total>a.total?b:a,costs[0]);
-      const lPct=(largest.total/costs.reduce((s,c)=>s+c.total,0)*100).toFixed(0);
-      el('cInsLargest',`${largest.item} — ${lPct}%`);
-      el('cInsLargestSub',`₹${(largest.total/1e7).toFixed(2)} Cr of total`);
-      const modTotal=costs.find(c=>c.key==='module')?.total||0;
-      const invTotal=costs.find(c=>c.key==='inverter')?.total||0;
-      const miTotal=modTotal+invTotal;
-      const miPct=miTotal>0?(miTotal/costs.reduce((s,c)=>s+c.total,0)*100).toFixed(0):'—';
-      el('cInsModInv',`${miPct}%`);
+    const trackedTotal=costs.reduce((s,c)=>s+c.total,0)||1;
+
+    // Module card
+    const modC=costs.find(c=>c.key==='module');
+    if(modC){
+      const pct=(modC.total/trackedTotal*100).toFixed(0);
+      el('cInsModPct',pct+'%');
+      el('cInsModAmt','of COGS · ₹'+(modC.total/1e7).toFixed(2)+' Cr');
+      el('cInsModRate',modC.unitRate>0?`₹${modC.unitRate.toFixed(2)}/Wp avg rate`:'rate unavailable');
+      if(modC.subTypes&&modC.subTypes.length){
+        const maxT=modC.subTypes[0]?.total||1;
+        const typesHtml=modC.subTypes.slice(0,5).map(t=>`
+          <div style="display:flex;align-items:center;gap:5px;padding:2px 0;border-top:1px solid var(--off2)">
+            <div style="flex:1;min-width:0">
+              <div style="font-size:8px;font-weight:600;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${t.name}</div>
+              <div style="display:flex;align-items:center;gap:3px;margin-top:1px">
+                <div style="height:4px;width:${(t.total/maxT*80).toFixed(0)}px;background:var(--blue);border-radius:2px;min-width:4px"></div>
+                <span style="font-size:7.5px;color:var(--dim);font-family:'DM Mono',monospace">${(t.total/modC.total*100).toFixed(0)}% · ${t.count} installs</span>
+              </div>
+            </div>
+            <span style="font-size:8px;color:var(--purple);font-family:'DM Mono',monospace;font-weight:700;flex-shrink:0">${t.rpw>0?t.rpw.toFixed(2)+'/Wp':'—'}</span>
+          </div>`).join('');
+        const e=document.getElementById('cInsModTypes');if(e)e.innerHTML=typesHtml;
+      }
     }
-    el('cInsCpW',`₹${cpw}/Wp`);
-    el('cInsCpR',`${cpRev}%`);
+
+    // Inverter card
+    const invC=costs.find(c=>c.key==='inverter');
+    if(invC){
+      const pct=(invC.total/trackedTotal*100).toFixed(0);
+      el('cInsInvPct',pct+'%');
+      el('cInsInvAmt','of COGS · ₹'+(invC.total/1e7).toFixed(2)+' Cr');
+      el('cInsInvRate',invC.unitRate>0?`₹${invC.unitRate.toFixed(2)}/Wp avg rate`:'rate unavailable');
+      if(invC.subTypes&&invC.subTypes.length){
+        const maxT=invC.subTypes[0]?.total||1;
+        const typesHtml=invC.subTypes.slice(0,5).map(t=>`
+          <div style="display:flex;align-items:center;gap:5px;padding:2px 0;border-top:1px solid var(--off2)">
+            <div style="flex:1;min-width:0">
+              <div style="font-size:8px;font-weight:600;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${t.name}</div>
+              <div style="display:flex;align-items:center;gap:3px;margin-top:1px">
+                <div style="height:4px;width:${(t.total/maxT*80).toFixed(0)}px;background:var(--amber);border-radius:2px;min-width:4px"></div>
+                <span style="font-size:7.5px;color:var(--dim);font-family:'DM Mono',monospace">${(t.total/invC.total*100).toFixed(0)}% · ${t.count} installs</span>
+              </div>
+            </div>
+            <span style="font-size:8px;color:var(--purple);font-family:'DM Mono',monospace;font-weight:700;flex-shrink:0">${t.rpw>0?t.rpw.toFixed(2)+'/Wp':'—'}</span>
+          </div>`).join('');
+        const e=document.getElementById('cInsInvTypes');if(e)e.innerHTML=typesHtml;
+      }
+    }
+
+    el('cInsCpW','₹'+cpw+'/Wp');
+    el('cInsCpR',cpRev+'%');
     el('cInsCpRSub',k.total_revenue>0&&(k.total_cogs/k.total_revenue)<0.56?'✓ within range':'⚠ above 56%');
   },30);
 }
