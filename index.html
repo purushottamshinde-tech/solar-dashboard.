@@ -21,7 +21,7 @@
   --shadow2:0 4px 14px rgba(26,44,78,0.12);
   --topbar-h:46px;
   --filterbar-h:36px;
-  --kpi-h:52px;
+  --kpi-h:54px;
   --statusbar-h:20px;
 }
 *{margin:0;padding:0;box-sizing:border-box}
@@ -92,7 +92,7 @@ html,body{height:100%;width:100%;font-family:'DM Sans',sans-serif;background:#DD
   box-shadow:var(--shadow);overflow:hidden;
 }
 .kpi-item{
-  display:flex;flex-direction:column;justify-content:center;padding:0 10px;
+  display:flex;flex-direction:column;justify-content:center;padding:0 11px;
   border-right:1px solid var(--border);flex:1;min-width:0;
   cursor:pointer;transition:background .14s;position:relative;
 }
@@ -104,10 +104,10 @@ html,body{height:100%;width:100%;font-family:'DM Sans',sans-serif;background:#DD
   font-size:7px;color:var(--blue);opacity:0;transition:opacity .2s;
 }
 .kpi-item.clickable-kpi:hover::after{opacity:1}
-.kpi-lbl{font-size:7.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;font-family:'DM Mono',monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1;margin-bottom:2px}
-.kpi-val{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--navy);white-space:nowrap;line-height:1.15}
+.kpi-lbl{font-size:7px;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;font-family:'DM Mono',monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1;margin-bottom:3px;font-weight:500}
+.kpi-val{font-family:'Syne',sans-serif;font-size:13.5px;font-weight:700;color:var(--navy);white-space:nowrap;line-height:1.1}
 .kpi-val.g{color:var(--green)} .kpi-val.a{color:var(--amber)} .kpi-val.r{color:var(--red)} .kpi-val.t{color:var(--teal)} .kpi-val.p{color:var(--purple)}
-.kpi-delta{font-size:7.5px;color:var(--muted);font-family:'DM Mono',monospace;line-height:1;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kpi-delta{font-size:7px;color:var(--muted);font-family:'DM Mono',monospace;line-height:1;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:.2px}
 .kpi-delta.up{color:var(--green)} .kpi-delta.down{color:var(--red)}
 
 /* ── KPI DRILL PANEL ── */
@@ -416,7 +416,7 @@ td:first-child{text-align:left;font-weight:500;color:var(--navy)}
 <!-- KPI STRIP -->
 <div class="kpi-strip" id="kpiStrip">
   <div class="kpi-item clickable-kpi" onclick="toggleKpiDrill('installs')">
-    <div class="kpi-lbl">Total Installs</div>
+    <div class="kpi-lbl">Installations</div>
     <div class="kpi-val" id="kProj">—</div>
     <div class="kpi-delta" id="kProjD">SSE IDs</div>
   </div>
@@ -426,44 +426,44 @@ td:first-child{text-align:left;font-weight:500;color:var(--navy)}
     <div class="kpi-delta" id="kRevD">total</div>
   </div>
   <div class="kpi-item clickable-kpi" onclick="toggleKpiDrill('cogs')">
-    <div class="kpi-lbl">IC COGS</div>
+    <div class="kpi-lbl">IC Total (COGS)</div>
     <div class="kpi-val" id="kCOGS">—</div>
     <div class="kpi-delta" id="kCOGSD">total</div>
   </div>
   <div class="kpi-item clickable-kpi" onclick="toggleKpiDrill('gm')">
-    <div class="kpi-lbl">Gross Margin ₹</div>
+    <div class="kpi-lbl">Gross Profit</div>
     <div class="kpi-val g" id="kGM">—</div>
     <div class="kpi-delta" id="kGMD">Rev − COGS</div>
   </div>
   <div class="kpi-item clickable-kpi" onclick="toggleKpiDrill('gmpct')">
-    <div class="kpi-lbl" id="kGMlbl">GM %</div>
+    <div class="kpi-lbl" id="kGMlbl">Margin %</div>
     <div class="kpi-val g" id="kGMpct">—</div>
     <div class="kpi-delta" id="kGMpctD">—</div>
   </div>
   <div class="kpi-item clickable-kpi" style="border-left:2px solid var(--blue)" onclick="toggleKpiDrill('aov')">
-    <div class="kpi-lbl" id="kAOVlbl">Avg AOV</div>
+    <div class="kpi-lbl" id="kAOVlbl">Avg Order Value</div>
     <div class="kpi-val" style="color:var(--teal)" id="kAOV">—</div>
     <div class="kpi-delta" id="kAOVD">per project</div>
   </div>
   <div class="kpi-item clickable-kpi" onclick="toggleKpiDrill('aos')">
-    <div class="kpi-lbl" id="kAOSlbl">Avg AOS</div>
+    <div class="kpi-lbl" id="kAOSlbl">Avg System Size</div>
     <div class="kpi-val" style="color:var(--purple)" id="kAOS">—</div>
     <div class="kpi-delta" id="kAOSD">kW/install</div>
   </div>
   <div class="kpi-item clickable-kpi" onclick="toggleKpiDrill('gmwatt')">
-    <div class="kpi-lbl" id="kGMperKWlbl">GM / Watt</div>
+    <div class="kpi-lbl" id="kGMperKWlbl">Margin / Wp</div>
     <div class="kpi-val" style="color:var(--green)" id="kGMperKW">—</div>
     <div class="kpi-delta" id="kGMperKWD">₹ per Wp</div>
   </div>
   <div class="kpi-item" onclick="toggleKpiDrill('cogswatt')">
-    <div class="kpi-lbl" id="kCOGSperKWlbl">COGS / Watt</div>
+    <div class="kpi-lbl" id="kCOGSperKWlbl">Cost / Wp</div>
     <div class="kpi-val" id="kCOGSperKW">—</div>
     <div class="kpi-delta" id="kCOGSperKWD">IC cost/Wp</div>
   </div>
   <div class="kpi-item" onclick="toggleKpiDrill('onm')">
     <div class="kpi-lbl">ONM & QHSE</div>
     <div class="kpi-val" style="color:var(--dim)" id="kONM">—</div>
-    <div class="kpi-delta">~3.4% of COGS</div>
+    <div class="kpi-delta" id="kONMD">~3.4% of COGS</div>
   </div>
 </div>
 
@@ -1073,13 +1073,13 @@ function renderKPIs(){
   const gmEl=document.getElementById('kGMpct');
   if(gmEl){gmEl.textContent=pct(k.avg_gm_pct);gmEl.className='kpi-val '+gClass(k.avg_gm_pct);}
   sc('kGMpctD',(k.avg_gm_pct>=48?'↑ above ':'↓ below ')+'48% target',k.avg_gm_pct>=48?'up':'down');
-  const revNote=k.revenue_projects<k.total_installs?`${k.revenue_projects.toLocaleString()} w/ revenue`:'total installs';
-  sc('kProjD',revNote);
-  sc('kRevD','ex-GST — click to breakdown');
-  sc('kCOGSD','IC_Total — click for details');
-  sc('kGMD','Revenue − IC_Total');
-  sc('kAOVD','avg per project w/ revenue');
-  sc('kAOSD','avg system size (all installs)');
+  const revNote=k.revenue_projects<k.total_installs?`${k.revenue_projects.toLocaleString()} w/ revenue`:'all with revenue';
+  sc('kProjD', revNote);
+  sc('kRevD','click to drill breakdown');
+  sc('kCOGSD','click for component details');
+  sc('kGMD','Revenue − IC Total');
+  sc('kAOVD','per project with revenue');
+  sc('kAOSD','kWp per installation');
   sc('kGMperKWD','₹ per Watt installed');
   sc('kCOGSperKWD','IC cost per Watt');
 }
@@ -2175,13 +2175,50 @@ function renderCostsView(){
   const decomp=buildGMDecompPanel(FILTERED.gmDecomp);
   document.getElementById('mainContent').innerHTML=`
     ${decomp}
-    <div class="charts-row1" style="height:175px;flex-shrink:0">
+    <div style="display:flex;gap:6px;flex-shrink:0">
+      <div style="flex:1;background:#fff;border:1px solid var(--border);border-radius:8px;padding:8px 12px;display:flex;align-items:center;gap:10px;box-shadow:var(--shadow)">
+        <div style="width:36px;height:36px;background:linear-gradient(135deg,#EF4444,#F97316);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">🔴</div>
+        <div>
+          <div style="font-size:7.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;font-family:'DM Mono',monospace">Largest Cost Driver</div>
+          <div style="font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:var(--navy)" id="cInsLargest">—</div>
+          <div style="font-size:7.5px;color:var(--dim);font-family:'DM Mono',monospace" id="cInsLargestSub">% of tracked COGS</div>
+        </div>
+      </div>
+      <div style="flex:1;background:#fff;border:1px solid var(--border);border-radius:8px;padding:8px 12px;display:flex;align-items:center;gap:10px;box-shadow:var(--shadow)">
+        <div style="width:36px;height:36px;background:linear-gradient(135deg,#F59E0B,#EAB308);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">📐</div>
+        <div>
+          <div style="font-size:7.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;font-family:'DM Mono',monospace">Cost / Watt (IC)</div>
+          <div style="font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:var(--navy)" id="cInsCpW">—</div>
+          <div style="font-size:7.5px;color:var(--dim);font-family:'DM Mono',monospace" id="cInsCpWSub">₹ per Wp installed</div>
+        </div>
+      </div>
+      <div style="flex:1;background:#fff;border:1px solid var(--border);border-radius:8px;padding:8px 12px;display:flex;align-items:center;gap:10px;box-shadow:var(--shadow)">
+        <div style="width:36px;height:36px;background:linear-gradient(135deg,#16A34A,#0D9488);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">📈</div>
+        <div>
+          <div style="font-size:7.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;font-family:'DM Mono',monospace">COGS % of Revenue</div>
+          <div style="font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:var(--navy)" id="cInsCpR">—</div>
+          <div style="font-size:7.5px;color:var(--dim);font-family:'DM Mono',monospace" id="cInsCpRSub">lower = better margin</div>
+        </div>
+      </div>
+      <div style="flex:1;background:#fff;border:1px solid var(--border);border-radius:8px;padding:8px 12px;display:flex;align-items:center;gap:10px;box-shadow:var(--shadow)">
+        <div style="width:36px;height:36px;background:linear-gradient(135deg,#7C3AED,#4F46E5);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">📦</div>
+        <div>
+          <div style="font-size:7.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;font-family:'DM Mono',monospace">Module + Inverter</div>
+          <div style="font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:var(--navy)" id="cInsModInv">—</div>
+          <div style="font-size:7.5px;color:var(--dim);font-family:'DM Mono',monospace">of tracked COGS</div>
+        </div>
+      </div>
+    </div>
+    <div class="charts-row1" style="height:190px;flex-shrink:0">
       <div class="card" style="grid-column:span 2">
-        <div class="card-title">COGS Trend vs GM% <span class="card-badge badge-amber">Monthly · Last 12 months</span></div>
+        <div class="card-title">Revenue vs COGS vs GM% <span class="card-badge badge-amber">Monthly · Last 12 months</span>
+          <span style="margin-left:auto;font-size:8px;color:var(--muted);font-family:'DM Mono',monospace">Red dot = GM% below 48% target</span>
+        </div>
         <div class="legend-row">
-          <div class="leg"><div class="leg-sq" style="background:rgba(239,68,68,0.65)"></div><span class="leg-label">COGS (₹Lakhs, left)</span></div>
-          <div class="leg"><div class="leg-line" style="background:#16A34A"></div><span class="leg-label">GM% (right)</span></div>
-          <div style="font-size:8px;color:var(--muted);margin-left:auto">Lower COGS + Higher GM% = efficiency improving</div>
+          <div class="leg"><div class="leg-sq" style="background:rgba(37,99,168,0.65)"></div><span class="leg-label">Revenue</span></div>
+          <div class="leg"><div class="leg-sq" style="background:rgba(239,68,68,0.7)"></div><span class="leg-label">COGS</span></div>
+          <div class="leg"><div class="leg-line" style="background:#16A34A"></div><span class="leg-label">GM% →</span></div>
+          <div class="leg"><div class="leg-line" style="background:#F59E0B;border-top:1.5px dashed #F59E0B;height:0;border-bottom:none"></div><span class="leg-label">Installs →</span></div>
         </div>
         <div class="canvas-wrap"><canvas id="cCostMoM"></canvas></div>
       </div>
@@ -2205,39 +2242,143 @@ function renderCostsView(){
         </tr></thead><tbody id="costBody"></tbody></table>
       </div>
     </div>`;
-  setTimeout(()=>{drawCostMoMChart(monthly);drawCostDonut(costs);buildCostTable(costs);},30);
+  setTimeout(()=>{
+    drawCostMoMChart(monthly);
+    drawCostDonut(costs);
+    buildCostTable(costs);
+    // populate insight bar
+    const k=FILTERED.kpis;
+    const totKW=k.total_kw||1;
+    const cpw=(k.total_cogs/(totKW*1000)).toFixed(2);
+    const cpRev=k.total_revenue>0?(k.total_cogs/k.total_revenue*100).toFixed(1):'—';
+    const el=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+    if(costs.length){
+      const largest=costs.reduce((a,b)=>b.total>a.total?b:a,costs[0]);
+      const lPct=(largest.total/costs.reduce((s,c)=>s+c.total,0)*100).toFixed(0);
+      el('cInsLargest',`${largest.item} — ${lPct}%`);
+      el('cInsLargestSub',`₹${(largest.total/1e7).toFixed(2)} Cr of total`);
+      const modTotal=costs.find(c=>c.key==='module')?.total||0;
+      const invTotal=costs.find(c=>c.key==='inverter')?.total||0;
+      const miTotal=modTotal+invTotal;
+      const miPct=miTotal>0?(miTotal/costs.reduce((s,c)=>s+c.total,0)*100).toFixed(0):'—';
+      el('cInsModInv',`${miPct}%`);
+    }
+    el('cInsCpW',`₹${cpw}/Wp`);
+    el('cInsCpR',`${cpRev}%`);
+    el('cInsCpRSub',k.total_revenue>0&&(k.total_cogs/k.total_revenue)<0.56?'✓ within range':'⚠ above 56%');
+  },30);
 }
 
 function drawCostMoMChart(monthly){
   const d=monthly.slice(-12);
   if(!d.length)return;
+  // Compute MoM COGS change % for annotation
+  const cogsMoM=d.map((m,i)=>{
+    if(i===0||d[i-1].cogs===0)return null;
+    return ((m.cogs-d[i-1].cogs)/d[i-1].cogs*100);
+  });
   CHARTS.costMoM=new Chart(document.getElementById('cCostMoM'),{
     type:'bar',
     data:{
       labels:d.map(m=>m.label),
       datasets:[
-        {label:'COGS (₹L)',data:d.map(m=>m.cogs/1e5),backgroundColor:'rgba(239,68,68,0.6)',borderRadius:4,yAxisID:'y'},
-        {type:'line',label:'GM%',data:d.map(m=>m.gm_pct),borderColor:'#16A34A',borderWidth:2.5,
-         pointRadius:4,pointBackgroundColor:'#fff',pointBorderColor:'#16A34A',pointBorderWidth:2,
-         tension:0.3,yAxisID:'y2',fill:false}
+        {label:'Revenue',data:d.map(m=>+(m.revenue/1e5).toFixed(2)),
+         backgroundColor:'rgba(37,99,168,0.65)',borderRadius:4,yAxisID:'y',order:2},
+        {label:'COGS',data:d.map(m=>+(m.cogs/1e5).toFixed(2)),
+         backgroundColor:d.map(m=>m.gm_pct>=48?'rgba(239,68,68,0.55)':'rgba(239,68,68,0.82)'),
+         borderRadius:4,yAxisID:'y',order:2},
+        {type:'line',label:'GM%',data:d.map(m=>+m.gm_pct.toFixed(1)),
+         borderColor:'#16A34A',borderWidth:2.5,
+         pointRadius:d.map(m=>m.gm_pct<48?6:4),
+         pointBackgroundColor:d.map(m=>m.gm_pct<48?'#DC2626':'#fff'),
+         pointBorderColor:'#16A34A',pointBorderWidth:2,
+         tension:0.35,yAxisID:'y2',fill:false,order:1},
+        {type:'line',label:'Installs',data:d.map(m=>m.installs),
+         borderColor:'#F59E0B',borderWidth:1.5,borderDash:[4,3],
+         pointRadius:3,pointBackgroundColor:'#F59E0B',
+         tension:0.3,yAxisID:'y3',fill:false,order:1}
       ]
     },
     options:{
       responsive:true,maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
       plugins:{
         legend:{display:false},
-        tooltip:{mode:'index',backgroundColor:'#1A2C4E',titleColor:'#fff',bodyColor:'#94A3B8',cornerRadius:8,padding:10,
-          callbacks:{label:ctx=>ctx.datasetIndex===0?`  COGS: ₹${ctx.parsed.y.toFixed(1)}L`:`  GM%: ${ctx.parsed.y.toFixed(1)}%`}
+        tooltip:{
+          backgroundColor:'rgba(15,23,42,0.92)',titleColor:'#E2E8F0',
+          bodyColor:'#94A3B8',cornerRadius:10,padding:12,borderColor:'rgba(255,255,255,0.1)',borderWidth:1,
+          callbacks:{
+            title:items=>`📅 ${items[0].label}`,
+            label:ctx=>{
+              if(ctx.datasetIndex===0)return `  💰 Revenue: ₹${ctx.parsed.y.toFixed(1)}L`;
+              if(ctx.datasetIndex===1){
+                const chg=cogsMoM[ctx.dataIndex];
+                const arrow=chg===null?'':chg>0?` ▲${chg.toFixed(1)}%`:` ▼${Math.abs(chg).toFixed(1)}%`;
+                return `  🔴 COGS: ₹${ctx.parsed.y.toFixed(1)}L${arrow}`;
+              }
+              if(ctx.datasetIndex===2){
+                const flag=ctx.parsed.y<48?' ⚠ below target':'';
+                return `  📊 GM%: ${ctx.parsed.y.toFixed(1)}%${flag}`;
+              }
+              return `  🏗 Installs: ${ctx.parsed.y}`;
+            },
+            afterBody:items=>{
+              const i=items[0].dataIndex;
+              const rev=d[i].revenue,cogs=d[i].cogs,gm=d[i].gm_pct;
+              const spread=(rev/1e5-cogs/1e5).toFixed(1);
+              return [``, `  Spread (Rev-COGS): ₹${spread}L`, `  Target gap: ${(gm-48).toFixed(1)}% pts`];
+            }
+          }
         }
       },
       scales:{
-        x:{grid:{display:false},ticks:{color:'#94A3B8',font:{size:8}}},
-        y:{grid:{color:'rgba(200,220,238,0.3)'},ticks:{color:'#94A3B8',font:{size:8},callback:v=>`₹${v.toFixed(0)}L`},position:'left',
-           title:{display:true,text:'COGS (₹ Lakhs)',color:'#94A3B8',font:{size:7}}},
-        y2:{grid:{display:false},ticks:{color:'#16A34A',font:{size:8},callback:v=>`${v.toFixed(0)}%`},position:'right',min:25,max:65,
-            title:{display:true,text:'GM %',color:'#16A34A',font:{size:7}}}
+        x:{grid:{display:false},ticks:{color:'#94A3B8',font:{size:8},maxRotation:30}},
+        y:{
+          grid:{color:'rgba(200,220,238,0.25)',lineWidth:1},
+          ticks:{color:'#94A3B8',font:{size:8},callback:v=>`₹${v}L`},
+          position:'left',
+          title:{display:true,text:'₹ Lakhs',color:'#94A3B8',font:{size:7,weight:'500'}}
+        },
+        y2:{
+          grid:{display:false},
+          ticks:{color:'#16A34A',font:{size:8},callback:v=>`${v}%`},
+          position:'right',min:25,max:70,
+          title:{display:true,text:'GM %',color:'#16A34A',font:{size:7}},
+          afterDataLimits(scale){
+            // draw 48% target line via plugin below
+          }
+        },
+        y3:{
+          display:false,
+          ticks:{color:'#F59E0B',font:{size:7}},
+          position:'right'
+        }
+      },
+      plugins2:{}, // placeholder
+    },
+    plugins:[{
+      id:'targetLine',
+      afterDraw(chart){
+        const y2=chart.scales.y2;
+        if(!y2)return;
+        const ctx2=chart.ctx;
+        const y=y2.getPixelForValue(48);
+        const {left,right}=chart.chartArea;
+        ctx2.save();
+        ctx2.beginPath();
+        ctx2.setLineDash([6,4]);
+        ctx2.strokeStyle='rgba(220,38,38,0.55)';
+        ctx2.lineWidth=1.5;
+        ctx2.moveTo(left,y);ctx2.lineTo(right,y);
+        ctx2.stroke();
+        ctx2.setLineDash([]);
+        ctx2.fillStyle='rgba(220,38,38,0.7)';
+        ctx2.font='bold 8px DM Mono,monospace';
+        ctx2.textAlign='right';
+        ctx2.fillText('48% target',right-4,y-3);
+        ctx2.restore();
       }
-    }
+    }]
   });
 }
 
@@ -2245,19 +2386,59 @@ function drawCostDonut(costs){
   if(!costs.length)return;
   const COLORS=['#2563A8','#F59E0B','#16A34A','#7C3AED','#EF4444','#0891B2','#EC4899','#84CC16'];
   const total=costs.reduce((s,c)=>s+c.total,0)||1;
+  // Sort by value descending for cleaner donut
+  const sorted=[...costs].sort((a,b)=>b.total-a.total);
   CHARTS.costDonut=new Chart(document.getElementById('cCostDonut'),{
     type:'doughnut',
-    data:{labels:costs.map(c=>c.item),datasets:[{data:costs.map(c=>c.total),backgroundColor:COLORS,borderColor:'#fff',borderWidth:2}]},
-    options:{responsive:true,maintainAspectRatio:false,cutout:'58%',
+    data:{
+      labels:sorted.map(c=>c.item),
+      datasets:[{
+        data:sorted.map(c=>c.total),
+        backgroundColor:COLORS,
+        borderColor:'#fff',borderWidth:3,
+        hoverOffset:10,
+        hoverBorderColor:'#fff'
+      }]
+    },
+    options:{responsive:true,maintainAspectRatio:false,cutout:'62%',
       plugins:{
-        legend:{position:'right',labels:{color:'#5A7A96',font:{size:8},padding:4,boxWidth:8,
+        legend:{position:'right',labels:{color:'#5A7A96',font:{size:8},padding:6,boxWidth:9,
           generateLabels:chart=>chart.data.labels.map((l,i)=>{
             const v=chart.data.datasets[0].data[i];
-            return{text:`${l}  ${(v/total*100).toFixed(0)}%`,fillStyle:COLORS[i],strokeStyle:'#fff',lineWidth:2,index:i};
+            const pct=(v/total*100).toFixed(0);
+            return{text:`${l}  ${pct}%  ₹${(v/1e5).toFixed(1)}L`,fillStyle:COLORS[i%COLORS.length],strokeStyle:'#fff',lineWidth:1,index:i};
           })}},
-        tooltip:{backgroundColor:'#1A2C4E',callbacks:{label:ctx=>[`  ${ctx.label}`,`  ${(ctx.parsed/total*100).toFixed(1)}% of COGS`,`  ${cr2(ctx.parsed)}`]}}
+        tooltip:{
+          backgroundColor:'rgba(15,23,42,0.92)',titleColor:'#E2E8F0',bodyColor:'#94A3B8',cornerRadius:10,padding:12,
+          callbacks:{
+            title:items=>`📦 ${items[0].label}`,
+            label:ctx=>{
+              const pct=(ctx.parsed/total*100).toFixed(1);
+              const rpw=sorted[ctx.dataIndex]?.unitRate;
+              return [
+                `  Share: ${pct}% of total COGS`,
+                `  Amount: ${cr2(ctx.parsed)}`,
+                rpw>0?`  Rate: ₹${rpw.toFixed(2)}/Wp`:''
+              ].filter(Boolean);
+            }
+          }
+        }
       }
-    }
+    },
+    plugins:[{
+      id:'centerLabel',
+      afterDraw(chart){
+        const {width,height,ctx:c}=chart;
+        const cx=width/2,cy=height/2;
+        c.save();
+        c.textAlign='center';c.textBaseline='middle';
+        c.fillStyle='#1A2C4E';c.font='bold 11px Syne,sans-serif';
+        c.fillText('COGS',cx,cy-7);
+        c.fillStyle='#5A7A96';c.font='8px DM Mono,monospace';
+        c.fillText('by component',cx,cy+6);
+        c.restore();
+      }
+    }]
   });
 }
 
