@@ -161,6 +161,8 @@ html,body{height:100%;width:100%;font-family:'DM Sans',sans-serif;background:#DD
 .card-badge{font-size:7px;padding:2px 5px;border-radius:6px;font-family:'DM Mono',monospace;font-weight:500;white-space:nowrap}
 .badge-green{background:var(--green-bg);color:var(--green)} .badge-amber{background:var(--amber-bg);color:var(--amber)}
 .badge-blue{background:#DBEAFE;color:var(--blue2)} .badge-navy{background:var(--off2);color:var(--navy)}
+.bridge-svg-wrap{flex:1;overflow:hidden;min-height:0;display:block}
+.bridge-svg-wrap svg{display:block;max-width:100%}
 .canvas-wrap{flex:1;position:relative;min-height:0;overflow:hidden}
 .canvas-wrap canvas{position:absolute;inset:0}
 
@@ -528,7 +530,7 @@ function buildEmptyData() {
     kpis: { total_installs:0, revenue_projects:0, total_revenue:0, total_cogs:0, total_gm:0,
             avg_gm_pct:0, avg_aov:0, avg_aos:0, total_kw:0, ic_cogs:0, onm_qhse:0 },
     monthly:[], quarterly:[], fy:[],
-    cities:[], states:[], offers:[], phases:[], costs:[], gmDecomp:null, cityMoM:{},
+    cities:[], states:[], offers:[], phases:[], costs:[], gmDecomp:null, bridgeData:[], cityMoM:{},
   };
 }
 
@@ -1067,32 +1069,119 @@ function aggregateRows(rows, filterCtx){
     subTypes:k==='module'?moduleSubTypes:k==='inverter'?inverterSubTypes:[],
   })).sort((a,b)=>b.total-a.total);
 
-  let gmDecomp=null;
-  if(iRowsNow.length&&iRowsPrev.length){
-    const rL=iRowsNow,rP=iRowsPrev;
+  // ════════════════════════════════════════════════════
+  // BRIDGE DATA — multi-period waterfall, quarter-aware
+  // ════════════════════════════════════════════════════
+  // Helper: compute one bridge segment between two arrays of rows
+  function computeBridgeSegment(rP, rL, lblPrev, lblNow){
+    if(!rP.length||!rL.length) return null;
     const wpL=rL.reduce((s,r)=>s+getWpR(r),0)||1;
     const wpP=rP.reduce((s,r)=>s+getWpR(r),0)||1;
-    const revL=rL.reduce((s,r)=>s+r.revenue,0),revP=rP.reduce((s,r)=>s+r.revenue,0);
-    const cogL=rL.reduce((s,r)=>s+r.cogs,0),cogP=rP.reduce((s,r)=>s+r.cogs,0);
-    const gmPctL=revL>0?(revL-cogL)/revL*100:0;
-    const gmPctP=revP>0?(revP-cogP)/revP*100:0;
+    const revL=rL.reduce((s,r)=>s+r.revenue,0), revP=rP.reduce((s,r)=>s+r.revenue,0);
+    const cogL=rL.reduce((s,r)=>s+r.cogs,0),    cogP=rP.reduce((s,r)=>s+r.cogs,0);
+    if(!revL||!revP) return null;
+    const gmPctL=(revL-cogL)/revL*100, gmPctP=(revP-cogP)/revP*100;
     const gmChg=gmPctL-gmPctP;
-    const revWpL=revL/wpL,revWpP=revP/wpP;
-    const cogWpL=cogL/wpL,cogWpP=cogP/wpP;
-    const priceEffect=revWpP>0?(revWpL-revWpP)/revWpL*100*(revL>0?1:0):0;
+    const revWpL=revL/wpL, revWpP=revP/wpP;
+    // Price effect: change in rev/wp normalised to current rev/wp
+    const priceEffect=revWpL>0?(revWpL-revWpP)/revWpL*100:0;
+    // Cost effects per component
     const costEffects=[];
     costItems.forEach(k=>{
-      const cL=rL.reduce((s,r)=>s+(r[k]||0),0);const cP=rP.reduce((s,r)=>s+(r[k]||0),0);
-      const rateL=cL/wpL,rateP=cP/wpP;const rateDiff=rateL-rateP;
-      const gmImpact=revWpL>0?-(rateDiff/revWpL)*100:0;
-      if(Math.abs(gmImpact)>0.05)costEffects.push({name:costNames[k],key:k,rateL,rateP,rateDiff,gmImpact});
+      const cL=rL.reduce((s,r)=>s+(r[k]||0),0), cP=rP.reduce((s,r)=>s+(r[k]||0),0);
+      const rateL=cL/wpL, rateP=cP/wpP;
+      const gmImpact=revWpL>0?-(rateL-rateP)/revWpL*100:0;
+      if(Math.abs(gmImpact)>0.05) costEffects.push({name:costNames[k],key:k,gmImpact,rateL,rateP});
     });
-    costEffects.sort((a,b)=>a.gmImpact-b.gmImpact);
-    const cityMixEffect=gmChg-priceEffect-costEffects.reduce((s,e)=>s+e.gmImpact,0);
-    gmDecomp={gmPctNow:gmPctL,gmPctPrev:gmPctP,gmChg,lblNow:insightNow?insightNow.label:'',
-      lblPrev:insightPrev?insightPrev.label:'',priceEffect,costEffects,
-      cityMixEffect:isNaN(cityMixEffect)?0:cityMixEffect,revWpNow:revWpL,revWpPrev:revWpP,cogWpNow:cogWpL,cogWpPrev:cogWpP};
+    costEffects.sort((a,b)=>b.gmImpact-a.gmImpact);
+    const totalCostEffect=costEffects.reduce((s,e)=>s+e.gmImpact,0);
+    const totalMixEffect=gmChg-priceEffect-totalCostEffect;
+    // Split mix: city vs product
+    const allCitiesMix=[...new Set([...rL.map(r=>r.city),...rP.map(r=>r.city)].filter(Boolean))];
+    let weightedGMifPrevMargins=0;
+    allCitiesMix.forEach(city=>{
+      const cL2=rL.filter(r=>r.city===city), cP2=rP.filter(r=>r.city===city);
+      const revLc=cL2.reduce((s,r)=>s+r.revenue,0);
+      const revPc=cP2.reduce((s,r)=>s+r.revenue,0), cogPc=cP2.reduce((s,r)=>s+r.cogs,0);
+      const gmPctPc=revPc>0?(revPc-cogPc)/revPc*100:0;
+      if(revL>0) weightedGMifPrevMargins+=gmPctPc*(revLc/revL);
+    });
+    const cityMixEffect=revL>0?(weightedGMifPrevMargins-gmPctP):0;
+    const productMixEffect=totalMixEffect-(isNaN(cityMixEffect)?0:cityMixEffect);
+    return {
+      lblPrev,lblNow,gmPctPrev:gmPctP,gmPctNow:gmPctL,gmChg,
+      priceEffect,costEffects,totalCostEffect,
+      cityMixEffect:isNaN(cityMixEffect)?0:cityMixEffect,
+      productMixEffect:isNaN(productMixEffect)?0:productMixEffect,
+      revWpNow:revWpL,revWpPrev:revWpP,
+      cogWpNow:cogL/wpL,cogWpPrev:cogP/wpP,
+    };
   }
+
+  // Build period buckets from LIVE_ROWS (non-date-filtered) so we always have prev period
+  // Use the same non-date filters (city/state/offer/phase) as applied
+  const liveNonDateFiltered = applyNonDateFilters(LIVE_ROWS);
+  const revLiveRows = liveNonDateFiltered.filter(r=>r.hasRevenue&&r.date);
+
+  // Group by quarter-label (e.g. "Q1 FY 25-26")
+  const byQtrBridge={};
+  revLiveRows.forEach(r=>{
+    const lbl=qtrLabel(r.date);
+    if(!lbl) return;
+    const q=monthToQtr(r.date.getMonth());
+    const fyStart=r.date.getMonth()>=3?r.date.getFullYear():r.date.getFullYear()-1;
+    const qNum={Q1:1,Q2:2,Q3:3,Q4:4}[q];
+    if(!byQtrBridge[lbl]) byQtrBridge[lbl]={lbl,q,fyStart,qNum,rows:[]};
+    byQtrBridge[lbl].rows.push(r);
+  });
+  // All quarters sorted chronologically
+  const allQtrs=Object.values(byQtrBridge)
+    .sort((a,b)=>a.fyStart!==b.fyStart?a.fyStart-b.fyStart:a.qNum-b.qNum);
+
+  // Group by month for MoM fallback
+  const byMonthBridge={};
+  revLiveRows.forEach(r=>{
+    const y=r.date.getFullYear(),mo=r.date.getMonth();
+    const lbl=r.date.toLocaleString('en',{month:'short'})+' '+String(y).slice(2);
+    const sortKey=y*100+mo;
+    if(!byMonthBridge[lbl]) byMonthBridge[lbl]={lbl,sortKey,rows:[]};
+    byMonthBridge[lbl].rows.push(r);
+  });
+  const allMonths=Object.values(byMonthBridge).sort((a,b)=>a.sortKey-b.sortKey);
+
+  // Decide: use quarterly if >=2 quarters exist (or Q pill active), monthly otherwise
+  // When Q pill is active (ACTIVE_QTR), show only that quarter across FYs
+  // When FY filter is active, show all quarters of that FY vs prev FY same quarters
+  // Default (no filter): show last 3 consecutive quarters as 2 bridges
+
+  // Determine which period buckets to use — filter-aware
+  const fFYctx   = filterCtx.fFY   || '';
+  const fQtrCtx  = filterCtx.fQtr  || '';  // passed via filterCtx now
+
+  let periodBuckets=[];  // array of {lbl, rows}
+  // If a specific quarter is active, show all FY occurrences of that quarter → QoQ bridges
+  if(fQtrCtx){
+    periodBuckets=allQtrs.filter(q=>q.q===fQtrCtx);
+  } else if(allQtrs.length>=2){
+    // Use last 3 quarters (gives 2 bridges)
+    periodBuckets=allQtrs.slice(-3);
+  } else if(allMonths.length>=2){
+    // Fallback to monthly
+    periodBuckets=allMonths.slice(-3);
+  }
+
+  // Build bridge array: one bridge per consecutive pair
+  const bridgeData=[];
+  for(let i=1;i<periodBuckets.length;i++){
+    const seg=computeBridgeSegment(
+      periodBuckets[i-1].rows, periodBuckets[i].rows,
+      periodBuckets[i-1].lbl, periodBuckets[i].lbl
+    );
+    if(seg) bridgeData.push(seg);
+  }
+
+  // Legacy single gmDecomp for KPI drill compatibility
+  const gmDecomp=bridgeData.length?bridgeData[bridgeData.length-1]:null;
 
   const cityMoM={};
   if(iRowsNow.length&&iRowsPrev.length&&insightNow&&insightPrev){
@@ -1124,7 +1213,7 @@ function aggregateRows(rows, filterCtx){
     states:mapDim(agg(allRows,r=>r.state),'state'),
     offers:mapDim(agg(allRows,r=>r.offer),'offer'),
     phases:mapDim(agg(allRows,r=>r.phase),'phase'),
-    costs,gmDecomp,cityMoM,
+    costs,gmDecomp,bridgeData,cityMoM,
   };
 }
 
@@ -1177,7 +1266,7 @@ function applyFilters(){
     document.getElementById('statusTxt').textContent='\u26a0 No data matches this filter combination';
     FILTERED=buildEmptyData();renderAll();return;
   }
-  const filterCtx={fOffer,fPhase,fState,fCity};
+  const filterCtx={fOffer,fPhase,fState,fCity,fFY,fQtr};
   FILTERED=aggregateRows(filtered,filterCtx);
   renderAll();
 }
@@ -1431,7 +1520,7 @@ function destroyCharts(){Object.values(CHARTS).forEach(c=>{try{c.destroy()}catch
 function renderOverview(){
   const d=FILTERED;
   document.getElementById('mainContent').innerHTML=`
-    <div class="charts-row1" style="height:185px">
+    <div class="charts-row1" style="height:200px">
       <div class="card">
         <div class="card-title">Revenue & GM% Trend <span class="card-badge badge-blue">Monthly</span></div>
         <div class="legend-row">
@@ -1442,13 +1531,8 @@ function renderOverview(){
         </div>
         <div class="canvas-wrap" style="min-height:100px"><canvas id="cTrend"></canvas></div>
       </div>
-      <div class="card">
-        <div class="card-title">Quarterly Revenue <span class="card-badge badge-amber">QoQ Growth</span></div>
-        <div class="legend-row">
-          <div class="leg"><div class="leg-sq" style="background:rgba(37,99,168,0.75)"></div><span class="leg-label">Revenue (₹Cr)</span></div>
-          <div class="leg"><div class="leg-line" style="background:#F59E0B"></div><span class="leg-label">QoQ % Change</span></div>
-        </div>
-        <div class="canvas-wrap"><canvas id="cQoQ"></canvas></div>
+      <div class="card" id="marginBridgeCard" style="overflow:hidden;flex-direction:column;padding:6px 8px">
+        <div class="card-title" style="flex-shrink:0">GM% Bridge <span class="card-badge badge-amber" id="bridgePeriodBadge">MoM</span></div>
       </div>
       <div class="card">
         <div class="card-title">Product Mix <span class="card-badge badge-navy">by Revenue</span></div>
@@ -1478,7 +1562,7 @@ function renderOverview(){
         </table>
       </div>
     </div>`;
-  setTimeout(()=>{drawTrendChart();drawQoQChart();drawOfferDonut();buildStateTable('revenue');},30);
+  setTimeout(()=>{drawTrendChart();drawMarginBridge();drawOfferDonut();buildStateTable('revenue');},30);
 }
 
 function drawTrendChart(){
@@ -1520,46 +1604,209 @@ function drawTrendChart(){
   });
 }
 
-function drawQoQChart(){
-  const quarters=FILTERED.quarterly;
-  if(!quarters.length)return;
-  const growthData=quarters.map((q,i)=>{
-    if(i===0)return null;
-    const prev=quarters[i-1];
-    return prev.revenue>0?(q.revenue-prev.revenue)/prev.revenue*100:null;
+function drawMarginBridge(){
+  const bridges=FILTERED.bridgeData||[];
+  const card=document.getElementById('marginBridgeCard');
+  if(!card)return;
+
+  // Destroy any existing Chart.js instance
+  if(CHARTS.bridge){CHARTS.bridge.destroy();CHARTS.bridge=null;}
+
+  // Remove canvas and old table, replace with SVG container
+  const oldCanvas=card.querySelector('canvas');
+  if(oldCanvas)oldCanvas.remove();
+  const oldTable=card.querySelector('.bridge-cost-table');
+  if(oldTable)oldTable.remove();
+  const oldSvgWrap=card.querySelector('.bridge-svg-wrap');
+  if(oldSvgWrap)oldSvgWrap.remove();
+
+  const badge=document.getElementById('bridgePeriodBadge');
+
+  if(!bridges.length){
+    if(badge)badge.textContent='No data';
+    const wrap=document.createElement('div');
+    wrap.className='bridge-svg-wrap canvas-wrap';
+    wrap.style.cssText='flex:1;display:flex;align-items:center;justify-content:center;min-height:80px';
+    wrap.innerHTML=`<span style="color:var(--muted);font-size:10px;font-family:DM Sans,sans-serif">Not enough period data — load 2+ quarters</span>`;
+    card.appendChild(wrap);
+    return;
+  }
+
+  if(badge){
+    const first=bridges[0],last=bridges[bridges.length-1];
+    badge.textContent=`${first.lblPrev} → ${last.lblNow}`;
+  }
+
+  // ── Build all bar segments ──────────────────────────────────────────
+  function shortPeriod(lbl){
+    // "Q1 FY 25-26" → "Q1 FY26" | "Jan 25" stays as is
+    return lbl.replace(/FY (\d{2})-(\d{2})/,'FY $2').replace('FY ','FY');
+  }
+
+  const COLORS={
+    anchor:'#D95F00', anchorBg:'#FFEEDD',
+    pricePos:'#16A34A', priceNeg:'#DC2626',
+    costPos:'#22C55E', costNeg:'#EF4444',
+    cityPos:'#0891B2', cityNeg:'#F59E0B',
+    prodPos:'#7C3AED', prodNeg:'#EC4899',
+  };
+
+  // Collect all segments across all bridges
+  const segs=[];  // {label, value, base, anchor, color, bridgeIdx, type}
+  bridges.forEach((b,bi)=>{
+    if(bi===0){
+      segs.push({label:shortPeriod(b.lblPrev),value:b.gmPctPrev,base:0,anchor:true,
+        color:COLORS.anchor,bridgeIdx:bi,gmPct:b.gmPctPrev});
+    }
+    let run=b.gmPctPrev;
+
+    // Price
+    const pBase=run; run+=b.priceEffect;
+    segs.push({label:'Price',value:b.priceEffect,base:pBase,anchor:false,
+      color:b.priceEffect>=0?COLORS.pricePos:COLORS.priceNeg,bridgeIdx:bi,type:'price'});
+
+    // Costs — group into one bar labelled "Cost" with tooltip breakdown
+    const totalCost=b.totalCostEffect;
+    const cBase=run; run+=totalCost;
+    segs.push({label:'Cost',value:totalCost,base:cBase,anchor:false,
+      color:totalCost>=0?COLORS.costPos:COLORS.costNeg,bridgeIdx:bi,type:'cost',
+      costDetail:b.costEffects});
+
+    // City Mix
+    const cmBase=run; run+=b.cityMixEffect;
+    segs.push({label:'City Mix',value:b.cityMixEffect,base:cmBase,anchor:false,
+      color:b.cityMixEffect>=0?COLORS.cityPos:COLORS.cityNeg,bridgeIdx:bi,type:'cityMix'});
+
+    // Product Mix
+    const pmBase=run; run+=b.productMixEffect;
+    segs.push({label:'Prod Mix',value:b.productMixEffect,base:pmBase,anchor:false,
+      color:b.productMixEffect>=0?COLORS.prodPos:COLORS.prodNeg,bridgeIdx:bi,type:'prodMix'});
+
+    // End anchor
+    segs.push({label:shortPeriod(b.lblNow),value:b.gmPctNow,base:0,anchor:true,
+      color:COLORS.anchor,bridgeIdx:bi,gmPct:b.gmPctNow});
   });
-  const QCOLORS={Q1:'rgba(37,99,168,0.75)',Q2:'rgba(22,163,74,0.75)',Q3:'rgba(245,158,11,0.8)',Q4:'rgba(124,58,237,0.75)'};
-  CHARTS.qoq=new Chart(document.getElementById('cQoQ'),{
-    type:'bar',
-    data:{
-      labels:quarters.map(q=>q.label),
-      datasets:[
-        {label:'Revenue (₹Cr)',data:quarters.map(q=>q.revenue/1e7),
-         backgroundColor:quarters.map(q=>QCOLORS[q.q]||'rgba(37,99,168,0.7)'),borderRadius:5,yAxisID:'y'},
-        {type:'line',label:'QoQ Growth %',data:growthData,borderColor:'#F59E0B',borderWidth:2.5,
-         pointRadius:5,pointBackgroundColor:'#fff',pointBorderColor:'#F59E0B',pointBorderWidth:2,
-         tension:0.3,yAxisID:'y2',fill:false}
-      ]
-    },
-    options:{
-      responsive:true,maintainAspectRatio:false,
-      plugins:{
-        legend:{display:false},
-        tooltip:{backgroundColor:'#1A2C4E',titleColor:'#fff',bodyColor:'#94A3B8',cornerRadius:8,padding:10,
-          callbacks:{label:ctx=>ctx.datasetIndex===0?`  Revenue: ₹${ctx.parsed.y.toFixed(2)} Cr`:
-            ctx.parsed.y!==null?`  QoQ Growth: ${ctx.parsed.y.toFixed(1)}%`:'  No prev quarter'}
-        }
-      },
-      scales:{
-        x:{grid:{display:false},ticks:{color:'#94A3B8',font:{size:8},maxRotation:40}},
-        y:{grid:{color:'rgba(200,220,238,0.3)'},ticks:{color:'#94A3B8',font:{size:8},callback:v=>`₹${v.toFixed(0)}Cr`},position:'left',
-           title:{display:true,text:'Revenue (₹ Crore)',color:'#94A3B8',font:{size:7}}},
-        y2:{grid:{display:false},ticks:{color:'#F59E0B',font:{size:8},callback:v=>v!==null?`${v.toFixed(0)}%`:''},position:'right',
-            title:{display:true,text:'QoQ Growth %',color:'#F59E0B',font:{size:7}}}
-      }
+
+  // ── SVG Layout — sized to fit inside the card row height ─────────────
+  const cardW=Math.max(card.offsetWidth||300, 260);
+  const cardH=Math.max(card.offsetHeight||140, 120);
+  const titleH=22; // card title height already rendered
+  const availH=cardH-titleH-4; // available for SVG
+  const svgH=Math.min(availH, 148);
+  const MARGIN={top:20,right:8,bottom:38,left:30};
+  const plotW=cardW-MARGIN.left-MARGIN.right;
+  const plotH=svgH-MARGIN.top-MARGIN.bottom;
+
+  // Y scale
+  const allVals=segs.map(s=>s.anchor?s.value:[s.base,s.base+s.value]).flat().filter(isFinite);
+  const yMin=Math.floor(Math.min(...allVals)-2);
+  const yMax=Math.ceil(Math.max(...allVals)+4);
+  const yRange=yMax-yMin||1;
+  const toY=v=>MARGIN.top+plotH-(v-yMin)/yRange*plotH;
+
+  // X scale
+  const n=segs.length;
+  const slotW=plotW/n;
+  const barW=Math.max(8,Math.min(28,slotW*0.52));
+  const toX=i=>MARGIN.left+slotW*i+slotW/2;
+
+  // Grid lines
+  const gridTicks=[];
+  const step=yRange>25?10:yRange>12?5:2;
+  for(let y=Math.ceil(yMin/step)*step;y<=yMax;y+=step){
+    const py=toY(y).toFixed(1);
+    gridTicks.push(`<line x1="${MARGIN.left}" x2="${MARGIN.left+plotW}" y1="${py}" y2="${py}" stroke="#E8EFF7" stroke-width="0.8"/>`);
+    gridTicks.push(`<text x="${(MARGIN.left-3).toFixed(1)}" y="${(+py+3).toFixed(1)}" font-size="7" fill="#94A3B8" text-anchor="end" font-family="DM Mono,monospace">${y}%</text>`);
+  }
+
+  // Connector lines (dashed horizontal at running level)
+  const connectors=[];
+  segs.forEach((s,i)=>{
+    if(i===0||s.anchor)return;
+    const prev=segs[i-1];
+    const runVal=prev.anchor?prev.value:(prev.base+prev.value);
+    const ry=toY(runVal).toFixed(1);
+    const xA=(toX(i-1)+barW/2+1).toFixed(1);
+    const xB=(toX(i)-barW/2-1).toFixed(1);
+    if(parseFloat(xB)>parseFloat(xA))
+      connectors.push(`<line x1="${xA}" x2="${xB}" y1="${ry}" y2="${ry}" stroke="#C0D4E8" stroke-width="0.8" stroke-dasharray="2,2"/>`);
+  });
+
+  // Bars + value labels + x-axis labels
+  const bars=[];
+  const xlabels=[];
+  segs.forEach((s,i)=>{
+    const cx=toX(i);
+    const bx=(cx-barW/2).toFixed(1);
+    const bw=barW.toFixed(1);
+    let barTop,barBot;
+    if(s.anchor){barTop=toY(s.value);barBot=toY(yMin);}
+    else{barTop=toY(Math.max(s.base,s.base+s.value));barBot=toY(Math.min(s.base,s.base+s.value));}
+    const bh=Math.max(2,(barBot-barTop)).toFixed(1);
+    const by=barTop.toFixed(1);
+    bars.push(`<rect x="${bx}" y="${by}" width="${bw}" height="${bh}" rx="2" fill="${s.color}" opacity="${s.anchor?0.88:0.76}"/>`);
+
+    // Value label — always above bar for anchors, above/below for bridge
+    const lv=s.anchor?s.value.toFixed(1)+'%':(s.value>=0?'+':'')+s.value.toFixed(1)+'%';
+    const lsize=s.anchor?8:7;
+    const lweight=s.anchor?'bold':'600';
+    const lcol=s.anchor?s.color:'#1A2744';
+    const isNeg=!s.anchor&&s.value<0;
+    const ly=isNeg?(+by+ +bh+8).toFixed(1):(+by-3).toFixed(1);
+    bars.push(`<text x="${cx.toFixed(1)}" y="${ly}" font-size="${lsize}" fill="${lcol}" font-weight="${lweight}" text-anchor="middle" font-family="DM Mono,monospace">${lv}</text>`);
+
+    // X-axis label — two lines max
+    const parts=s.label.split(' ');
+    const lx=cx.toFixed(1);
+    const xly1=(toY(yMin)+12).toFixed(1);
+    const xly2=(toY(yMin)+20).toFixed(1);
+    const xfc=s.anchor?s.color:'#5A7A96';
+    const xfw=s.anchor?'bold':'normal';
+    xlabels.push(`<text x="${lx}" y="${xly1}" font-size="7" fill="${xfc}" font-weight="${xfw}" text-anchor="middle" font-family="DM Sans,sans-serif">${parts[0]}</text>`);
+    if(parts.length>1)
+      xlabels.push(`<text x="${lx}" y="${xly2}" font-size="6.5" fill="${s.anchor?s.color:'#94A3B8'}" text-anchor="middle" font-family="DM Mono,monospace">${parts.slice(1).join(' ')}</text>`);
+
+    // Vertical divider between bridge groups
+    if(s.anchor&&i>0&&i<segs.length-1){
+      const dx=(cx+slotW/2).toFixed(1);
+      bars.push(`<line x1="${dx}" x2="${dx}" y1="${MARGIN.top}" y2="${toY(yMin).toFixed(1)}" stroke="#DDE8F0" stroke-width="1" stroke-dasharray="3,3"/>`);
     }
   });
+
+  const svgEl=document.createElementNS('http://www.w3.org/2000/svg','svg');
+  svgEl.setAttribute('width','100%');
+  svgEl.setAttribute('height',svgH);
+  svgEl.setAttribute('viewBox',`0 0 ${cardW} ${svgH}`);
+  svgEl.setAttribute('preserveAspectRatio','xMidYMid meet');
+  svgEl.style.cssText='display:block;overflow:visible';
+  svgEl.innerHTML=gridTicks.join('')+connectors.join('')+bars.join('')+xlabels.join('');
+
+  const wrap=document.createElement('div');
+  wrap.className='bridge-svg-wrap';
+  wrap.style.cssText='flex:1;overflow:hidden;min-height:0;position:relative';
+  wrap.appendChild(svgEl);
+  card.appendChild(wrap);
+
+  // ── Cost breakdown: compact inline strip (not card-body tables) ──────
+  if(bridges.length){
+    const strip=document.createElement('div');
+    strip.className='bridge-cost-table';
+    strip.style.cssText='flex-shrink:0;display:flex;gap:6px;padding-top:3px;overflow:hidden;flex-wrap:nowrap';
+    bridges.forEach(b=>{
+      const total=b.totalCostEffect;
+      const tc=total>=0?'#16A34A':'#DC2626';
+      const rows=b.costEffects.map(e=>
+        `<span style="white-space:nowrap;color:${e.gmImpact>=0?'#16A34A':'#DC2626'}">${e.name.split(' ')[0]}: ${e.gmImpact>=0?'+':''}${e.gmImpact.toFixed(1)}%</span>`
+      ).join('<span style="color:#C8DCEE"> · </span>');
+      const box=document.createElement('div');
+      box.style.cssText='border:1px solid #FFDCB0;border-radius:4px;padding:2px 6px;font-size:7px;font-family:DM Mono,monospace;background:#FFFAF5;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap';
+      box.innerHTML=`<span style="color:#C85A00;font-weight:700">${b.lblPrev}→${b.lblNow}: </span>${rows}<span style="color:#C8DCEE"> · </span><span style="color:${tc};font-weight:700">Total: ${total>=0?'+':''}${total.toFixed(1)}%</span>`;
+      strip.appendChild(box);
+    });
+    card.appendChild(strip);
+  }
 }
+
 
 function drawOfferDonut(){
   const d=FILTERED.offers;
@@ -2284,54 +2531,87 @@ function buildProdTable(){
 // COST BREAKDOWN VIEW — GM Decomp Panel
 // ════════════════════════════════════════════════════
 function buildGMDecompPanel(d){
-  if(!d)return'';
+  if(!d) return '';
   const gmUp=d.gmChg>=0;
-  const headlineBg=gmUp?'#DCFCE7':'#FEE2E2';
-  const headlineColor=gmUp?'#16A34A':'#DC2626';
-  const headlineBorder=gmUp?'#86EFAC':'#FCA5A5';
-  const headlineText=gmUp
-    ?`Margin improved — from <strong>${d.gmPctPrev.toFixed(1)}%</strong> in ${d.lblPrev} to <strong>${d.gmPctNow.toFixed(1)}%</strong>. Up <strong>${Math.abs(d.gmChg).toFixed(1)}%</strong>.`
-    :`Margin dropped — was <strong>${d.gmPctPrev.toFixed(1)}%</strong> in ${d.lblPrev}, now <strong>${d.gmPctNow.toFixed(1)}%</strong>. Down <strong>${Math.abs(d.gmChg).toFixed(1)}%</strong>.`;
-  const revUp=d.priceEffect>=0;
-  const revText=revUp
-    ?`Selling price per Wp went up (₹${d.revWpPrev.toFixed(2)} → ₹${d.revWpNow.toFixed(2)}) — this <strong>helped</strong> margin`
-    :`Selling price per Wp came down (₹${d.revWpPrev.toFixed(2)} → ₹${d.revWpNow.toFixed(2)}) — this <strong>hurt</strong> margin`;
-  const costRows=d.costEffects.map(e=>{
-    const costUp=e.gmImpact<0;
-    const bg=costUp?'#FEF9F9':'#F0FDF4';
-    const dotC=costUp?'#DC2626':'#16A34A';
-    const impact=Math.abs(e.gmImpact).toFixed(1);
-    const rateChg=Math.abs(((e.rateL-e.rateP)/(e.rateP||1))*100).toFixed(1);
-    const action=costUp
-      ?`Cost went up ${rateChg}% (₹${e.rateP.toFixed(3)}→₹${e.rateL.toFixed(3)}/Wp) — <strong>reduced margin by ${impact}%</strong>`
-      :`Cost came down ${rateChg}% (₹${e.rateP.toFixed(3)}→₹${e.rateL.toFixed(3)}/Wp) — <strong>added ${impact}% to margin</strong>`;
-    return `<div style="background:${bg};border-radius:5px;padding:4px 8px;display:flex;align-items:flex-start;gap:6px;font-size:10px;line-height:1.4">
-      <span style="color:${dotC};font-size:12px;line-height:1;margin-top:1px">${costUp?'↑':'↓'}</span>
-      <span><strong>${e.name}:</strong> ${action}</span>
-    </div>`;
+  const arrowColor=gmUp?'#16A34A':'#DC2626';
+  const arrowIcon=gmUp?'▲':'▼';
+  const headlineText=`GM% ${gmUp?'improved':'dropped'} from ${d.gmPctPrev.toFixed(1)}% (${d.lblPrev}) → ${d.gmPctNow.toFixed(1)}% (${d.lblNow}) · ${gmUp?'+':''}${d.gmChg.toFixed(1)}%`;
+
+  // Build collapsed chips row
+  const allEffects=[
+    {label:'Price', val:d.priceEffect},
+    ...d.costEffects.map(e=>({label:e.name.split(' ')[0], val:e.gmImpact})),
+    {label:'City Mix', val:d.cityMixEffect||0},
+  ].filter(e=>Math.abs(e.val)>0.05);
+
+  const chips=allEffects.map(e=>{
+    const pos=e.val>=0;
+    return `<span style="display:inline-flex;align-items:center;gap:2px;padding:1px 6px;border-radius:10px;font-size:7.5px;font-family:'DM Mono',monospace;font-weight:600;background:${pos?'#DCFCE7':'#FEE2E2'};color:${pos?'#15803D':'#B91C1C'};white-space:nowrap">
+      ${pos?'▲':'▼'} ${e.label}: ${pos?'+':''}${e.val.toFixed(1)}%
+    </span>`;
   }).join('');
-  const mixRow=Math.abs(d.cityMixEffect)>0.05?(()=>{
-    const mixUp=d.cityMixEffect>=0;
-    const bg=mixUp?'#F0FDF4':'#FEF9F9';
-    const dotC=mixUp?'#16A34A':'#DC2626';
-    const mixTxt=mixUp
-      ?`More installs came from high-margin cities — <strong>added ${Math.abs(d.cityMixEffect).toFixed(1)}% to margin</strong>`
-      :`More installs came from lower-margin cities — <strong>reduced margin by ${Math.abs(d.cityMixEffect).toFixed(1)}%</strong>`;
-    return `<div style="background:${bg};border-radius:5px;padding:4px 8px;display:flex;align-items:flex-start;gap:6px;font-size:10px;line-height:1.4">
-      <span style="color:${dotC};font-size:12px;line-height:1;margin-top:1px">${mixUp?'↑':'↓'}</span>
-      <span><strong>City Mix:</strong> ${mixTxt}</span>
-    </div>`;
-  })():'';
-  return `<div style="background:#fff;border:1px solid var(--border);border-radius:8px;padding:9px 14px;flex-shrink:0;box-shadow:var(--shadow)">
-    <div style="background:${headlineBg};border:1px solid ${headlineBorder};border-radius:6px;padding:6px 10px;margin-bottom:7px;font-size:10.5px;color:${headlineColor};line-height:1.5">
-      📊 ${headlineText}
+
+  // Build expanded detail rows
+  const revUp=d.priceEffect>=0;
+  const revWpNow=d.revWpNow||0,revWpPrev=d.revWpPrev||0;
+  const detailRows=[
+    {
+      icon:revUp?'↑':'↓', color:revUp?'#16A34A':'#DC2626',
+      label:'Revenue per Wp',
+      text:revUp
+        ?`Selling price per Wp went up${revWpPrev>0?` (₹${revWpPrev.toFixed(2)} → ₹${revWpNow.toFixed(2)})`:''}  — this <b>helped</b> margin`
+        :`Selling price per Wp came down${revWpPrev>0?` (₹${revWpPrev.toFixed(2)} → ₹${revWpNow.toFixed(2)})`:''}  — this <b>hurt</b> margin`
+    },
+    ...d.costEffects.map(e=>{
+      const costUp=e.gmImpact<0;
+      const rateChg=e.rateP>0?Math.abs(((e.rateL-e.rateP)/e.rateP)*100).toFixed(1):'—';
+      return {
+        icon:costUp?'↑':'↓', color:costUp?'#DC2626':'#16A34A',
+        label:e.name,
+        text:costUp
+          ?`Cost went up ${rateChg}%${e.rateP>0?` (₹${e.rateP.toFixed(3)}→₹${e.rateL.toFixed(3)}/Wp)`:''}  — <b>reduced margin by ${Math.abs(e.gmImpact).toFixed(1)}%</b>`
+          :`Cost came down ${rateChg}%${e.rateP>0?` (₹${e.rateP.toFixed(3)}→₹${e.rateL.toFixed(3)}/Wp)`:''}  — <b>added ${e.gmImpact.toFixed(1)}% to margin</b>`
+      };
+    }),
+    ...(Math.abs(d.cityMixEffect||0)>0.05?[{
+      icon:(d.cityMixEffect>=0)?'↑':'↓',
+      color:(d.cityMixEffect>=0)?'#16A34A':'#DC2626',
+      label:'City Mix',
+      text:(d.cityMixEffect>=0)
+        ?`More installs from high-margin cities — <b>added ${Math.abs(d.cityMixEffect).toFixed(1)}% to margin</b>`
+        :`More installs from lower-margin cities — <b>reduced margin by ${Math.abs(d.cityMixEffect).toFixed(1)}%</b>`
+    }]:[]),
+  ];
+
+  const detailHtml=detailRows.map(r=>`
+    <div style="display:flex;align-items:baseline;gap:7px;padding:3px 0;border-bottom:1px solid var(--off2);font-size:9.5px;line-height:1.45">
+      <span style="color:${r.color};font-size:11px;line-height:1;flex-shrink:0">${r.icon}</span>
+      <span><b style="color:var(--navy)">${r.label}:</b> ${r.text}</span>
+    </div>`).join('');
+
+  return `
+  <div id="gmInsightBar" style="background:#fff;border:1px solid var(--border);border-radius:8px;flex-shrink:0;overflow:hidden;box-shadow:var(--shadow)">
+    <!-- Collapsed header row — always visible -->
+    <div onclick="toggleGMInsight()" style="display:flex;align-items:center;gap:8px;padding:5px 10px;cursor:pointer;user-select:none;transition:background .14s" onmouseover="this.style.background='#F5F8FC'" onmouseout="this.style.background=''">
+      <span style="font-size:10px;font-weight:700;color:${arrowColor};flex-shrink:0">${arrowIcon} ${d.gmPctNow.toFixed(1)}%</span>
+      <span style="font-size:8.5px;color:var(--dim);font-family:'DM Mono',monospace;flex-shrink:0">${headlineText}</span>
+      <div style="display:flex;gap:4px;flex-wrap:nowrap;overflow:hidden;flex:1">${chips}</div>
+      <span id="gmInsightToggleIcon" style="font-size:8px;color:var(--muted);flex-shrink:0;font-family:'DM Mono',monospace;margin-left:4px">▼ details</span>
     </div>
-    <div style="background:#F8FAFF;border-radius:5px;padding:4px 8px;display:flex;align-items:flex-start;gap:6px;font-size:10px;line-height:1.4;margin-bottom:4px">
-      <span style="color:${revUp?'#16A34A':'#DC2626'};font-size:12px;line-height:1;margin-top:1px">${revUp?'↑':'↓'}</span>
-      <span><strong>Revenue per Wp:</strong> ${revText}</span>
+    <!-- Expanded detail — hidden by default -->
+    <div id="gmInsightDetail" style="display:none;padding:6px 12px 8px;border-top:1px solid var(--off2);background:var(--off)">
+      ${detailHtml}
     </div>
-    <div style="display:flex;flex-direction:column;gap:3px">${costRows}${mixRow}</div>
   </div>`;
+}
+
+function toggleGMInsight(){
+  const detail=document.getElementById('gmInsightDetail');
+  const icon=document.getElementById('gmInsightToggleIcon');
+  if(!detail)return;
+  const open=detail.style.display==='block';
+  detail.style.display=open?'none':'block';
+  if(icon)icon.textContent=open?'▼ details':'▲ close';
 }
 
 
