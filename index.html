@@ -1367,7 +1367,7 @@ function renderKPIs(){
   s('kAOS',k.avg_aos.toFixed(2)+' KW');
   s('kGMperKW','₹'+gmPerWatt.toFixed(2));
   s('kCOGSperKW','₹'+cogsPerWatt.toFixed(2));
-  s('kONM',cr2(k.onm_qhse));
+  s('kONM',`₹${(k.onm_qhse/1e7).toFixed(2)} L`);
   const gmEl=document.getElementById('kGMpct');
   if(gmEl){gmEl.textContent=pct(k.avg_gm_pct);gmEl.className='kpi-val '+gClass(k.avg_gm_pct);}
   sc('kGMpctD',(k.avg_gm_pct>=48?'↑ above ':'↓ below ')+'48% target',k.avg_gm_pct>=48?'up':'down');
