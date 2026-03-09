@@ -1154,20 +1154,64 @@ function aggregateRows(rows, filterCtx){
   // When FY filter is active, show all quarters of that FY vs prev FY same quarters
   // Default (no filter): show last 3 consecutive quarters as 2 bridges
 
-  // Determine which period buckets to use — filter-aware
-  const fFYctx   = filterCtx.fFY   || '';
-  const fQtrCtx  = filterCtx.fQtr  || '';  // passed via filterCtx now
+  // ── Period bucket selection: fully filter-aware ──────────────────────
+  const fFYctx  = filterCtx.fFY  || '';
+  const fQtrCtx = filterCtx.fQtr || '';
+  const fDateFrom = filterCtx.fDateFrom || '';
+  const fDateTo   = filterCtx.fDateTo   || '';
 
-  let periodBuckets=[];  // array of {lbl, rows}
-  // If a specific quarter is active, show all FY occurrences of that quarter → QoQ bridges
+  let periodBuckets = [];
+
   if(fQtrCtx){
-    periodBuckets=allQtrs.filter(q=>q.q===fQtrCtx);
-  } else if(allQtrs.length>=2){
-    // Use last 3 quarters (gives 2 bridges)
-    periodBuckets=allQtrs.slice(-3);
-  } else if(allMonths.length>=2){
-    // Fallback to monthly
-    periodBuckets=allMonths.slice(-3);
+    // Q pill active → show that same quarter across all FYs (YoY comparison)
+    periodBuckets = allQtrs.filter(q => q.q === fQtrCtx).slice(-4);
+
+  } else if(fFYctx){
+    // FY filter active → show all quarters within that FY, compare vs same quarters prev FY
+    // Get quarters IN the selected FY
+    const fyQtrs = allQtrs.filter(q => {
+      const fy = `FY ${String(q.fyStart).slice(2)}-${String(q.fyStart+1).slice(2)}`;
+      return fy === fFYctx;
+    });
+    // For each quarter in this FY, also find same quarter in prev FY for bridge
+    const prevFYStart = fyQtrs.length ? fyQtrs[0].fyStart - 1 : null;
+    const prevFYQtrs  = prevFYStart
+      ? allQtrs.filter(q => q.fyStart === prevFYStart)
+      : [];
+    // Build interleaved: for each quarter pair (prevFY[q], thisFY[q])
+    const pairs = [];
+    fyQtrs.forEach(curr => {
+      const prev = prevFYQtrs.find(p => p.q === curr.q);
+      if(prev) pairs.push(prev, curr);
+    });
+    // Deduplicate while preserving order, then use as period buckets
+    const seen = new Set();
+    pairs.forEach(p => { if(!seen.has(p.lbl)){ seen.add(p.lbl); periodBuckets.push(p); } });
+    // If no prev FY data available, fall back to just this FY's quarters
+    if(!periodBuckets.length) periodBuckets = fyQtrs;
+
+  } else if(fDateFrom || fDateTo){
+    // Custom date range → use monthly buckets within that range
+    function localDate(str){ const[y,m,d]=str.split('-').map(Number); return new Date(y,m-1,d); }
+    const from = fDateFrom ? localDate(fDateFrom) : null;
+    const to   = fDateTo   ? localDate(fDateTo)   : null;
+    periodBuckets = allMonths.filter(m => {
+      const d = new Date(m.sortKey / 100 | 0, m.sortKey % 100, 1);
+      if(from && d < from) return false;
+      if(to   && d > to)   return false;
+      return true;
+    });
+    if(periodBuckets.length > 6) periodBuckets = periodBuckets.slice(-6);
+
+  } else {
+    // No date filter: find the most recent quarter and show it YoY (same Q, last 3 FYs)
+    if(allQtrs.length >= 2){
+      const lastQtr = allQtrs[allQtrs.length - 1];
+      const sameQAcrossFYs = allQtrs.filter(q => q.q === lastQtr.q);
+      periodBuckets = sameQAcrossFYs.length >= 2 ? sameQAcrossFYs.slice(-3) : allQtrs.slice(-3);
+    } else if(allMonths.length >= 2){
+      periodBuckets = allMonths.slice(-3);
+    }
   }
 
   // Build bridge array: one bridge per consecutive pair
@@ -1266,7 +1310,7 @@ function applyFilters(){
     document.getElementById('statusTxt').textContent='\u26a0 No data matches this filter combination';
     FILTERED=buildEmptyData();renderAll();return;
   }
-  const filterCtx={fOffer,fPhase,fState,fCity,fFY,fQtr};
+  const filterCtx={fOffer,fPhase,fState,fCity,fFY,fQtr,fDateFrom,fDateTo};
   FILTERED=aggregateRows(filtered,filterCtx);
   renderAll();
 }
@@ -1633,8 +1677,8 @@ function drawMarginBridge(){
   }
 
   if(badge){
-    const first=bridges[0],last=bridges[bridges.length-1];
-    badge.textContent=`${first.lblPrev} → ${last.lblNow}`;
+    const first=bridges[0], last=bridges[bridges.length-1];
+    badge.textContent=`${shortPeriod(first.lblPrev)} → ${shortPeriod(last.lblNow)}`;
   }
 
   // ── Build all bar segments ──────────────────────────────────────────
