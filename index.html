@@ -135,23 +135,32 @@ html,body{height:100%;width:100%;font-family:'DM Sans',sans-serif;background:#DD
 
 /* ── MAIN CONTENT ── */
 .content{
-  flex:1;overflow:hidden;display:flex;flex-direction:column;
-  padding:7px 10px 6px;gap:6px;min-height:0;
+  flex:1;overflow-y:auto;overflow-x:hidden;
+  display:flex;flex-direction:column;
+  padding:7px 10px 14px;gap:6px;
+  min-height:0;
 }
+.content::-webkit-scrollbar{width:6px}
+.content::-webkit-scrollbar-track{background:rgba(26,44,78,0.04);border-radius:3px}
+.content::-webkit-scrollbar-thumb{background:var(--border2);border-radius:10px}
+.content::-webkit-scrollbar-thumb:hover{background:var(--dim)}
 
 /* ── CHART ROW ── */
 .charts-row1{display:grid;grid-template-columns:2fr 1.2fr 1.2fr;gap:6px;flex-shrink:0}
+.charts-row1 .card{flex:1;min-height:0;}
 
 /* ── TABLE SECTION ── */
 .table-section{
-  flex:1;background:#fff;border:1px solid var(--border);border-radius:8px;
-  display:flex;flex-direction:column;min-height:0;overflow:hidden;box-shadow:var(--shadow);
+  background:#fff;border:1px solid var(--border);border-radius:8px;
+  display:flex;flex-direction:column;overflow:hidden;box-shadow:var(--shadow);
+  flex-shrink:0;
 }
 
 /* ── CARDS ── */
 .card{
   background:#fff;border:1px solid var(--border);border-radius:8px;
   padding:8px 10px;display:flex;flex-direction:column;overflow:hidden;box-shadow:var(--shadow);
+  flex-shrink:0;
 }
 .card-title{
   font-family:'Syne',sans-serif;font-size:10px;font-weight:700;color:var(--text);
@@ -161,10 +170,10 @@ html,body{height:100%;width:100%;font-family:'DM Sans',sans-serif;background:#DD
 .card-badge{font-size:7px;padding:2px 5px;border-radius:6px;font-family:'DM Mono',monospace;font-weight:500;white-space:nowrap}
 .badge-green{background:var(--green-bg);color:var(--green)} .badge-amber{background:var(--amber-bg);color:var(--amber)}
 .badge-blue{background:#DBEAFE;color:var(--blue2)} .badge-navy{background:var(--off2);color:var(--navy)}
-.bridge-svg-wrap{flex:1;overflow:hidden;min-height:0;display:block}
+.bridge-svg-wrap{overflow:hidden;min-height:0;display:block}
 .bridge-svg-wrap svg{display:block;max-width:100%}
-.canvas-wrap{flex:1;position:relative;min-height:0;overflow:hidden}
-.canvas-wrap canvas{position:absolute;inset:0}
+.canvas-wrap{position:relative;flex:1;min-height:100px;overflow:hidden}
+.canvas-wrap canvas{position:absolute;inset:0;width:100%!important;height:100%!important}
 
 /* Chart legend */
 .legend-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:3px;flex-shrink:0;align-items:center}
@@ -192,11 +201,11 @@ html,body{height:100%;width:100%;font-family:'DM Sans',sans-serif;background:#DD
 .tbl-tab{padding:3px 9px;border-radius:9px;font-size:9px;cursor:pointer;border:1px solid var(--border);background:#fff;color:var(--dim);transition:all .14s;white-space:nowrap}
 .tbl-tab.active{background:var(--navy);color:#fff;border-color:var(--navy)}
 .tbl-tab:hover:not(.active){border-color:var(--blue);color:var(--blue)}
-.tbl-wrap{flex:1;overflow:auto}
+.tbl-wrap{overflow-x:auto;overflow-y:visible}
 .tbl-wrap::-webkit-scrollbar{width:4px;height:4px}
 .tbl-wrap::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
 table{width:100%;border-collapse:collapse;font-size:10px}
-thead{position:sticky;top:0;z-index:10}
+thead{position:sticky;top:0;z-index:5}
 thead tr th{background:var(--navy);color:#fff;padding:5px 8px;text-align:right;font-weight:600;font-size:8px;letter-spacing:.4px;text-transform:uppercase;border-right:1px solid rgba(255,255,255,0.1);white-space:nowrap}
 thead tr th:first-child{text-align:left;min-width:80px}
 thead tr th.center{text-align:center}
@@ -531,6 +540,7 @@ function buildEmptyData() {
             avg_gm_pct:0, avg_aov:0, avg_aos:0, total_kw:0, ic_cogs:0, onm_qhse:0 },
     monthly:[], quarterly:[], fy:[],
     cities:[], states:[], offers:[], phases:[], costs:[], gmDecomp:null, bridgeData:[], cityMoM:{},
+    moduleRateTracker:[], moduleRateMoM:{}, offerWpArr:[],
   };
 }
 
@@ -820,6 +830,23 @@ function processLiveRows(rawRows){
     const conduit     = N(r['conduit_pipe']||0);
     const jbox        = N(r['junction_box']||0);
     const ickit       = N(r['ic_kit']||0);
+    // Extended COGS components
+    const weldedMms   = N(r['welded_mms']||0);
+    const tinShed     = N(r['tin_shed_mms']||0);
+    const ssNbw       = N(r['ss_nbw']||0);
+    const civilWork   = N(r['civil_work']||0);
+    const icAcc       = N(r['ic_accessories']||0);
+    const handRail    = N(r['hand_rail']||0);
+    const safety      = N(r['safety']||0);
+    const cableTray   = N(r['cable_tray']||0);
+    const walkway     = N(r['walkway']||0);
+    const frpWalkway  = N(r['frp_walkway']||0);
+    const dataLogger  = N(r['data_logger']||0);
+    const metering    = N(r['metering_config_driven']||r['metering']||0);
+    const acCable     = N(r['ac_cable']||0);
+    const otherItems  = N(r['other_items']||0);
+    // Module purchase rate from delivery note
+    const moduleRate  = N(r['rate']||0);   // ₹ per panel from delivery note
 
     // ── Module cost: rate_list × qty, fallback to gsheet module value ─
     let moduleCost = gsheetModule;
@@ -848,7 +875,10 @@ function processLiveRows(rawRows){
       _rawDate: r[dateCol]||'',
       hasRevenue: rev>0,
       module:moduleCost, inverter, prefab, cables, elecbos, earthing, conduit,
-      jbox, ickit, moduleType, inverterType, moduleQty, inverterQty,
+      jbox, ickit,
+      weldedMms, tinShed, ssNbw, civilWork, icAcc, handRail, safety,
+      cableTray, walkway, frpWalkway, dataLogger, metering, acCable, otherItems,
+      moduleType, inverterType, moduleQty, inverterQty, moduleRate,
       _moduleRateOverridden: rateOverridden,
       _icTotal: icTotal,
       _gsheetModule: gsheetModule,
@@ -937,9 +967,19 @@ function aggregateRows(rows, filterCtx){
   const fyArr=Object.values(byFY).sort((a,b)=>a.fy<b.fy?-1:1)
     .map(f=>({...f,gm:f.revenue-f.cogs,gm_pct:f.revenue?(f.revenue-f.cogs)/f.revenue*100:0}));
 
-  const costItems=['module','inverter','prefab','cables','elecbos','earthing','conduit','jbox','ickit'];
-  const costNames={module:'Module',inverter:'Inverter',prefab:'Prefab MMS',cables:'Cables',
-    elecbos:'Electrical BoS',earthing:'Earthing/LA',conduit:'Conduit Pipe',jbox:'Junction Box',ickit:'IC Kit'};
+  const costItems=['module','inverter','prefab','cables','elecbos','earthing','conduit','jbox','ickit',
+    'weldedMms','tinShed','ssNbw','civilWork','icAcc','handRail','safety',
+    'cableTray','walkway','frpWalkway','dataLogger','metering','acCable','otherItems'];
+  const costNames={
+    module:'Module', inverter:'Inverter', prefab:'Prefab MMS', cables:'Cables',
+    elecbos:'Electrical BoS', earthing:'Earthing / LA', conduit:'Conduit Pipe',
+    jbox:'Junction Box', ickit:'IC Kit',
+    weldedMms:'Welded MMS', tinShed:'Tin Shed MMS', ssNbw:'SS NBW',
+    civilWork:'Civil Work', icAcc:'IC Accessories', handRail:'Hand Rail',
+    safety:'Safety', cableTray:'Cable Tray', walkway:'Walkway',
+    frpWalkway:'FRP Walkway', dataLogger:'Data Logger', metering:'Metering',
+    acCable:'AC Cable', otherItems:'Other Items',
+  };
   const costTotals={};
   costItems.forEach(k=>{costTotals[k]=revRows.reduce((s,r)=>s+(r[k]||0),0);});
   const totalCostTracked=Object.values(costTotals).reduce((a,b)=>a+b,0)||1;
@@ -1027,6 +1067,64 @@ function aggregateRows(rows, filterCtx){
 
   const moduleMoM=buildSubTypeMoM('moduleType','module');
   const inverterMoM=buildSubTypeMoM('inverterType','inverter');
+
+  // ── Module rate tracker (using delivery-note rate per panel) ─────────
+  const moduleRateByType={};
+  revRows.forEach(r=>{
+    if(!r.moduleType||!r.moduleRate||r.moduleRate<=0) return;
+    if(!moduleRateByType[r.moduleType]) moduleRateByType[r.moduleType]={name:r.moduleType,rates:[],count:0,totalRate:0};
+    moduleRateByType[r.moduleType].rates.push(r.moduleRate);
+    moduleRateByType[r.moduleType].count++;
+    moduleRateByType[r.moduleType].totalRate+=r.moduleRate;
+  });
+  const moduleRateTracker=Object.values(moduleRateByType).map(t=>({
+    name:t.name,avgRate:t.totalRate/t.count,count:t.count,
+    minRate:Math.min(...t.rates),maxRate:Math.max(...t.rates),
+  })).sort((a,b)=>b.count-a.count);
+
+  // MoM module rate: compare last 2 months
+  const moduleRateMoM={};
+  if(insightNow&&insightPrev){
+    const allTypes=[...new Set(LIVE_ROWS.filter(r=>r.moduleType&&r.moduleRate>0).map(r=>r.moduleType))];
+    allTypes.forEach(mt=>{
+      const nowR=iRowsNow.filter(r=>r.moduleType===mt&&r.moduleRate>0);
+      const prevR=iRowsPrev.filter(r=>r.moduleType===mt&&r.moduleRate>0);
+      if(!nowR.length||!prevR.length) return;
+      const avgNow=nowR.reduce((s,r)=>s+r.moduleRate,0)/nowR.length;
+      const avgPrev=prevR.reduce((s,r)=>s+r.moduleRate,0)/prevR.length;
+      moduleRateMoM[mt]={avgNow,avgPrev,chg:avgNow-avgPrev,pctChg:avgPrev>0?(avgNow-avgPrev)/avgPrev*100:0};
+    });
+  }
+
+  // ── Offer-type per-Wp metrics (GZ Pro / GZ Uno / GZ / Non-GZ) ───────
+  const offerWpMetrics={};
+  revRows.forEach(r=>{
+    if(!r.offer) return;
+    if(!offerWpMetrics[r.offer]) offerWpMetrics[r.offer]={offer:r.offer,revenue:0,cogs:0,wp:0,count:0,
+      module:0,inverter:0,prefab:0,cables:0,elecbos:0,earthing:0,conduit:0,jbox:0,ickit:0,
+      weldedMms:0,tinShed:0,ssNbw:0,civilWork:0,icAcc:0,handRail:0,safety:0,
+      cableTray:0,walkway:0,frpWalkway:0,dataLogger:0,metering:0,acCable:0,otherItems:0};
+    const wp=getWpR(r);
+    offerWpMetrics[r.offer].revenue+=r.revenue;
+    offerWpMetrics[r.offer].cogs+=r.cogs;
+    offerWpMetrics[r.offer].wp+=wp;
+    offerWpMetrics[r.offer].count++;
+    costItems.forEach(k=>{
+      offerWpMetrics[r.offer][k]+=(r[k]||0);
+    });
+  });
+  const offerWpArr=Object.values(offerWpMetrics).map(o=>({
+    ...o,
+    revWp:o.wp>0?o.revenue/o.wp:0,
+    costWp:o.wp>0?o.cogs/o.wp:0,
+    gmWp:o.wp>0?(o.revenue-o.cogs)/o.wp:0,
+    gmPct:o.revenue>0?(o.revenue-o.cogs)/o.revenue*100:0,
+    moduleWp:o.wp>0?o.module/o.wp:0,
+    inverterWp:o.wp>0?o.inverter/o.wp:0,
+    prefabWp:o.wp>0?o.prefab/o.wp:0,
+    cablesWp:o.wp>0?o.cables/o.wp:0,
+    avgAos:o.count>0?o.wp/(o.count*1000):0,
+  })).sort((a,b)=>b.revenue-a.revenue);
 
   const moduleSubTypes=Object.values(moduleTypes).map(t=>({
     ...t,avg:t.count?Math.round(t.total/t.count):0,unit:'₹/Wp',
@@ -1258,6 +1356,7 @@ function aggregateRows(rows, filterCtx){
     offers:mapDim(agg(allRows,r=>r.offer),'offer'),
     phases:mapDim(agg(allRows,r=>r.phase),'phase'),
     costs,gmDecomp,bridgeData,cityMoM,
+    moduleRateTracker,moduleRateMoM,offerWpArr,
   };
 }
 
@@ -2470,17 +2569,190 @@ function renderProductView(){
         <div class="canvas-wrap"><canvas id="cProdGM"></canvas></div>
       </div>
     </div>
+
+    <!-- Per-Wp metrics by product tier -->
+    <div style="flex-shrink:0;background:#fff;border:1.5px solid var(--border);border-radius:8px;padding:8px 12px;box-shadow:var(--shadow)">
+      <div style="font-family:'Syne',sans-serif;font-size:10px;font-weight:700;color:var(--navy);margin-bottom:7px;display:flex;align-items:center;gap:6px">
+        ₹/Wp Breakdown by Product Tier
+        <span style="font-size:8px;color:var(--muted);font-weight:400;font-family:'DM Mono',monospace">Revenue / Cost / GM per Watt peak installed · helps isolate price vs cost differences across tiers</span>
+      </div>
+      <div id="offerWpPanel"></div>
+    </div>
+
     <div class="table-section">
-      <div class="tbl-header"><div class="tbl-title">Product Performance Summary</div></div>
+      <div class="tbl-header">
+        <div class="tbl-title">Product Performance Summary</div>
+      </div>
       <div class="tbl-wrap">
         <table><thead><tr>
           <th>#</th><th style="text-align:left">Product</th>
           <th>Installs</th><th>Revenue (ex-GST)</th><th>COGS (IC Total)</th>
-          <th>GM ₹</th><th>GM %</th><th>Avg AOV</th><th>Avg AOS</th><th>Market Share</th>
+          <th>GM ₹</th><th>GM %</th><th>Rev/Wp</th><th>Cost/Wp</th><th>GM/Wp</th><th>Avg AOV</th><th>Avg AOS</th><th>Market Share</th>
         </tr></thead><tbody id="prodBody"></tbody></table>
       </div>
+    </div>
+
+    <!-- Module Rate Tracker -->
+    <div style="flex-shrink:0;background:#fff;border:1.5px solid var(--border);border-radius:8px;padding:8px 12px;box-shadow:var(--shadow)">
+      <div style="font-family:'Syne',sans-serif;font-size:10px;font-weight:700;color:var(--navy);margin-bottom:7px;display:flex;align-items:center;gap:6px">
+        📦 Module Purchase Rate Tracker
+        <span style="font-size:8px;color:var(--muted);font-weight:400;font-family:'DM Mono',monospace">From delivery note · ₹ per panel · MoM change shown</span>
+      </div>
+      <div id="moduleRatePanel"></div>
     </div>`;
-  setTimeout(()=>{buildMatrix();drawProdGMChart();buildProdTable();},30);
+
+  setTimeout(()=>{buildMatrix();drawProdGMChart();buildProdTable();buildOfferWpPanel();buildModuleRatePanel();},30);
+}
+
+let _OFFER_WP_OPEN = null;
+
+function buildOfferWpPanel(){
+  const data=FILTERED.offerWpArr||[];
+  if(!data.length){
+    document.getElementById('offerWpPanel').innerHTML='<div style="color:var(--muted);font-size:9px;padding:8px">No per-Wp data available for current filter.</div>';
+    return;
+  }
+  const maxRevWp=Math.max(...data.map(o=>o.revWp));
+  const minCostWp=Math.min(...data.map(o=>o.costWp));
+
+  const CK=[
+    ['module','Module'],['inverter','Inverter'],['prefab','Prefab MMS'],['cables','Cables'],
+    ['elecbos','Electrical BoS'],['earthing','Earthing/LA'],['conduit','Conduit Pipe'],
+    ['jbox','Junction Box'],['ickit','IC Kit'],['weldedMms','Welded MMS'],['tinShed','Tin Shed MMS'],
+    ['ssNbw','SS NBW'],['civilWork','Civil Work'],['icAcc','IC Accessories'],['handRail','Hand Rail'],
+    ['safety','Safety'],['cableTray','Cable Tray'],['walkway','Walkway'],['frpWalkway','FRP Walkway'],
+    ['dataLogger','Data Logger'],['metering','Metering'],['acCable','AC Cable'],['otherItems','Other Items'],
+  ];
+
+  // Cards row — each card has a ▼ breakdown button, no inline expand
+  const cards = data.map(o=>{
+    const gmColor=o.gmPct>=46?'var(--green)':o.gmPct>=42?'var(--amber)':'var(--red)';
+    const borderColor=o.gmPct>=46?'#86EFAC':o.gmPct>=42?'#FDE68A':'#FCA5A5';
+    const bgColor=o.gmPct>=46?'#F0FDF4':o.gmPct>=42?'#FFFBEB':'#FFF8F8';
+    const isActive=_OFFER_WP_OPEN===o.offer;
+    return `
+    <div style="flex:1;min-width:150px;border:1.5px solid ${isActive?'var(--blue)':borderColor};border-radius:7px;padding:8px 10px;background:${isActive?'#EFF6FF':bgColor};box-shadow:${isActive?'0 0 0 2px rgba(37,99,168,.12)':'var(--shadow)'};transition:border-color .15s">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+        <div style="font-family:'Syne',sans-serif;font-size:10px;font-weight:700;color:var(--navy)">${o.offer||'—'}</div>
+        <button onclick="toggleOfferWp('${o.offer}')" style="font-size:7.5px;background:var(--off2);border:1px solid var(--border2);border-radius:5px;padding:2px 7px;color:${isActive?'var(--blue)':'var(--dim)'};font-family:'DM Mono',monospace;cursor:pointer;font-weight:${isActive?'700':'400'}">${isActive?'▲ close':'▼ breakdown'}</button>
+      </div>
+      <div style="font-size:7.5px;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:6px">${o.count.toLocaleString()} installs · ${o.avgAos.toFixed(2)} kW avg</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 8px">
+        <div>
+          <div style="font-size:7px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Rev/Wp</div>
+          <div style="font-family:'DM Mono',monospace;font-size:11px;font-weight:700;color:${o.revWp===maxRevWp?'var(--blue)':'var(--navy)'}">₹${o.revWp.toFixed(2)}</div>
+        </div>
+        <div>
+          <div style="font-size:7px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Cost/Wp</div>
+          <div style="font-family:'DM Mono',monospace;font-size:11px;font-weight:700;color:${o.costWp===minCostWp?'var(--green)':'var(--navy)'}">₹${o.costWp.toFixed(2)}</div>
+        </div>
+        <div>
+          <div style="font-size:7px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">GM/Wp</div>
+          <div style="font-family:'DM Mono',monospace;font-size:11px;font-weight:700;color:${gmColor}">₹${o.gmWp.toFixed(2)}</div>
+        </div>
+        <div>
+          <div style="font-size:7px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">GM%</div>
+          <div style="font-family:'DM Mono',monospace;font-size:11px;font-weight:700;color:${gmColor}">${o.gmPct.toFixed(1)}%</div>
+        </div>
+      </div>
+      <div style="margin-top:6px;border-top:1px solid rgba(0,0,0,.06);padding-top:5px;display:flex;flex-wrap:wrap;gap:3px">
+        ${[['Module',o.moduleWp],['Inverter',o.inverterWp],['MMS',o.prefabWp],['Cables',o.cablesWp]]
+          .filter(([,v])=>v>0)
+          .map(([n,v])=>`<span style="font-size:7.5px;background:var(--off2);border:1px solid var(--border);border-radius:4px;padding:1px 5px;font-family:'DM Mono',monospace;color:var(--dim)">${n}: ₹${v.toFixed(2)}</span>`)
+          .join('')}
+      </div>
+    </div>`;
+  }).join('');
+
+  // Dropdown panel — shown below cards when a tier is selected
+  let dropdownHtml = '';
+  if(_OFFER_WP_OPEN){
+    const o=data.find(x=>x.offer===_OFFER_WP_OPEN);
+    if(o){
+      const drillItems=CK
+        .map(([k,name])=>({name,total:o[k]||0,wpRate:o.wp>0?(o[k]||0)/o.wp:0}))
+        .filter(d=>d.total>0)
+        .sort((a,b)=>b.total-a.total);
+      const maxWp=drillItems[0]?.wpRate||1;
+      const drillRows=drillItems.map(d=>{
+        const barW=Math.min(d.wpRate/maxWp*100,100).toFixed(0);
+        const share=(d.total/o.cogs*100).toFixed(1);
+        return `<div style="display:flex;align-items:center;gap:8px;padding:3.5px 0;border-bottom:1px solid var(--off2)">
+          <div style="width:105px;font-size:8.5px;color:var(--navy);font-weight:600;flex-shrink:0">${d.name}</div>
+          <div style="flex:1;height:6px;background:var(--off2);border-radius:3px;overflow:hidden">
+            <div style="height:100%;width:${barW}%;background:var(--blue);border-radius:3px;opacity:.75"></div>
+          </div>
+          <div style="width:60px;text-align:right;font-family:'DM Mono',monospace;font-size:9px;font-weight:700;color:var(--purple)">₹${d.wpRate.toFixed(2)}/Wp</div>
+          <div style="width:42px;text-align:right;font-size:8px;color:var(--muted)">${share}%</div>
+        </div>`;
+      }).join('');
+      dropdownHtml=`
+      <div style="margin-top:6px;background:#fff;border:1.5px solid var(--blue);border-radius:7px;padding:10px 14px;box-shadow:0 2px 8px rgba(37,99,168,.1)">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <div style="font-family:'Syne',sans-serif;font-size:10px;font-weight:700;color:var(--navy)">
+            ${o.offer} — All Cost Components
+            <span style="font-weight:400;font-size:8.5px;color:var(--muted);font-family:'DM Mono',monospace;margin-left:6px">₹/Wp · sorted by size</span>
+          </div>
+          <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--dim)">Total: <span style="font-weight:700;color:var(--red)">₹${o.costWp.toFixed(2)}/Wp</span> · GM: <span style="font-weight:700;color:${o.gmPct>=46?'var(--green)':o.gmPct>=42?'var(--amber)':'var(--red)'}">${o.gmPct.toFixed(1)}%</span></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 24px">
+          <div>${drillRows.filter((_,i)=>i<Math.ceil(drillItems.length/2)).join('')}</div>
+          <div>${drillRows.filter((_,i)=>i>=Math.ceil(drillItems.length/2)).join('')}</div>
+        </div>
+      </div>`;
+    }
+  }
+
+  document.getElementById('offerWpPanel').innerHTML=`
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-start">${cards}</div>
+    ${dropdownHtml}`;
+}
+
+function toggleOfferWp(offer){
+  event.stopPropagation();
+  _OFFER_WP_OPEN=_OFFER_WP_OPEN===offer?null:offer;
+  buildOfferWpPanel();
+}
+
+function buildModuleRatePanel(){
+  const tracker=FILTERED.moduleRateTracker||[];
+  const mom=FILTERED.moduleRateMoM||{};
+  if(!tracker.length){
+    document.getElementById('moduleRatePanel').innerHTML='<div style="color:var(--muted);font-size:9px;padding:8px">No module rate data available. Requires "rate" column from delivery notes.</div>';
+    return;
+  }
+  const rows=tracker.map((t,i)=>{
+    const m=mom[t.name];
+    let momHtml='<td style="color:var(--muted);font-size:9px;text-align:center">—</td>';
+    if(m&&m.avgPrev>0){
+      const up=m.chg>0;
+      momHtml=`<td>
+        <div style="display:flex;align-items:center;gap:5px">
+          <span class="${up?'r':'g'}" style="font-size:10px;font-weight:700;font-family:'DM Mono',monospace">${up?'▲':'▼'}₹${Math.abs(m.chg).toFixed(0)}</span>
+          <span style="font-size:8px;color:var(--muted);font-family:'DM Mono',monospace">₹${m.avgPrev.toFixed(0)}→₹${m.avgNow.toFixed(0)}</span>
+          <span class="mom-badge ${up?'mom-up':'mom-down'}">${up?'RATE ▲':'RATE ▼'} ${Math.abs(m.pctChg).toFixed(1)}%</span>
+        </div>
+      </td>`;
+    }
+    // Shorten name for display
+    const shortName=t.name.length>45?t.name.substring(0,45)+'…':t.name;
+    return `<tr>
+      <td class="td-rank">${i+1}</td>
+      <td style="font-weight:600;color:var(--navy);max-width:280px" title="${t.name}">${shortName}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:10px;font-weight:700;color:var(--purple)">₹${t.avgRate.toFixed(0)}/panel</td>
+      <td style="font-size:9px;color:var(--dim)">₹${t.minRate.toFixed(0)} – ₹${t.maxRate.toFixed(0)}</td>
+      <td style="font-size:9px">${t.count.toLocaleString()} installs</td>
+      ${momHtml}
+    </tr>`;
+  }).join('');
+
+  document.getElementById('moduleRatePanel').innerHTML=`
+    <div class="tbl-wrap" style="max-height:200px">
+      <table><thead><tr>
+        <th>#</th><th style="text-align:left">Module SKU</th>
+        <th>Avg Rate</th><th>Range</th><th>Installs</th><th>MoM Rate Change</th>
+      </tr></thead><tbody>${rows}</tbody></table>
+    </div>`;
 }
 
 function buildMatrix(){
@@ -2553,9 +2825,12 @@ function drawProdGMChart(){
 
 function buildProdTable(){
   const offers=[...FILTERED.offers].sort((a,b)=>b.revenue-a.revenue);
+  const wpMap={};
+  (FILTERED.offerWpArr||[]).forEach(o=>{ wpMap[o.offer]=o; });
   const totalRev=offers.reduce((s,o)=>s+o.revenue,0)||1;
   document.getElementById('prodBody').innerHTML=offers.map((o,i)=>{
     const share=o.revenue/totalRev*100;
+    const wp=wpMap[o.offer];
     return `<tr>
       <td class="td-rank">${i+1}</td>
       <td style="font-weight:600">${o.offer||'—'}</td>
@@ -2564,6 +2839,9 @@ function buildProdTable(){
       <td>${cr2(o.cogs)}</td>
       <td class="g">${cr2(o.gm)}</td>
       <td class="${gClass(o.gm_pct)}">${pct(o.gm_pct)}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:9.5px;color:var(--blue)">${wp?'₹'+wp.revWp.toFixed(2):'—'}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:9.5px;color:var(--red)">${wp?'₹'+wp.costWp.toFixed(2):'—'}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:9.5px;font-weight:700;color:var(--green)">${wp?'₹'+wp.gmWp.toFixed(2):'—'}</td>
       <td class="a">${lakh(o.aov)}</td>
       <td>${o.aos.toFixed(2)} kW</td>
       <td><div class="sparkbar"><div class="bar-track"><div class="bar-fill" style="width:${share.toFixed(0)}%;background:var(--blue)"></div></div><span>${share.toFixed(1)}%</span></div></td>
@@ -2770,7 +3048,7 @@ function renderCostsView(){
         <table><thead><tr>
           <th>#</th><th style="text-align:left">Component</th>
           <th>Total Cost</th><th>% of COGS</th><th>Avg / Project</th>
-          <th>Unit Rate (₹/Wp)</th><th>vs Prev Month</th>
+          <th>₹/Wp</th><th>MoM ₹/Wp Change</th><th>GM% Impact</th>
         </tr></thead><tbody id="costBody"></tbody></table>
       </div>
     </div>`;
@@ -2996,20 +3274,7 @@ function drawCostDonut(costs){
         }
       }
     },
-    plugins:[{
-      id:'centerLabel',
-      afterDraw(chart){
-        const {width,height,ctx:c}=chart;
-        const cx=width/2,cy=height/2;
-        c.save();
-        c.textAlign='center';c.textBaseline='middle';
-        c.fillStyle='#1A2C4E';c.font='bold 11px Syne,sans-serif';
-        c.fillText('COGS',cx,cy-7);
-        c.fillStyle='#5A7A96';c.font='8px DM Mono,monospace';
-        c.fillText('by component',cx,cy+6);
-        c.restore();
-      }
-    }]
+    plugins:[]
   });
 }
 
@@ -3023,15 +3288,20 @@ function toggleCostExpand(key){
 
 function buildCostTable(costs){
   if(!costs||!costs.length){
-    document.getElementById('costBody').innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:20px">No cost data available</td></tr>';
+    document.getElementById('costBody').innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:20px">No cost data available</td></tr>';
     return;
   }
   const totalCOGS=FILTERED.kpis.total_cogs||1;
+  const totalRev=FILTERED.kpis.total_revenue||1;
+  // Compute total Wp for GM% impact calc
+  const revRows=(FILTERED.monthly||[]);
   let rows='';
   costs.forEach((c,i)=>{
     const cogsShare=c.total/totalCOGS*100;
     const hasTypes=c.subTypes&&c.subTypes.length>0;
     const isOpen=COST_EXPANDED.has(c.key);
+    // GM% Impact: if this component's ₹/Wp changed by Δ, GM% impact = -Δ/RevPerWp*100
+    let gmImpactCell='<td style="color:var(--muted);font-size:9px;text-align:center">—</td>';
     let momCell='<td style="color:var(--muted);font-size:9px;text-align:center">—</td>';
     if(c.mom&&c.mom.normNow>0&&c.mom.normPrev>0){
       const m=c.mom;const chg=m.normChg;const up=chg>0;
@@ -3054,6 +3324,21 @@ function buildCostTable(costs){
           ${badge}
         </div>
       </td>`;
+      // GM% Impact = -(ΔCost/Wp) / RevPerWp * 100
+      // ΔCost/Wp = normNow - normPrev (absolute change in ₹/Wp)
+      if(m.isGenuine&&m.normNow>0&&m.normPrev>0){
+        const deltaWp=m.normNow-m.normPrev;
+        // Use approx rev/wp from KPIs
+        const revPerWp=totalRev>0&&FILTERED.kpis.total_kw>0?totalRev/(FILTERED.kpis.total_kw*1000):65;
+        const gmImpact=revPerWp>0?-(deltaWp/revPerWp*100):0;
+        const impUp=gmImpact>0;
+        gmImpactCell=`<td style="text-align:center">
+          <span class="${impUp?'g':'r'}" style="font-family:'DM Mono',monospace;font-size:10px;font-weight:700">
+            ${impUp?'+':''}${gmImpact.toFixed(2)}%
+          </span>
+          <div style="font-size:7.5px;color:var(--muted)">on GM%</div>
+        </td>`;
+      }
     }
     rows+=`<tr class="cost-component-row" onclick="${hasTypes?`toggleCostExpand('${c.key}')`:``}">
       <td class="td-rank">${i+1}</td>
@@ -3072,6 +3357,7 @@ function buildCostTable(costs){
         ${c.unitRate>0?c.unitRate.toFixed(2)+' ₹/Wp':'—'}
       </td>
       ${momCell}
+      ${gmImpactCell}
     </tr>`;
     if(isOpen&&hasTypes){
       const maxTotal=c.subTypes[0]?.total||1;
@@ -3103,6 +3389,7 @@ function buildCostTable(costs){
           <td style="font-size:9.5px;font-family:'DM Mono',monospace">₹${t.avg.toLocaleString()}</td>
           <td style="font-size:9.5px">${rpwStr}</td>
           ${subMomCell}
+          <td style="color:var(--muted);font-size:9px;text-align:center">—</td>
         </tr>`;
       });
     }
